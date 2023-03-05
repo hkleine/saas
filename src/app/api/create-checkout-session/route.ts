@@ -1,8 +1,8 @@
-import { stripe } from '../../../utils/stripe';
-import { createServerSupabaseClient, withApiAuth } from '@supabase/auth-helpers-nextjs';
-import { createOrRetrieveCustomer } from '../../../utils/supabase-admin';
-import { getURL } from '../../../utils/helpers';
+import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getURL } from '../../../utils/helpers';
+import { stripe } from '../../../utils/stripe';
+import { createOrRetrieveCustomer } from '../../../utils/supabase-admin';
 
 export async function POST(req: NextApiRequest, res: NextApiResponse) {
   const supabase = createServerSupabaseClient({ req, res });

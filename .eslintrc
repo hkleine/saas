@@ -1,7 +1,8 @@
 {
-  "extends": ["prettier"],
-  "plugins": ["prettier"],
+  "plugins": ["@typescript-eslint", "react"],
+  "extends": ["next", "prettier", "next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
   "rules": {
-    "prettier/prettier": 2 // Means error
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/ban-ts-comment": "off"
   }
 }
