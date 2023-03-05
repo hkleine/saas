@@ -30,14 +30,14 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
-  const buf = await req.json();
-
+  const buf = JSON.stringify(await req.json());
   const sig = req.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET_LIVE ?? process.env.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
 
   try {
     if (!sig || !webhookSecret) return;
+    console.log('moin');
     event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
   } catch (err: any) {
     console.log(`❌ Error message: ${err.message}`);
