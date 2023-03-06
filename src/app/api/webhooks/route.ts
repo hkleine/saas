@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import { Readable } from 'stream';
 import Stripe from 'stripe';
 import { stripe } from '../../../utils/stripe';
 import { manageSubscriptionStatusChange, upsertPriceRecord, upsertProductRecord } from '../../../utils/supabase-admin';
@@ -11,13 +10,13 @@ export const config = {
   },
 };
 
-async function buffer(readable: ReadableStream<Uint8Array>) {
-  const chunks = [];
-  for await (const chunk of readable) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-  }
-  return Buffer.concat(chunks);
-}
+// async function buffer(readable: ReadableStream<Uint8Array>) {
+//   const chunks = [];
+//   for await (const chunk of readable) {
+//     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+//   }
+//   return Buffer.concat(chunks);
+// }
 
 const relevantEvents = new Set([
   'product.created',
