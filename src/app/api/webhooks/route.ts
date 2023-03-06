@@ -10,13 +10,25 @@ export const config = {
   },
 };
 
-// async function buffer(readable: ReadableStream<Uint8Array>) {
-//   const chunks = [];
-//   for await (const chunk of readable) {
-//     chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-//   }
-//   return Buffer.concat(chunks);
-// }
+async function buffer(body: ReadableStream<Uint8Array>) {
+  const chunks = [];
+  // for await (const chunk of readable) {
+  //   chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  // }
+  // return Buffer.concat(chunks);
+
+  const reader = body!.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      console.log('The stream is done.');
+      break;
+    }
+    console.log('Just read a chunk:', value);
+    chunks.push(typeof value === 'string' ? Buffer.from(value) : value);
+  }
+  return Buffer.concat(chunks);
+}
 
 const relevantEvents = new Set([
   'product.created',
@@ -30,8 +42,9 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const sintrigfyt = JSON.stringify(body);
+  const body = req.body;
+  const buf = await buffer(body!);
+  console.log(buf);
   const sig = req.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET_LIVE ?? process.env.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
@@ -39,7 +52,7 @@ export async function POST(req: NextRequest) {
   try {
     if (!sig || !webhookSecret) return;
 
-    event = stripe.webhooks.constructEvent(sintrigfyt, sig, webhookSecret);
+    event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
   } catch (err: any) {
     console.log(`❌ Error message: ${err.message}`);
     return new Response(`Webhook Error: ${err.message}`, {
