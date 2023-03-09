@@ -29,7 +29,7 @@ import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { Auth, ThemeSupa } from '@supabase/auth-ui-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ReactNode, useContext } from 'react';
+import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { FiBell, FiChevronDown, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
 

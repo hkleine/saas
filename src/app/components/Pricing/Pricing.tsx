@@ -4,7 +4,7 @@ import { formatPrice } from '@/utils/formatPrice';
 import { formatToDateString } from '@/utils/formatToDateString';
 import { postData } from '@/utils/helpers';
 import { getStripe } from '@/utils/stripe-client';
-import { Badge, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, Switch, Text } from '@chakra-ui/react';
+import { Badge, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styles from './Pricing.module.css';
@@ -37,7 +37,7 @@ export function Pricing({ products }: Props) {
           <BillingIntervalSwitch billingInterval={billingInterval} setBillingInterval={setBillingInterval} />
           <Grid templateColumns="repeat(5, 200px)" gap={6}>
             {products.map(product => {
-              return <PlanCard product={product} billingInterval={billingInterval} />;
+              return <PlanCard key={product.id} product={product} billingInterval={billingInterval} />;
             })}
           </Grid>
         </>
@@ -103,13 +103,13 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPric
 }
 
 function PlanCard({ product, billingInterval }: { product: ProductWithPrice; billingInterval: BillingInterval }) {
-  const [priceIdLoading, setPriceIdLoading] = useState<string>();
+  // const [priceIdLoading, setPriceIdLoading] = useState<string>();
   const price = product?.prices?.find(price => price.interval === billingInterval || price.id === 'price_free');
   if (!price) return null;
   const formattedPrice = formatPrice(price);
 
   const handleCheckout = async (price: Price) => {
-    setPriceIdLoading(price.id);
+    // setPriceIdLoading(price.id);
 
     try {
       const { sessionId } = await postData({
@@ -122,7 +122,7 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
     } catch (error) {
       return alert((error as Error)?.message);
     } finally {
-      setPriceIdLoading(undefined);
+      // setPriceIdLoading(undefined);
     }
   };
 
