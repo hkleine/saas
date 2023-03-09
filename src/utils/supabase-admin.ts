@@ -136,4 +136,16 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
     await copyBillingDetailsToCustomer(uuid, subscription.default_payment_method as Stripe.PaymentMethod);
 };
 
-export { upsertProductRecord, upsertPriceRecord, createOrRetrieveCustomer, manageSubscriptionStatusChange };
+async function retrieveSubscription() {
+  const { error, data } = await supabaseAdmin.from('subscriptions').select('*');
+  console.log(data);
+  return data;
+}
+
+export {
+  upsertProductRecord,
+  upsertPriceRecord,
+  createOrRetrieveCustomer,
+  manageSubscriptionStatusChange,
+  retrieveSubscription,
+};

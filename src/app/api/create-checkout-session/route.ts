@@ -1,26 +1,31 @@
-import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { stripe } from '@/utils/stripe';
+import { createClient } from '@/utils/supabase-server';
+import { NextRequest } from 'next/server';
 import { getURL } from '../../../utils/helpers';
-import { stripe } from '../../../utils/stripe';
 import { createOrRetrieveCustomer } from '../../../utils/supabase-admin';
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const supabase = createServerSupabaseClient({ req, res });
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
+
+export async function POST(req: NextRequest) {
+  const supabase = createClient();
 
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (!session) {
-    return res.status(401).json({
-      error: 'not_authenticated',
-      description: 'The user does not have an active session or is not authenticated',
+    return new Response('Not authenticated', {
+      status: 401,
     });
   }
 
-  const { price, quantity = 1, metadata = {} } = req.body;
-
   try {
+    const jsonReq = await req.json();
+    const { price, quantity = 1, metadata = {} } = jsonReq;
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -47,13 +52,17 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
         trial_from_plan: true,
         metadata,
       },
-      success_url: `${getURL()}/account`,
-      cancel_url: `${getURL()}/`,
+      success_url: `${getURL()}/dashboard/billing`,
+      cancel_url: `${getURL()}/dashboard`,
     });
 
-    return res.status(200).json({ sessionId: session.id });
+    return new Response(JSON.stringify({ sessionId: session.id }), {
+      status: 200,
+    });
   } catch (err: any) {
     console.log(err);
-    res.status(500).json({ error: { statusCode: 500, message: err.message } });
+    return new Response(err.message, {
+      status: 500,
+    });
   }
 }

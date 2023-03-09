@@ -27,10 +27,9 @@ import {
 } from '@chakra-ui/react';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { Auth, ThemeSupa } from '@supabase/auth-ui-react';
-import { startCase } from 'lodash';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useContext } from 'react';
 import { IconType } from 'react-icons';
 import { FiBell, FiChevronDown, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
 
@@ -162,7 +161,7 @@ interface MobileProps extends FlexProps {
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const supabaseClient = useSupabaseClient();
   const user = useUser();
-  console.log(user);
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -200,7 +199,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   }
                 />
                 <VStack display={{ base: 'none', md: 'flex' }} alignItems="flex-start" spacing="1px" ml="2">
-                  <Text fontSize="sm">{startCase(user?.user_metadata.full_name) ?? user?.email}</Text>
+                  <Text fontSize="sm">{user?.email}</Text>
                 </VStack>
                 <Box display={{ base: 'none', md: 'flex' }}>
                   <FiChevronDown />
@@ -212,11 +211,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
               <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
-              <MenuItem>
-                <Link href="/dashboard/billing" style={{ textDecoration: 'none' }}>
-                  Billing
-                </Link>
+              <MenuItem as="a" href="/dashboard/billing">
+                Billing
               </MenuItem>
               <MenuDivider />
               <MenuItem onClick={() => supabaseClient.auth.signOut()}>Sign out</MenuItem>

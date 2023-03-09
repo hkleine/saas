@@ -23,6 +23,14 @@ export interface ProductWithPrice extends Product {
   prices?: Price[];
 }
 
+interface PriceWithProduct extends Price {
+  products: Product;
+}
+
+export interface SubscriptionWithPriceAndProduct extends Subscription {
+  prices: PriceWithProduct;
+}
+
 export interface UserDetails {
   id: string /* primary key */;
   first_name: string;

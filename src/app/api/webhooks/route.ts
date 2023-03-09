@@ -12,19 +12,13 @@ export const config = {
 
 async function buffer(body: ReadableStream<Uint8Array>) {
   const chunks = [];
-  // for await (const chunk of readable) {
-  //   chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-  // }
-  // return Buffer.concat(chunks);
-
   const reader = body!.getReader();
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) {
-      console.log('The stream is done.');
       break;
     }
-    console.log('Just read a chunk:', value);
     chunks.push(typeof value === 'string' ? Buffer.from(value) : value);
   }
   return Buffer.concat(chunks);
@@ -44,14 +38,12 @@ const relevantEvents = new Set([
 export async function POST(req: NextRequest) {
   const body = req.body;
   const buf = await buffer(body!);
-  console.log(buf);
   const sig = req.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET_LIVE ?? process.env.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
 
   try {
     if (!sig || !webhookSecret) return;
-
     event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
   } catch (err: any) {
     console.log(`❌ Error message: ${err.message}`);
@@ -88,6 +80,9 @@ export async function POST(req: NextRequest) {
             await manageSubscriptionStatusChange(subscriptionId as string, checkoutSession.customer as string, true);
           }
           break;
+        // case 'payment_method.attached':
+        // case 'payment_method.detached':
+        // case 'payment_method.updated':
         default:
           throw new Error('Unhandled relevant event!');
       }
