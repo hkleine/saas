@@ -5,30 +5,17 @@ import { formatToDateString } from '@/utils/formatToDateString';
 import { postData } from '@/utils/helpers';
 import { getStripe } from '@/utils/stripe-client';
 import { Badge, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, Text } from '@chakra-ui/react';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import styles from './Pricing.module.css';
 type BillingInterval = 'year' | 'month';
 
 interface Props {
   products: ProductWithPrice[];
+  subscription: SubscriptionWithPriceAndProduct | null;
 }
 
-export function Pricing({ products }: Props) {
+export function Pricing({ products, subscription }: Props) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('month');
-  const [subscription, setSubscription] = useState<SubscriptionWithPriceAndProduct | null>(null);
-  const supabaseClient = useSupabaseClient();
-
-  useEffect(() => {
-    async function loadData() {
-      const { data } = await supabaseClient.from('subscriptions').select('*, prices(*, products(*))');
-      if (data) {
-        setSubscription(data[0] as SubscriptionWithPriceAndProduct);
-      }
-    }
-
-    loadData();
-  }, []);
 
   return (
     <>
