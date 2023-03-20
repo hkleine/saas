@@ -73,7 +73,7 @@ const createOrRetrieveCustomer = async ({ email, uuid }: { email: string; uuid: 
  * Copies the billing details from the payment method to the customer object.
  */
 const copyBillingDetailsToCustomer = async (uuid: string, payment_method: Stripe.PaymentMethod) => {
-  //Todo: check this assertion
+  //Todo: FUNKTIONIERT DAS ÜBERHAUPT?
   const customer = payment_method.customer as string;
   const { name, phone, address } = payment_method.billing_details;
   if (!name || !phone || !address) return;
@@ -103,6 +103,7 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
   const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ['default_payment_method'],
   });
+  console.log(subscription);
   // Upsert the latest status of the subscription object.
   const subscriptionData: Database['public']['Tables']['subscriptions']['Insert'] = {
     id: subscription.id,
@@ -131,6 +132,7 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
 
   // For a new subscription copy the billing details to the customer object.
   // NOTE: This is a costly operation and should happen at the very end.
+  console.log(createAction, subscription.default_payment_method, uuid);
   if (createAction && subscription.default_payment_method && uuid)
     //@ts-ignore
     await copyBillingDetailsToCustomer(uuid, subscription.default_payment_method as Stripe.PaymentMethod);

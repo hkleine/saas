@@ -16,7 +16,7 @@ interface Props {
 
 export function Pricing({ products, subscription }: Props) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('month');
-
+  console.log(subscription);
   return (
     <>
       {!subscription ? (

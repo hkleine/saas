@@ -24,7 +24,7 @@ import {
 import '@fontsource/poppins';
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { FiBell, FiChevronDown, FiDollarSign, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
@@ -137,7 +137,7 @@ interface MobileProps extends FlexProps {
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const supabaseClient = useSupabaseClient();
   const user = useUser();
-
+  const router = useRouter();
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -186,7 +186,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
-              <MenuItem>Profile</MenuItem>
+              <MenuItem onClick={() => router.push('/dashboard/profile')}>Profile</MenuItem>
               <MenuDivider />
               <MenuItem
                 onClick={async () => {
