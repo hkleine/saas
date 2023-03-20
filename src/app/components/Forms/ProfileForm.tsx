@@ -1,18 +1,16 @@
 'use client';
 import {
+  Avatar,
+  AvatarBadge,
   Button,
-  Flex,
+  Center,
   FormControl,
   FormLabel,
   Heading,
+  IconButton,
   Input,
   Stack,
   useColorModeValue,
-  HStack,
-  Avatar,
-  AvatarBadge,
-  IconButton,
-  Center,
 } from '@chakra-ui/react';
 import { FiX } from 'react-icons/fi';
 
