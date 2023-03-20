@@ -75,7 +75,7 @@ const createOrRetrieveCustomer = async ({ email, uuid }: { email: string; uuid: 
 const copyBillingDetailsToCustomer = async (uuid: string, payment_method: Stripe.PaymentMethod) => {
   //Todo: FUNKTIONIERT DAS ÜBERHAUPT?
   const customer = payment_method.customer as string;
-  const { name, phone, address } = payment_method.billing_details;
+  const { name, address } = payment_method.billing_details;
   console.log(name, address);
   if (!name || !address) return;
   //@ts-ignore
