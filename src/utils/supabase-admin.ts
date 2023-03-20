@@ -76,10 +76,10 @@ const copyBillingDetailsToCustomer = async (uuid: string, payment_method: Stripe
   //Todo: FUNKTIONIERT DAS ÜBERHAUPT?
   const customer = payment_method.customer as string;
   const { name, phone, address } = payment_method.billing_details;
-  console.log(name, phone, address);
-  if (!name || !phone || !address) return;
+  console.log(name, address);
+  if (!name || !address) return;
   //@ts-ignore
-  await stripe.customers.update(customer, { name, phone, address });
+  await stripe.customers.update(customer, { name, address });
   const { error } = await supabaseAdmin
     .from('users')
     .update({
