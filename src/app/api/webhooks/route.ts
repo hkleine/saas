@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
           await manageSubscriptionStatusChange(
             subscription.id,
             subscription.customer as string,
-            event.type === 'customer.subscription.created'
+            event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated'
           );
           break;
         case 'checkout.session.completed':

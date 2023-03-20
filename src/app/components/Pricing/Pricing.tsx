@@ -91,7 +91,7 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPric
 
 function PlanCard({ product, billingInterval }: { product: ProductWithPrice; billingInterval: BillingInterval }) {
   // const [priceIdLoading, setPriceIdLoading] = useState<string>();
-  const price = product?.prices?.find(price => price.interval === billingInterval || price.id === 'price_free');
+  const price = product?.prices?.find(price => price.interval === billingInterval);
   if (!price) return null;
   const formattedPrice = formatPrice(price);
 
