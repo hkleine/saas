@@ -1,7 +1,12 @@
 import { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '../../../utils/stripe';
-import { manageSubscriptionStatusChange, upsertPriceRecord, upsertProductRecord } from '../../../utils/supabase-admin';
+import {
+  manageSubscriptionStatusChange,
+  removeSubscription,
+  upsertPriceRecord,
+  upsertProductRecord,
+} from '../../../utils/supabase-admin';
 
 // Stripe requires the raw body to construct the event.
 export const config = {
@@ -65,13 +70,16 @@ export async function POST(req: NextRequest) {
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
-        case 'customer.subscription.deleted':
           const subscription = event.data.object as Stripe.Subscription;
           await manageSubscriptionStatusChange(
             subscription.id,
             subscription.customer as string,
             event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated'
           );
+          break;
+        case 'customer.subscription.deleted':
+          const { id } = event.data.object as Stripe.Subscription;
+          await removeSubscription(id);
           break;
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session;

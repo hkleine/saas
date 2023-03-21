@@ -10,6 +10,7 @@ export const getSubscriptionsWithPriceAndProduct = async (): Promise<Subscriptio
   if (error) {
     console.log(error.message);
   }
+
   return data as any;
 };
 
@@ -27,6 +28,16 @@ export const getActiveProductsWithPrices = async (): Promise<ProductWithPrice[]>
   }
   // TODO: improve the typing here.
   return (data as any) || [];
+};
+
+export const getPaymentMethod = async (user: User) => {
+  const { data, error } = await supabase.from('users').select('payment_method').eq('id', user.id);
+  if (error) {
+    console.log(error.message);
+    return null;
+  }
+
+  return data as any;
 };
 
 export const updateUserName = async (user: User, name: string) => {

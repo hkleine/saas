@@ -90,6 +90,13 @@ const copyBillingDetailsToCustomer = async (uuid: string, payment_method: Stripe
   if (error) throw error;
 };
 
+async function removeSubscription(subscriptionId: string) {
+  const { error } = await supabaseAdmin.from('subscriptions').delete().eq('id', subscriptionId);
+  if (error) throw error;
+
+  console.log(`Removed subscription with id[${subscriptionId}]`);
+}
+
 const manageSubscriptionStatusChange = async (subscriptionId: string, customerId: string, createAction = false) => {
   // Get customer's UUID from mapping table.
   const { data: customerData, error: noCustomerError } = await supabaseAdmin
@@ -139,4 +146,10 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
     await copyBillingDetailsToCustomer(uuid, subscription.default_payment_method as Stripe.PaymentMethod);
 };
 
-export { upsertProductRecord, upsertPriceRecord, createOrRetrieveCustomer, manageSubscriptionStatusChange };
+export {
+  upsertProductRecord,
+  upsertPriceRecord,
+  createOrRetrieveCustomer,
+  manageSubscriptionStatusChange,
+  removeSubscription,
+};

@@ -6,17 +6,20 @@ import { postData } from '@/utils/helpers';
 import { getStripe } from '@/utils/stripe-client';
 import { Badge, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, Text } from '@chakra-ui/react';
 import { Dispatch, SetStateAction, useState } from 'react';
+import Stripe from 'stripe';
 import styles from './Pricing.module.css';
+
 type BillingInterval = 'year' | 'month';
 
 interface Props {
   products: ProductWithPrice[];
   subscription: SubscriptionWithPriceAndProduct | null;
+  paymentMethod: Stripe.PaymentMethod['card'] | null;
 }
 
 export function Pricing({ products, subscription }: Props) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('month');
-  console.log(subscription);
+
   return (
     <>
       {!subscription ? (
@@ -38,7 +41,6 @@ export function Pricing({ products, subscription }: Props) {
 function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPriceAndProduct }) {
   const [isLoading, setLoading] = useState(false);
   const formattedPrice = formatPrice(subscription.prices);
-
   const manageSubscription = async () => {
     setLoading(true);
     try {
@@ -90,14 +92,13 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPric
 }
 
 function PlanCard({ product, billingInterval }: { product: ProductWithPrice; billingInterval: BillingInterval }) {
-  // const [priceIdLoading, setPriceIdLoading] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
   const price = product?.prices?.find(price => price.interval === billingInterval);
   if (!price) return null;
   const formattedPrice = formatPrice(price);
 
   const handleCheckout = async (price: Price) => {
-    // setPriceIdLoading(price.id);
-
+    setIsLoading(true);
     try {
       const { sessionId } = await postData({
         url: '/api/create-checkout-session',
@@ -107,9 +108,8 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
       const stripe = await getStripe();
       stripe?.redirectToCheckout({ sessionId });
     } catch (error) {
+      setIsLoading(false);
       return alert((error as Error)?.message);
-    } finally {
-      // setPriceIdLoading(undefined);
     }
   };
 
@@ -122,7 +122,13 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
         <Text>
           {formattedPrice} /{price.interval}
         </Text>
-        <Button onClick={() => handleCheckout(price)} colorScheme="teal" size="sm" variant="outline">
+        <Button
+          isLoading={isLoading}
+          onClick={() => handleCheckout(price)}
+          colorScheme="teal"
+          size="sm"
+          variant="outline"
+        >
           Subscribe
         </Button>
       </CardBody>

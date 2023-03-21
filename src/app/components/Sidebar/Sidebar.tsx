@@ -28,6 +28,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
 import { FiBell, FiChevronDown, FiDollarSign, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
+import { Logo } from './Logo';
 
 interface LinkItemProps {
   name: string;
@@ -85,9 +86,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       {...rest}
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Logo
-        </Text>
+        <Logo />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       <Box my="12">
