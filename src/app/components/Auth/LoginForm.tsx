@@ -26,6 +26,7 @@ import FormError from '../Forms/FormError';
 import { Logo } from '../Sidebar/Logo';
 import { OAuthButtonGroup } from './OAuthButtonGroup';
 import { PasswordField } from './PasswordField';
+import './auth.module.css';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -78,9 +79,7 @@ export default function LoginForm() {
             <Heading size={{ base: 'xs', md: 'sm' }}>Log in to your account</Heading>
             <HStack spacing="1" justify="center">
               <Text color="muted">Dont have an account?</Text>
-              <Link href="/signup">
-                Sign up
-              </Link>
+              <Link href="/signup">Sign up</Link>
             </HStack>
           </Stack>
         </Stack>
@@ -122,9 +121,7 @@ export default function LoginForm() {
             </Stack>
             <HStack justify="space-between">
               <Checkbox defaultChecked>Remember me</Checkbox>
-              <Button variant="link" colorScheme="blue" size="sm" onClick={() => router.push('/forgot-password')}>
-                Forgot password?
-              </Button>
+              <Link href="/forgot-password">Forgot password?</Link>
             </HStack>
             <Stack spacing="6">
               <Button colorScheme="teal" onClick={onLogin} isLoading={isLoading}>

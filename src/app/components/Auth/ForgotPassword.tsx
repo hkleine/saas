@@ -12,6 +12,7 @@ import {
   Alert,
   AlertIcon,
 } from '@chakra-ui/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -77,9 +78,7 @@ export default function ForgotPasswordForm() {
           />
         </FormControl>
         <Flex gap={12}>
-          <Button variant="outline" disabled={isLoading} onClick={onCancel}>
-            Cancel
-          </Button>
+          <Link href="/login">Cancel</Link>
           <Button w="full" onClick={onReset} colorScheme="teal" isLoading={isLoading}>
             Request Reset
           </Button>
