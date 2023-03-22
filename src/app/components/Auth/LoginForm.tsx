@@ -18,6 +18,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useUser } from '@supabase/auth-helpers-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -77,9 +78,9 @@ export default function LoginForm() {
             <Heading size={{ base: 'xs', md: 'sm' }}>Log in to your account</Heading>
             <HStack spacing="1" justify="center">
               <Text color="muted">Dont have an account?</Text>
-              <Button onClick={onSignup} variant="link" colorScheme="blue">
+              <Link href="/signup">
                 Sign up
-              </Button>
+              </Link>
             </HStack>
           </Stack>
         </Stack>
