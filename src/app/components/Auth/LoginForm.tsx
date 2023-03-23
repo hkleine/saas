@@ -40,10 +40,6 @@ export default function LoginForm() {
     formState: { errors },
   } = useForm({ mode: 'onBlur' });
 
-  const onSignup = () => {
-    router.push('/signup');
-  };
-
   const onLogin = handleSubmit(async formData => {
     setIsLoading(true);
     setLoginFailed(false);
@@ -64,7 +60,7 @@ export default function LoginForm() {
     if (user) {
       router.push('/dashboard');
     }
-  }, [user]);
+  }, [user, router]);
 
   if (user) {
     return null;

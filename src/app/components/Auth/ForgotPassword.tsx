@@ -1,19 +1,14 @@
 'use client';
 import { supabase } from '@/utils/supabase-client';
 import {
-  Button,
-  FormControl,
-  Flex,
-  Heading,
+  Alert,
+  AlertIcon, Button, Flex, FormControl, Heading,
   Input,
   Stack,
   Text,
-  useColorModeValue,
-  Alert,
-  AlertIcon,
+  useColorModeValue
 } from '@chakra-ui/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function ForgotPasswordForm() {
@@ -21,11 +16,6 @@ export default function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isSuccess, setIsSucces] = useState(false);
-  const router = useRouter();
-
-  const onCancel = () => {
-    router.push('/login');
-  };
 
   const onReset = async () => {
     setIsLoading(true);
