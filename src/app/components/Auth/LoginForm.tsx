@@ -26,7 +26,7 @@ import FormError from '../Forms/FormError';
 import { Logo } from '../Sidebar/Logo';
 import { OAuthButtonGroup } from './OAuthButtonGroup';
 import { PasswordField } from './PasswordField';
-import './auth.module.css';
+import styles from './auth.module.css';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +67,7 @@ export default function LoginForm() {
   }
 
   return (
-    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
+    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }} className={styles["signup-form"]}>
       <Stack spacing="8">
         <Stack spacing="6">
           <Logo />

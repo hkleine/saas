@@ -1,0 +1,8 @@
+.signup-form a {
+    color: #4040bf;
+}
+
+.signup-form a:hover {
+    text-decoration: underline;
+
+}
