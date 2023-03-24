@@ -23,6 +23,7 @@
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "classnames": "^2.3.2",
     "eslint": "8.33.0",
     "eslint-config-next": "^13.2.3",
     "framer-motion": "^8.5.4",

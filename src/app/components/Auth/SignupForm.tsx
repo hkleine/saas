@@ -14,9 +14,9 @@ import {
   Input,
   Stack,
   Text,
-  useColorModeValue,
+  useColorModeValue
 } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
@@ -30,11 +30,6 @@ export default function SimpleCard() {
     watch,
     formState: { errors },
   } = useForm({ mode: 'onBlur' });
-  const router = useRouter();
-
-  const onCancel = () => {
-    router.push('/login');
-  };
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
@@ -127,7 +122,7 @@ export default function SimpleCard() {
                 {errors.confirmPassword && <FormError>{errors.confirmPassword?.message?.toString()}</FormError>}
               </FormControl>
               <Flex gap={12}>
-                <Button variant="outline" disabled={isSubmitting} onClick={onCancel}>
+                <Button variant="outline" disabled={isSubmitting} as={Link} href="/login">
                   Cancel
                 </Button>
                 <Button type="submit" w="full" colorScheme="teal" isLoading={isSubmitting}>

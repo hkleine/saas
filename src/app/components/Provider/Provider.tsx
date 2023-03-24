@@ -14,7 +14,13 @@ const fonts = {
   body: `'Poppins', sans-serif`,
 };
 
-const theme = extendTheme({ colors, fonts });
+const theme = extendTheme({ colors, fonts, components: {
+  Button: {
+    baseStyle:{
+      fontWeight: 'normal'
+    }
+  }
+} });
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [supabaseClient] = useState(() => createBrowserSupabaseClient());

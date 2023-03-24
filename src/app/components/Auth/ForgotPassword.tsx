@@ -68,7 +68,7 @@ export default function ForgotPasswordForm() {
           />
         </FormControl>
         <Flex gap={12}>
-          <Link href="/login">Cancel</Link>
+          <Button variant="outline" as={Link} href="/login">Cancel</Button>          
           <Button w="full" onClick={onReset} colorScheme="teal" isLoading={isLoading}>
             Request Reset
           </Button>

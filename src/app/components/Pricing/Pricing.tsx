@@ -4,10 +4,10 @@ import { formatPrice } from '@/utils/formatPrice';
 import { formatToDateString } from '@/utils/formatToDateString';
 import { postData } from '@/utils/helpers';
 import { getStripe } from '@/utils/stripe-client';
-import { Badge, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, Text } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Badge, Box, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, HStack, List, ListIcon, ListItem, Text, useColorModeValue, VStack } from '@chakra-ui/react';
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import { FiCheckCircle } from 'react-icons/fi';
 import Stripe from 'stripe';
-import styles from './Pricing.module.css';
 
 type BillingInterval = 'year' | 'month';
 
@@ -114,25 +114,67 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
   };
 
   return (
-    <Card className={styles.card}>
-      <CardHeader>
-        <Heading size="md">{product.name}</Heading>
-      </CardHeader>
-      <CardBody>
-        <Text>
-          {formattedPrice} /{price.interval}
-        </Text>
-        <Button
-          isLoading={isLoading}
-          onClick={() => handleCheckout(price)}
-          colorScheme="teal"
-          size="sm"
-          variant="outline"
-        >
-          Subscribe
-        </Button>
-      </CardBody>
-    </Card>
+    <PriceWrapper>
+          <Box py={4} px={12}>
+            <Text fontWeight="500" fontSize="2xl">
+              {product.name}
+            </Text>
+            <HStack justifyContent="center">
+              <Text fontSize="5xl" fontWeight="900">
+              {formattedPrice}
+              </Text>
+              <Text fontSize="3xl" color="gray.500">
+                /month
+              </Text>
+            </HStack>
+          </Box>
+          <VStack
+            py={4}
+            borderBottomRadius={'xl'}>
+            <List spacing={3} textAlign="start" px={12}>
+              <ListItem>
+                <ListIcon as={FiCheckCircle} color="green.500" />
+                unlimited build minutes
+              </ListItem>
+              <ListItem>
+                <ListIcon as={FiCheckCircle} color="green.500" />
+                Lorem, ipsum dolor.
+              </ListItem>
+              <ListItem>
+                <ListIcon as={FiCheckCircle} color="green.500" />
+                5TB Lorem, ipsum dolor.
+              </ListItem>
+            </List>
+            <Box w="80%" pt={7}>
+          <Button
+            isLoading={isLoading}
+            onClick={() => handleCheckout(price)}
+            colorScheme="teal"
+            variant="outline"
+            w='full'
+          >
+            Subscribe
+          </Button>
+            </Box>
+          </VStack>
+        </PriceWrapper>
+  );
+}
+
+function PriceWrapper({ children }: { children: ReactNode }) {
+  return (
+    <Box
+      mb={4}
+      shadow="base"
+      borderWidth="1px"
+      alignSelf={{ base: 'center', lg: 'flex-start' }}
+      borderColor={useColorModeValue('gray.200', 'gray.500')}
+      borderRadius={'xl'}
+      width='300px'
+      bg='white'
+      >
+      {children}
+    </Box>
   );
 }
 
