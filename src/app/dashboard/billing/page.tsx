@@ -7,6 +7,6 @@ export default async function Billing() {
   const products = await getActiveProductsWithPrices();
   const subscription = await getSubscriptionsWithPriceAndProduct();
   const paymentMethod = await getPaymentMethod();
-  console.log(subscription);
+
   return <Pricing products={products} subscription={subscription} paymentMethod={paymentMethod} />;
 }

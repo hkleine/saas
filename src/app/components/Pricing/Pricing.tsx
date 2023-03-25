@@ -4,7 +4,26 @@ import { formatPrice } from '@/utils/formatPrice';
 import { formatToDateString } from '@/utils/formatToDateString';
 import { postData } from '@/utils/helpers';
 import { getStripe } from '@/utils/stripe-client';
-import { Badge, Box, Button, Card, CardBody, CardHeader, Flex, Grid, Heading, HStack, List, ListIcon, ListItem, Text, useColorModeValue, VStack } from '@chakra-ui/react';
+import {
+  Badge,
+  Box,
+  Button,
+  ButtonGroup,
+  Card,
+  CardBody,
+  CardHeader,
+  Center,
+  Flex,
+  Grid,
+  Heading,
+  HStack,
+  List,
+  ListIcon,
+  ListItem,
+  Text,
+  useColorModeValue,
+  VStack,
+} from '@chakra-ui/react';
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import { FiCheckCircle } from 'react-icons/fi';
 import Stripe from 'stripe';
@@ -115,49 +134,47 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
 
   return (
     <PriceWrapper>
-          <Box py={4} px={12}>
-            <Text fontWeight="500" fontSize="2xl">
-              {product.name}
-            </Text>
-            <HStack justifyContent="center">
-              <Text fontSize="5xl" fontWeight="900">
-              {formattedPrice}
-              </Text>
-              <Text fontSize="3xl" color="gray.500">
-                /month
-              </Text>
-            </HStack>
-          </Box>
-          <VStack
-            py={4}
-            borderBottomRadius={'xl'}>
-            <List spacing={3} textAlign="start" px={12}>
-              <ListItem>
-                <ListIcon as={FiCheckCircle} color="green.500" />
-                unlimited build minutes
-              </ListItem>
-              <ListItem>
-                <ListIcon as={FiCheckCircle} color="green.500" />
-                Lorem, ipsum dolor.
-              </ListItem>
-              <ListItem>
-                <ListIcon as={FiCheckCircle} color="green.500" />
-                5TB Lorem, ipsum dolor.
-              </ListItem>
-            </List>
-            <Box w="80%" pt={7}>
+      <Box py={4} px={12}>
+        <Text fontWeight="500" fontSize="2xl">
+          {product.name}
+        </Text>
+        <HStack justifyContent="center">
+          <Text fontSize="5xl" fontWeight="900">
+            {formattedPrice}
+          </Text>
+          <Text fontSize="3xl" color="gray.500">
+            /month
+          </Text>
+        </HStack>
+      </Box>
+      <VStack py={4} borderBottomRadius={'xl'}>
+        <List spacing={3} textAlign="start" px={12}>
+          <ListItem>
+            <ListIcon as={FiCheckCircle} color="green.500" />
+            unlimited build minutes
+          </ListItem>
+          <ListItem>
+            <ListIcon as={FiCheckCircle} color="green.500" />
+            Lorem, ipsum dolor.
+          </ListItem>
+          <ListItem>
+            <ListIcon as={FiCheckCircle} color="green.500" />
+            5TB Lorem, ipsum dolor.
+          </ListItem>
+        </List>
+        <Box w="80%" pt={7}>
           <Button
             isLoading={isLoading}
             onClick={() => handleCheckout(price)}
             colorScheme="teal"
             variant="outline"
-            w='full'
+            w="full"
           >
             Subscribe
           </Button>
-            </Box>
-          </VStack>
-        </PriceWrapper>
+        </Box>
+      </VStack>
+    </PriceWrapper>
   );
 }
 
@@ -170,9 +187,9 @@ function PriceWrapper({ children }: { children: ReactNode }) {
       alignSelf={{ base: 'center', lg: 'flex-start' }}
       borderColor={useColorModeValue('gray.200', 'gray.500')}
       borderRadius={'xl'}
-      width='300px'
-      bg='white'
-      >
+      width="300px"
+      bg="white"
+    >
       {children}
     </Box>
   );
@@ -185,30 +202,33 @@ function BillingIntervalSwitch({
   billingInterval: BillingInterval;
   setBillingInterval: Dispatch<SetStateAction<BillingInterval>>;
 }) {
+  console.log(billingInterval);
   return (
-    <div className="relative self-center mt-6 bg-zinc-900 rounded-lg p-0.5 flex sm:mt-8 border border-zinc-800">
-      <button
-        onClick={() => setBillingInterval('month')}
-        type="button"
-        className={`${
-          billingInterval === 'month'
-            ? 'relative w-1/2 bg-zinc-700 border-zinc-800 shadow-sm text-white'
-            : 'ml-0.5 relative w-1/2 border border-transparent text-zinc-400'
-        } rounded-md m-1 py-2 text-sm font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 focus:z-10 sm:w-auto sm:px-8`}
+    <Center>
+      <ButtonGroup
+        borderRadius="lg"
+        padding="1"
+        bg="white"
+        boxShadow={{ base: 'none', sm: 'md' }}
+        size="sm"
+        spacing={2}
       >
-        Monthly billing
-      </button>
-      <button
-        onClick={() => setBillingInterval('year')}
-        type="button"
-        className={`${
-          billingInterval === 'year'
-            ? 'relative w-1/2 bg-zinc-700 border-zinc-800 shadow-sm text-white'
-            : 'ml-0.5 relative w-1/2 border border-transparent text-zinc-400'
-        } rounded-md m-1 py-2 text-sm font-medium whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-opacity-50 focus:z-10 sm:w-auto sm:px-8`}
-      >
-        Yearly billing
-      </button>
-    </div>
+        <Button
+          px={4}
+          onClick={() => setBillingInterval('month')}
+          variant={billingInterval === 'month' ? 'outline' : 'ghost'}
+          borderRadius="lg"
+        >
+          Monthly
+        </Button>
+        <Button
+          onClick={() => setBillingInterval('year')}
+          variant={billingInterval === 'year' ? 'outline' : 'ghost'}
+          borderRadius="lg"
+        >
+          Yearly
+        </Button>
+      </ButtonGroup>
+    </Center>
   );
 }
