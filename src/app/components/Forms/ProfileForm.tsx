@@ -1,4 +1,5 @@
 'use client';
+import { UserWithEmail } from '@/types/types';
 import {
   Avatar,
   AvatarBadge,
@@ -12,9 +13,21 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { FiX } from 'react-icons/fi';
+import { useForm } from 'react-hook-form';
+import { FiUser, FiX } from 'react-icons/fi';
+import FormError from './FormError';
 
-export default function Profile(): JSX.Element {
+export default function Profile({ user }: { user: UserWithEmail | null }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ mode: 'onBlur', defaultValues: { fullName: user?.full_name, email: user?.email } });
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <Stack
       spacing={4}
@@ -26,12 +39,12 @@ export default function Profile(): JSX.Element {
       p={6}
     >
       <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
-        User Profile Edit
+        User Profile
       </Heading>
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            <Avatar size="xl" src="https://bit.ly/sage-adebayo">
+            <Avatar size="xl" fontSize={48} icon={<FiUser />}>
               <AvatarBadge
                 as={IconButton}
                 size="sm"
@@ -44,25 +57,39 @@ export default function Profile(): JSX.Element {
             </Avatar>
           </Center>
           <Center w="full">
-            <Button w="full">Change Icon</Button>
+            <Button variant="outline" colorScheme="teal" w="full">
+              Change Icon
+            </Button>
           </Center>
         </Stack>
       </FormControl>
-      <FormControl id="userName" isRequired>
-        <FormLabel>User name</FormLabel>
-        <Input placeholder="UserName" _placeholder={{ color: 'gray.500' }} type="text" />
-      </FormControl>
-      <FormControl id="email" isRequired>
+      <FormControl isInvalid={'email' in errors} isRequired>
         <FormLabel>Email address</FormLabel>
-        <Input placeholder="your-email@example.com" _placeholder={{ color: 'gray.500' }} type="email" />
+        <Input
+          {...register('email', {
+            required: { value: true, message: 'Email is required.' },
+            pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid E-Mail address.' },
+          })}
+          id="email"
+          placeholder="your-email@example.com"
+          _placeholder={{ color: 'gray.500' }}
+          type="email"
+        />
+        {errors.email && <FormError>{errors.email?.message?.toString()}</FormError>}
       </FormControl>
-      <FormControl id="password" isRequired>
-        <FormLabel>Password</FormLabel>
-        <Input placeholder="password" _placeholder={{ color: 'gray.500' }} type="password" />
+      <FormControl id="fullName">
+        <FormLabel>Full name</FormLabel>
+        <Input
+          {...register('fullName')}
+          id="email"
+          placeholder="John Doe"
+          _placeholder={{ color: 'gray.500' }}
+          type="text"
+        />
       </FormControl>
       <Stack spacing={6} direction={['column', 'row']}>
         <Button colorScheme="teal" w="full">
-          Submit
+          Save
         </Button>
       </Stack>
     </Stack>

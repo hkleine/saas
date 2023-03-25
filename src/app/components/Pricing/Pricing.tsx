@@ -2,6 +2,7 @@
 import { Price, ProductWithPrice, SubscriptionWithPriceAndProduct } from '@/types/types';
 import { formatPrice } from '@/utils/formatPrice';
 import { formatToDateString } from '@/utils/formatToDateString';
+import { getExpirationDate } from '@/utils/getExpirationDate';
 import { postData } from '@/utils/helpers';
 import { getStripe } from '@/utils/stripe-client';
 import {
@@ -17,6 +18,7 @@ import {
   Grid,
   Heading,
   HStack,
+  Image,
   List,
   ListIcon,
   ListItem,
@@ -36,7 +38,7 @@ interface Props {
   paymentMethod: Stripe.PaymentMethod['card'] | null;
 }
 
-export function Pricing({ products, subscription }: Props) {
+export function Pricing({ products, subscription, paymentMethod }: Props) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('month');
 
   return (
@@ -51,7 +53,10 @@ export function Pricing({ products, subscription }: Props) {
           </Grid>
         </Flex>
       ) : (
-        <SubscriptionCard subscription={subscription} />
+        <HStack gap={4}>
+          <SubscriptionCard subscription={subscription} />
+          <CreditCard paymentMethod={paymentMethod} />
+        </HStack>
       )}
     </>
   );
@@ -73,7 +78,7 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPric
   };
 
   return (
-    <Card width={500}>
+    <Card width={350}>
       <CardHeader>
         <Heading size="md">Billing Details</Heading>
       </CardHeader>
@@ -106,6 +111,32 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPric
           </Button>
         </Grid>
       </CardBody>
+    </Card>
+  );
+}
+
+function CreditCard({ paymentMethod }: Pick<Props, 'paymentMethod'>) {
+  if (!paymentMethod) {
+    return null;
+  }
+  const expirationDate = getExpirationDate(paymentMethod);
+
+  return (
+    <Card color="white" backgroundImage="url('/assets/creditCard.svg')" width={350} height={200} p={5}>
+      <Flex h="full" direction="column" justifyContent="space-between">
+        <Flex justifyContent="space-between">
+          <span>{paymentMethod.brand}</span>
+          <span>{expirationDate}</span>
+        </Flex>
+        <Flex justifyContent="space-between">
+          <Flex gap={2}>
+            <span>{'••••'}</span>
+            <span>{'••••'}</span>
+            <span>{'••••'}</span>
+          </Flex>
+          <span>{paymentMethod.last4}</span>
+        </Flex>
+      </Flex>
     </Card>
   );
 }
