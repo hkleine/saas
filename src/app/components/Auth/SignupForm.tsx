@@ -14,9 +14,11 @@ import {
   Input,
   Stack,
   Text,
-  useColorModeValue
+  useColorModeValue,
+  useToast,
 } from '@chakra-ui/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
@@ -30,6 +32,8 @@ export default function SimpleCard() {
     watch,
     formState: { errors },
   } = useForm({ mode: 'onBlur' });
+  const router = useRouter();
+  const toast = useToast();
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
@@ -48,6 +52,14 @@ export default function SimpleCard() {
       setSignupError(true);
     }
 
+    router.push('/login');
+    toast({
+      title: 'Account created.',
+      description: 'Please check your E-Mail inbox to verify your address.',
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+    });
     setIsSubmitting(false);
   });
 

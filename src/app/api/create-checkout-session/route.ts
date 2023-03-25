@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         metadata,
       },
       success_url: `${getURL()}/dashboard/billing`,
-      cancel_url: `${getURL()}/dashboard`,
+      cancel_url: `${getURL()}/dashboard/billing`,
     });
 
     return new Response(JSON.stringify({ sessionId: session.id }), {

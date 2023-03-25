@@ -42,14 +42,14 @@ export function Pricing({ products, subscription }: Props) {
   return (
     <>
       {!subscription ? (
-        <>
+        <Flex direction="column" gap={4}>
           <BillingIntervalSwitch billingInterval={billingInterval} setBillingInterval={setBillingInterval} />
           <Grid templateColumns="repeat(5, 200px)" gap={6}>
             {products.map(product => {
               return <PlanCard key={product.id} product={product} billingInterval={billingInterval} />;
             })}
           </Grid>
-        </>
+        </Flex>
       ) : (
         <SubscriptionCard subscription={subscription} />
       )}
