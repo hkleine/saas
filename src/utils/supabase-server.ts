@@ -45,3 +45,16 @@ export async function getUser(): Promise<UserWithEmail | null> {
   }
   return { ...data, email: authData.user.email } as any;
 }
+
+export async function downloadImage(path: string) {
+  const supabase = createClient();
+  const { data, error } = await supabase.storage.from('avatars').download(path);
+
+  if (error) {
+    console.log(error);
+    return null;
+  }
+  const url = URL.createObjectURL(data);
+  console.log(url);
+  return url;
+}

@@ -27,7 +27,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
-import { FiBell, FiChevronDown, FiDollarSign, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
+import { FiBell, FiChevronDown, FiCreditCard, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
 import { Logo } from './Logo';
 
 interface LinkItemProps {
@@ -38,7 +38,7 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', icon: FiHome, href: '/dashboard' },
   { name: 'Settings', icon: FiSettings, href: '/dashboard/settings' },
-  { name: 'Billing', icon: FiDollarSign, href: '/dashboard/billing' },
+  { name: 'Billing', icon: FiCreditCard, href: '/dashboard/billing' },
 ];
 
 export default function Sidebar({ children }: { children: ReactNode }) {

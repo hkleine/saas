@@ -1,50 +1,60 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
-import {
-  Avatar,
-  AvatarBadge,
-  Button,
-  Center,
-  FormControl,
-  FormLabel,
-  Heading,
-  IconButton,
-  Input,
-  Stack,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
+import { Button, Center, FormControl, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FiUser, FiX } from 'react-icons/fi';
+import FileUpload from './FileUpload';
 import FormError from './FormError';
 
-export default function Profile({ user }: { user: UserWithEmail | null }) {
+interface ProfileProps {
+  user: UserWithEmail | null;
+  avatar: string | null;
+}
+
+export default function Profile({ user, avatar }: ProfileProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm({ mode: 'onBlur', defaultValues: { fullName: user?.full_name, email: user?.email } });
+    formState: { errors, isDirty },
+  } = useForm({ mode: 'onBlur', defaultValues: { fullName: user?.full_name ?? '', email: user?.email ?? '' } });
 
   if (!user) {
     return null;
   }
 
+  const onSubmit = handleSubmit(async formData => {
+    setIsSubmitting(true);
+    const { error } = await updateUserName(user, formData.fullName);
+    if (error) {
+      toast({
+        title: 'Failed to update.',
+        description: 'Something went wront while updating please try again later.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+
+    toast({
+      title: 'Successfully updated profile.',
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+    });
+
+    setIsSubmitting(false);
+  });
+
   return (
-    <Stack
-      spacing={4}
-      w={'full'}
-      maxW={'md'}
-      bg={useColorModeValue('white', 'gray.700')}
-      rounded={'xl'}
-      boxShadow={'lg'}
-      p={6}
-    >
-      <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
-        User Profile
-      </Heading>
+    <Stack spacing={4} w={'full'} maxW={'md'} bg="white" rounded={'xl'} boxShadow={'lg'} p={6}>
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            <Avatar size="xl" fontSize={48} icon={<FiUser />}>
+            {/* <Avatar size="xl" fontSize={48} src={avatar ?? ''}>
               <AvatarBadge
                 as={IconButton}
                 size="sm"
@@ -54,12 +64,19 @@ export default function Profile({ user }: { user: UserWithEmail | null }) {
                 aria-label="remove Image"
                 icon={<FiX />}
               />
-            </Avatar>
+            </Avatar> */}
+            <img src={avatar!} />
           </Center>
           <Center w="full">
-            <Button variant="outline" colorScheme="teal" w="full">
-              Change Icon
-            </Button>
+            <FileUpload
+              uid={user.id}
+              onUpload={url => {
+                console.log(url);
+                updateAvatarUrl(user, url);
+              }}
+            >
+              Change Avatar
+            </FileUpload>
           </Center>
         </Stack>
       </FormControl>
@@ -87,11 +104,9 @@ export default function Profile({ user }: { user: UserWithEmail | null }) {
           type="text"
         />
       </FormControl>
-      <Stack spacing={6} direction={['column', 'row']}>
-        <Button colorScheme="teal" w="full">
-          Save
-        </Button>
-      </Stack>
+      <Button isLoading={isSubmitting} isDisabled={!isDirty} onClick={onSubmit} colorScheme="teal" w="full">
+        Save
+      </Button>
     </Stack>
   );
 }

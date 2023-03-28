@@ -18,7 +18,6 @@ import {
   Grid,
   Heading,
   HStack,
-  Image,
   List,
   ListIcon,
   ListItem,
@@ -233,7 +232,6 @@ function BillingIntervalSwitch({
   billingInterval: BillingInterval;
   setBillingInterval: Dispatch<SetStateAction<BillingInterval>>;
 }) {
-  console.log(billingInterval);
   return (
     <Center>
       <ButtonGroup

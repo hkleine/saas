@@ -1,8 +1,11 @@
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
 import type { Database } from '../types/supabase';
-import { ProductWithPrice, SubscriptionWithPriceAndProduct } from '../types/types';
+import { ProductWithPrice, SubscriptionWithPriceAndProduct, UserWithEmail } from '../types/types';
 
-export const supabase = createBrowserSupabaseClient<Database>();
+export const supabase = createBrowserSupabaseClient<Database>({
+  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+});
 
 export const getSubscriptionsWithPriceAndProduct = async (): Promise<SubscriptionWithPriceAndProduct | null> => {
   const { data, error } = await supabase.from('subscriptions').select('*, prices(*, products(*))').limit(1).single();
@@ -40,11 +43,24 @@ export const getPaymentMethod = async (user: User) => {
   return data as any;
 };
 
-export const updateUserName = async (user: User, name: string) => {
-  await supabase
+export const updateUserName = async (user: User | UserWithEmail, name: string) => {
+  return supabase
     .from('users')
     .update({
       full_name: name,
     })
     .eq('id', user.id);
 };
+
+export const updateAvatarUrl = async (user: User | UserWithEmail, filePath: string) => {
+  return supabase
+    .from('users')
+    .update({
+      avatar_url: filePath,
+    })
+    .eq('id', user.id);
+};
+
+export async function uploadFile({ filePath, file }: { file: File; filePath: string }) {
+  return supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+}
