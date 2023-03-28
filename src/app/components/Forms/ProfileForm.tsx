@@ -1,15 +1,27 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
 import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
-import { Button, Center, FormControl, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
+import {
+  Avatar,
+  AvatarBadge,
+  Button,
+  Center,
+  FormControl,
+  FormLabel,
+  IconButton,
+  Input,
+  Stack,
+  useToast,
+} from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { FiX } from 'react-icons/fi';
 import FileUpload from './FileUpload';
 import FormError from './FormError';
 
 interface ProfileProps {
   user: UserWithEmail | null;
-  avatar: string | null;
+  avatar?: string;
 }
 
 export default function Profile({ user, avatar }: ProfileProps) {
@@ -54,7 +66,7 @@ export default function Profile({ user, avatar }: ProfileProps) {
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            {/* <Avatar size="xl" fontSize={48} src={avatar ?? ''}>
+            <Avatar size="xl" fontSize={48} src={avatar}>
               <AvatarBadge
                 as={IconButton}
                 size="sm"
@@ -64,8 +76,7 @@ export default function Profile({ user, avatar }: ProfileProps) {
                 aria-label="remove Image"
                 icon={<FiX />}
               />
-            </Avatar> */}
-            <img src={avatar!} />
+            </Avatar>
           </Center>
           <Center w="full">
             <FileUpload
