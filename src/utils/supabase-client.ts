@@ -52,7 +52,7 @@ export const updateUserName = async (user: User | UserWithEmail, name: string) =
     .eq('id', user.id);
 };
 
-export const updateAvatarUrl = async (user: User | UserWithEmail, filePath: string) => {
+export const updateAvatarUrl = async (user: User | UserWithEmail, filePath: string | null) => {
   return supabase
     .from('users')
     .update({
@@ -63,4 +63,8 @@ export const updateAvatarUrl = async (user: User | UserWithEmail, filePath: stri
 
 export async function uploadFile({ filePath, file }: { file: File; filePath: string }) {
   return supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+}
+
+export async function deleteFile({ filePath }: { filePath: string }) {
+  return supabase.storage.from('avatars').remove([filePath]);
 }

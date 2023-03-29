@@ -1,6 +1,6 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
-import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
+import { deleteFile, updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
 import {
   Avatar,
   AvatarBadge,
@@ -25,6 +25,7 @@ interface ProfileProps {
 }
 
 export default function Profile({ user, avatar }: ProfileProps) {
+  const [currentAvatar, setCurrentAvatar] = useState(avatar);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
@@ -61,28 +62,36 @@ export default function Profile({ user, avatar }: ProfileProps) {
     setIsSubmitting(false);
   });
 
+  async function onDeleteAvatar() {
+    if(user && user.avatar_url) {
+      await deleteFile({filePath: user.avatar_url});
+      await updateAvatarUrl(user, null);
+      setCurrentAvatar(undefined);
+    }
+  }
+
   return (
     <Stack spacing={4} w={'full'} maxW={'md'} bg="white" rounded={'xl'} boxShadow={'lg'} p={6}>
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            <Avatar size="xl" fontSize={48} src={avatar}>
-              <AvatarBadge
+            <Avatar size="xl" fontSize={48} src={currentAvatar}>
+              {user?.avatar_url && <AvatarBadge
                 as={IconButton}
                 size="sm"
                 rounded="full"
                 top="-10px"
                 colorScheme="red"
                 aria-label="remove Image"
+                onClick={onDeleteAvatar}
                 icon={<FiX />}
-              />
+              />}
             </Avatar>
           </Center>
           <Center w="full">
             <FileUpload
               uid={user.id}
               onUpload={url => {
-                console.log(url);
                 updateAvatarUrl(user, url);
               }}
             >
