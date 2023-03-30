@@ -47,9 +47,15 @@ export const updateUserName = async (user: User | UserWithEmail, name: string) =
   return supabase
     .from('users')
     .update({
-      full_name: name,
+      full_name: name || null,
     })
     .eq('id', user.id);
+};
+
+export const updateUserEmail = async (user: User | UserWithEmail, email: string) => {
+  return supabase.auth.updateUser({
+    email,
+  });
 };
 
 export const updateAvatarUrl = async (user: User | UserWithEmail, filePath: string | null) => {
@@ -63,6 +69,10 @@ export const updateAvatarUrl = async (user: User | UserWithEmail, filePath: stri
 
 export async function uploadFile({ filePath, file }: { file: File; filePath: string }) {
   return supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+}
+
+export async function downloadImage(filePath: string) {
+  return supabase.storage.from('avatars').createSignedUrl(filePath, 60);
 }
 
 export async function deleteFile({ filePath }: { filePath: string }) {

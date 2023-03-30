@@ -1,19 +1,27 @@
-import { uploadFile } from '@/utils/supabase-client';
-import { FormLabel } from '@chakra-ui/react';
+import { deleteFile, uploadFile } from '@/utils/supabase-client';
+import { FormLabel, Spinner } from '@chakra-ui/react';
 import { ChangeEvent, ReactNode, useState } from 'react';
+import { v4 } from 'uuid';
 
 interface FileUploadProps {
   uid: string;
   onUpload: (url: string) => void;
+  avatarUrl?: string;
   children?: ReactNode;
 }
 
-export default function FileUpload({ uid, children, onUpload }: FileUploadProps) {
+export default function FileUpload({ avatarUrl, uid, children, onUpload }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
 
   const uploadAvatar = async (event: ChangeEvent<HTMLInputElement>) => {
+    setIsUploading(true);
     try {
-      setIsUploading(true);
+      if (avatarUrl) {
+        const { error: deleteError } = await deleteFile({ filePath: avatarUrl });
+        if (deleteError) {
+          throw new Error(deleteError.message);
+        }
+      }
 
       if (!event.target.files || event.target.files.length === 0) {
         throw new Error('You must select an image to upload.');
@@ -21,7 +29,7 @@ export default function FileUpload({ uid, children, onUpload }: FileUploadProps)
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const fileName = `${uid}.${fileExt}`;
+      const fileName = `${v4()}-${uid}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await uploadFile({ file, filePath });
@@ -54,8 +62,9 @@ export default function FileUpload({ uid, children, onUpload }: FileUploadProps)
         display="inline-flex"
         justifyContent="center"
         _hover={{ bg: 'teal.50' }}
+        _disabled={{ pointerEvents: 'none' }}
       >
-        {children}
+        {isUploading ? <Spinner size="sm" /> : children}
       </FormLabel>
       <input
         style={{

@@ -173,7 +173,7 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
             {formattedPrice}
           </Text>
           <Text fontSize="3xl" color="gray.500">
-            /month
+            /{billingInterval}
           </Text>
         </HStack>
       </Box>
