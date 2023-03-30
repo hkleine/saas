@@ -1,8 +1,8 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
-import { updateAvatarUrl, updateUserEmail, updateUserName } from '@/utils/supabase-client';
+import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
 import { Button, Center, FormControl, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Avatar from './Avatar';
 import FileUpload from './FileUpload';
