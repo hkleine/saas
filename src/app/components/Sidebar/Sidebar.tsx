@@ -1,5 +1,4 @@
 'use client';
-import { useUserStore } from '@/zustand/userStore';
 import {
   Avatar,
   Box,
@@ -20,15 +19,15 @@ import {
   Text,
   useColorModeValue,
   useDisclosure,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
 import '@fontsource/poppins';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 import { IconType } from 'react-icons';
-import { FiBell, FiChevronDown, FiCreditCard, FiHome, FiMenu, FiSettings, FiUser } from 'react-icons/fi';
+import { FiBell, FiChevronDown, FiCreditCard, FiHome, FiMenu, FiSettings } from 'react-icons/fi';
 import { Logo } from './Logo';
 
 interface LinkItemProps {
@@ -136,10 +135,8 @@ interface MobileProps extends FlexProps {
 }
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const supabaseClient = useSupabaseClient();
+  const user = useUser();
   const router = useRouter();
-  const user = useUserStore((state) => state.user);
-  const signedAvatarUrl = useUserStore((state) => state.signedAvatarUrl);
-
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -172,9 +169,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <HStack>
                 <Avatar
                   size={'sm'}
-                  src={signedAvatarUrl}
-                  bg="gray.400"
-                  icon={<FiUser fontSize="1rem" fontWeight="400" />}
+                  src={
+                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
+                  }
                 />
                 <VStack display={{ base: 'none', md: 'flex' }} alignItems="flex-start" spacing="1px" ml="2">
                   <Text fontSize="sm">{user?.email}</Text>

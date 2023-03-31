@@ -72,31 +72,9 @@ export async function uploadFile({ filePath, file }: { file: File; filePath: str
 }
 
 export async function downloadImage(filePath: string) {
-  const {error, data} = await supabase.storage.from('avatars').createSignedUrl(filePath, 60);
-
-  if(error) {
-    return null;
-  }
-
-  return data.signedUrl;
+  return supabase.storage.from('avatars').createSignedUrl(filePath, 60);
 }
 
 export async function deleteFile({ filePath }: { filePath: string }) {
   return supabase.storage.from('avatars').remove([filePath]);
-}
-
-export async function getUser(): Promise<UserWithEmail | null> {
-  const { data: authData, error: authUserError } = await supabase.auth.getUser();
-
-  if (authUserError) {
-    console.log(authUserError.message);
-    return null;
-  }
-
-  const { data, error } = await supabase.from('users').select('*').limit(1).single();
-  if (error) {
-    console.log(error.message);
-    return null;
-  }
-  return { ...data, email: authData.user.email } as any;
 }
