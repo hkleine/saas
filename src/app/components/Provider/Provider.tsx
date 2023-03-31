@@ -2,8 +2,9 @@
 import { baseTheme, ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@fontsource/poppins/400.css';
+import { useUserStore } from '@/zustand/userStore';
 
 const colors = {
   primary: baseTheme.colors.teal,
@@ -24,6 +25,11 @@ const theme = extendTheme({ colors, fonts, components: {
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [supabaseClient] = useState(() => createBrowserSupabaseClient());
+  const fetchInitialUserState = useUserStore((state) => state.fetchInitialUserState);
+
+  useEffect(() => {
+    fetchInitialUserState()
+  }, [fetchInitialUserState])
 
   return (
     <SessionContextProvider supabaseClient={supabaseClient}>
