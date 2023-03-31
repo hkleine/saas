@@ -1,4 +1,5 @@
 import { deleteFile, uploadFile } from '@/utils/supabase-client';
+import { useUserStore } from '@/zustand/userStore';
 import { FormLabel, Spinner } from '@chakra-ui/react';
 import { ChangeEvent, ReactNode, useState } from 'react';
 import { v4 } from 'uuid';
@@ -6,18 +7,22 @@ import { v4 } from 'uuid';
 interface FileUploadProps {
   uid: string;
   onUpload: (url: string) => void;
-  avatarUrl?: string;
   children?: ReactNode;
 }
 
-export default function FileUpload({ avatarUrl, uid, children, onUpload }: FileUploadProps) {
+export default function FileUpload({ uid, children, onUpload }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const user = useUserStore((state) => state.user);
+
+  if(!user) {
+    return null;
+  }
 
   const uploadAvatar = async (event: ChangeEvent<HTMLInputElement>) => {
     setIsUploading(true);
     try {
-      if (avatarUrl) {
-        const { error: deleteError } = await deleteFile({ filePath: avatarUrl });
+      if (user.avatar_url) {
+        const { error: deleteError } = await deleteFile({ filePath: user.avatar_url });
         if (deleteError) {
           throw new Error(deleteError.message);
         }

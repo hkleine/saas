@@ -1,6 +1,6 @@
 'use client';
-import { UserWithEmail } from '@/types/types';
 import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
+import { useUserStore } from '@/zustand/userStore';
 import { Button, Center, FormControl, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -8,19 +8,11 @@ import Avatar from './Avatar';
 import FileUpload from './FileUpload';
 import FormError from './FormError';
 
-interface ProfileProps {
-  user: UserWithEmail | null;
-}
-
-export default function Profile({ user }: ProfileProps) {
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.avatar_url ?? undefined);
+export default function Profile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const updateUserAvatar = useUserStore((state) => state.updateUserAvatar);
+  const user = useUserStore((state) => state.user);
   const toast = useToast();
-
-  const onUpload = async (url: string) => {
-    await updateAvatarUrl(user!, url);
-    setAvatarUrl(url);
-  };
 
   const {
     register,
@@ -28,9 +20,14 @@ export default function Profile({ user }: ProfileProps) {
     formState: { errors, isDirty },
   } = useForm({ mode: 'onBlur', defaultValues: { fullName: user?.full_name ?? '', email: user?.email ?? '' } });
 
-  if (!user) {
+  if(!user) {
     return null;
   }
+
+  const onUpload = async (url: string) => {
+    await updateAvatarUrl(user, url);
+    updateUserAvatar(url);
+  };
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
@@ -61,10 +58,10 @@ export default function Profile({ user }: ProfileProps) {
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            <Avatar user={user} avatarUrl={avatarUrl} />
+            <Avatar user={user} />
           </Center>
           <Center w="full">
-            <FileUpload avatarUrl={avatarUrl} uid={user.id} onUpload={onUpload}>
+            <FileUpload uid={user.id} onUpload={onUpload}>
               Change Avatar
             </FileUpload>
           </Center>
