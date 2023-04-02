@@ -1,36 +1,32 @@
 'use client';
-import { UserWithEmail } from '@/types/types';
 import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
 import { Button, Center, FormControl, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { LoadingSpinner } from '../LoadingSpinner/LoadingSpinner';
+import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import Avatar from './Avatar';
 import FileUpload from './FileUpload';
 import FormError from './FormError';
 
-interface ProfileProps {
-  user: UserWithEmail | null;
-}
-
-export default function Profile({ user }: ProfileProps) {
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.avatar_url ?? undefined);
+export default function Profile() {
+  const user = useContext(RealTimeUserContext);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
-
-  const onUpload = async (url: string) => {
-    await updateAvatarUrl(user!, url);
-    setAvatarUrl(url);
-  };
 
   const {
     register,
     handleSubmit,
     formState: { errors, isDirty },
-  } = useForm({ mode: 'onBlur', defaultValues: { fullName: user?.full_name ?? '', email: user?.email ?? '' } });
+  } = useForm({ mode: 'onBlur' });
 
   if (!user) {
-    return null;
+    return <LoadingSpinner />;
   }
+
+  const onUpload = async (url: string) => {
+    await updateAvatarUrl(user, url);
+  };
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
@@ -61,10 +57,10 @@ export default function Profile({ user }: ProfileProps) {
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            <Avatar user={user} avatarUrl={avatarUrl} />
+            <Avatar user={user} />
           </Center>
           <Center w="full">
-            <FileUpload avatarUrl={avatarUrl} uid={user.id} onUpload={onUpload}>
+            <FileUpload avatarUrl={user.avatar_url} uid={user.id} onUpload={onUpload}>
               Change Avatar
             </FileUpload>
           </Center>
@@ -77,6 +73,7 @@ export default function Profile({ user }: ProfileProps) {
             required: { value: true, message: 'Email is required.' },
             pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid E-Mail address.' },
           })}
+          defaultValue={user?.email ?? ''}
           id="email"
           placeholder="your-email@example.com"
           _placeholder={{ color: 'gray.500' }}
@@ -88,6 +85,7 @@ export default function Profile({ user }: ProfileProps) {
         <FormLabel>Full name</FormLabel>
         <Input
           {...register('fullName')}
+          defaultValue={user?.full_name ?? ''}
           id="email"
           placeholder="John Doe"
           _placeholder={{ color: 'gray.500' }}

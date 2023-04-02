@@ -1,37 +1,36 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
-import { deleteFile, downloadImage, updateAvatarUrl } from '@/utils/supabase-client';
+import { createSignedImageUrl, deleteFile, updateAvatarUrl } from '@/utils/supabase-client';
 import { Avatar as ChakraAvatar, AvatarBadge, IconButton } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FiUser, FiX } from 'react-icons/fi';
 
 interface AvatarProps {
-  avatarUrl?: string;
-  user: UserWithEmail | null;
+  user: UserWithEmail;
 }
 
-export default function Avatar({ user, avatarUrl }: AvatarProps) {
+export default function Avatar({ user }: AvatarProps) {
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | undefined>();
 
   useEffect(() => {
-    if (avatarUrl) {
-      downloadAvatar(avatarUrl);
+    if (user.avatar_url) {
+      getAvatarSignedImageUrl(user.avatar_url);
       return;
     }
 
     setSignedAvatarUrl(undefined);
-  }, [avatarUrl]);
+  }, [user]);
 
   async function onDeleteAvatar() {
-    if (user && avatarUrl) {
+    if (user && user.avatar_url) {
       setSignedAvatarUrl(undefined);
-      await deleteFile({ filePath: avatarUrl });
+      await deleteFile({ filePath: user.avatar_url });
       await updateAvatarUrl(user, null);
     }
   }
 
-  async function downloadAvatar(filePath: string) {
-    const { error, data } = await downloadImage(filePath);
+  async function getAvatarSignedImageUrl(filePath: string) {
+    const { error, data } = await createSignedImageUrl(filePath);
     if (error) {
       console.log(error);
       return;
