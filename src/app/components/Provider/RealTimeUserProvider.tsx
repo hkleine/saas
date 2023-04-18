@@ -1,19 +1,12 @@
+'use client';
 import { UserWithEmail } from '@/types/types';
-import { getUser, subscribeToUser, supabase } from '@/utils/supabase-client';
+import { subscribeToUser, supabase } from '@/utils/supabase-client';
 import { createContext, ReactNode, useEffect, useState } from 'react';
 
 export const RealTimeUserContext = createContext<UserWithEmail | null>(null);
 
-export function RealTimeUserProvider({ children }: { children?: ReactNode }) {
-  const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const fetchedUser = await getUser();
-      setRealTimeUser(fetchedUser);
-    };
-    fetchUser();
-  }, []);
+export function RealTimeUserProvider({ children, user }: { children?: ReactNode; user: UserWithEmail | null }) {
+  const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(user);
 
   useEffect(() => {
     const channel = subscribeToUser(async payload => {

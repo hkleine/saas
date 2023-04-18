@@ -1,5 +1,6 @@
 import { User } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
+import { Database } from './supabase';
 export interface PageMeta {
   title: string;
   description: string;
@@ -75,3 +76,24 @@ export interface Subscription {
   trial_end?: string;
   prices?: Price;
 }
+
+export type BaseConsultant = Omit<Database['public']['Tables']['consultants']['Row'], 'upline' | 'role'> & {
+  role: { name: string };
+};
+
+export type Azubi = BaseConsultant & {
+  upline: string;
+};
+
+export type Ausbilder = BaseConsultant & {
+  downlines: Array<Azubi>;
+  downlineEarnings: number;
+  upline: string;
+};
+
+export type Overhead = BaseConsultant & {
+  downlineEarnings: number;
+  downlines: Array<Ausbilder>;
+};
+
+export type Consultant = Overhead | Ausbilder | Azubi;

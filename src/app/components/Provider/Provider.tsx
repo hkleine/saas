@@ -4,7 +4,6 @@ import '@fontsource/poppins/400.css';
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { useState } from 'react';
-import { RealTimeUserProvider } from './RealTimeUserProvider';
 
 const colors = {
   primary: baseTheme.colors.teal,
@@ -24,6 +23,13 @@ const theme = extendTheme({
         fontWeight: 'normal',
       },
     },
+    Menu: {
+      baseStyle: {
+        item: {
+          borderRadius: 'md',
+        },
+      },
+    },
   },
 });
 
@@ -32,9 +38,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionContextProvider supabaseClient={supabaseClient}>
-      <RealTimeUserProvider>
-        <ChakraProvider theme={theme}>{children}</ChakraProvider>
-      </RealTimeUserProvider>
+      <ChakraProvider theme={theme}>{children}</ChakraProvider>
     </SessionContextProvider>
   );
 }

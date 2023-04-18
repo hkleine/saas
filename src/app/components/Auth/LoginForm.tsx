@@ -22,11 +22,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Logo } from '../AppShell/Logo';
 import FormError from '../Forms/FormError';
-import { Logo } from '../Sidebar/Logo';
+import styles from './auth.module.css';
 import { OAuthButtonGroup } from './OAuthButtonGroup';
 import { PasswordField } from './PasswordField';
-import styles from './auth.module.css';
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,9 +67,9 @@ export default function LoginForm() {
   }
 
   return (
-    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }} className={styles["signup-form"]}>
+    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }} className={styles['signup-form']}>
       <Stack spacing="8">
-        <Stack spacing="6">
+        <Stack spacing="6" justify="center">
           <Logo />
           <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
             <Heading size={{ base: 'xs', md: 'sm' }}>Log in to your account</Heading>
