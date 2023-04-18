@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import { FiBell, FiChevronDown, FiMenu, FiUser } from 'react-icons/fi';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
@@ -29,7 +28,6 @@ interface MobileProps extends FlexProps {
 export function MobileNav({ onOpen, ...rest }: MobileProps) {
   const user = useContext(RealTimeUserContext);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | undefined>();
-  const router = useRouter();
 
   const supabaseClient = useSupabaseClient();
 

@@ -30,17 +30,19 @@ export default function Consultants({ consultants }: { consultants: Array<Overhe
     <>
       {consultants.map(consultant => {
         return (
-          <VStack gap={6}>
+          <VStack key={consultant.id} gap={6}>
             <ConsultantCard consultant={consultant} />
             <Flex>
               {consultant.downlines &&
                 consultant.downlines.map(downline => {
                   return (
-                    <VStack gap={6}>
+                    <VStack key={downline.id} gap={6}>
                       <ConsultantCard consultant={downline} />
                       <SimpleGrid columns={2} spacing={4}>
                         {downline.downlines &&
-                          downline.downlines.map(deeperDownline => <ConsultantCard consultant={deeperDownline} />)}
+                          downline.downlines.map(deeperDownline => (
+                            <ConsultantCard key={deeperDownline.id} consultant={deeperDownline} />
+                          ))}
                       </SimpleGrid>
                     </VStack>
                   );
