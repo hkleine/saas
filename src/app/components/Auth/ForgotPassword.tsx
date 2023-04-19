@@ -2,11 +2,15 @@
 import { supabase } from '@/utils/supabase-client';
 import {
   Alert,
-  AlertIcon, Button, Flex, FormControl, Heading,
+  AlertIcon,
+  Button,
+  Flex,
+  FormControl,
+  Heading,
   Input,
   Stack,
   Text,
-  useColorModeValue
+  useColorModeValue,
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -68,8 +72,10 @@ export default function ForgotPasswordForm() {
           />
         </FormControl>
         <Flex gap={12}>
-          <Button variant="outline" as={Link} href="/login">Cancel</Button>          
-          <Button w="full" onClick={onReset} colorScheme="teal" isLoading={isLoading}>
+          <Button variant="outline" as={Link} href="/login">
+            Cancel
+          </Button>
+          <Button w="full" onClick={onReset} isLoading={isLoading}>
             Request Reset
           </Button>
         </Flex>

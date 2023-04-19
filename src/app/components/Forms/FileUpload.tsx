@@ -51,7 +51,7 @@ export default function FileUpload({ avatarUrl, uid, children, onUpload }: FileU
     <>
       <FormLabel
         cursor="pointer"
-        color="teal.600"
+        color="red.400"
         paddingX="0.75rem"
         paddingY="0.35rem"
         border="1px solid"
@@ -61,7 +61,7 @@ export default function FileUpload({ avatarUrl, uid, children, onUpload }: FileU
         width="full"
         display="inline-flex"
         justifyContent="center"
-        _hover={{ bg: 'teal.50' }}
+        _hover={{ bg: 'red.50' }}
         _disabled={{ pointerEvents: 'none' }}
       >
         {isUploading ? <Spinner size="sm" /> : children}

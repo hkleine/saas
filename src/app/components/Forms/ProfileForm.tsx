@@ -92,7 +92,7 @@ export default function Profile() {
           type="text"
         />
       </FormControl>
-      <Button isLoading={isSubmitting} isDisabled={!isDirty} onClick={onSubmit} colorScheme="teal" w="full">
+      <Button isLoading={isSubmitting} isDisabled={!isDirty} onClick={onSubmit} w="full">
         Save
       </Button>
     </Stack>

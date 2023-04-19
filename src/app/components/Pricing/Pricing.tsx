@@ -99,13 +99,7 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionWithPric
           <Text>
             {formattedPrice} /{subscription.prices.interval}
           </Text>
-          <Button
-            isLoading={isLoading}
-            onClick={() => manageSubscription()}
-            colorScheme="teal"
-            size="sm"
-            variant="outline"
-          >
+          <Button isLoading={isLoading} onClick={() => manageSubscription()} size="sm" variant="outline">
             Manage Subscription
           </Button>
         </Grid>
@@ -193,13 +187,7 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
           </ListItem>
         </List>
         <Box w="80%" pt={7}>
-          <Button
-            isLoading={isLoading}
-            onClick={() => handleCheckout(price)}
-            colorScheme="teal"
-            variant="outline"
-            w="full"
-          >
+          <Button isLoading={isLoading} onClick={() => handleCheckout(price)} variant="outline" w="full">
             Subscribe
           </Button>
         </Box>

@@ -120,7 +120,7 @@ export default function LoginForm() {
               <Link href="/forgot-password">Forgot password?</Link>
             </HStack>
             <Stack spacing="6">
-              <Button colorScheme="teal" onClick={onLogin} isLoading={isLoading}>
+              <Button onClick={onLogin} isLoading={isLoading}>
                 Sign in
               </Button>
               <HStack>

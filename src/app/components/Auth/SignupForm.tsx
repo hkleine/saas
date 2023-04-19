@@ -43,13 +43,17 @@ export default function SimpleCard() {
       password: formData.password,
       options: {
         data: {
-          full_name: formData.fullName,
+          name: formData.name,
+          role: 0,
         },
       },
     });
 
     if (error) {
+      console.log(error);
       setSignupError(true);
+      setIsSubmitting(false);
+      return;
     }
 
     router.push('/login');
@@ -99,13 +103,13 @@ export default function SimpleCard() {
                 />
                 {errors.email && <FormError>{errors.email?.message?.toString()}</FormError>}
               </FormControl>
-              <FormControl id="fullName" isInvalid={'fullName' in errors} isRequired>
-                <FormLabel>Full name</FormLabel>
+              <FormControl id="name" isInvalid={'name' in errors} isRequired>
+                <FormLabel>Company name</FormLabel>
                 <Input
                   type="text"
-                  {...register('fullName', { required: { value: true, message: 'Full name is required.' } })}
+                  {...register('name', { required: { value: true, message: 'Company name is required.' } })}
                 />
-                {errors.fullName && <FormError>{errors.fullName?.message?.toString()}</FormError>}
+                {errors.name && <FormError>{errors.name?.message?.toString()}</FormError>}
               </FormControl>
               <FormControl id="password" isInvalid={'password' in errors} isRequired>
                 <FormLabel>Password</FormLabel>
@@ -137,7 +141,7 @@ export default function SimpleCard() {
                 <Button variant="outline" disabled={isSubmitting} as={Link} href="/login">
                   Cancel
                 </Button>
-                <Button type="submit" w="full" colorScheme="teal" isLoading={isSubmitting}>
+                <Button type="submit" w="full" isLoading={isSubmitting}>
                   Sign Up
                 </Button>
               </Flex>
