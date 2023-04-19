@@ -13,16 +13,26 @@ import {
   Input,
   NumberInput,
   NumberInputField,
+  Select,
   Stack,
   useToast,
 } from '@chakra-ui/react';
+import { useUser } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
 
+const ROLES = [
+  { id: 1, name: 'Overhead' },
+  { id: 2, name: 'Ausbilder' },
+  { id: 3, name: 'Azubi' },
+];
+
 export default function ConsultantForm() {
+  const user = useUser();
+  // Hier muss company_id von consultants benuttz werde nund user id von comapnies
+  const companyId = user!.id;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [signupError, setSignupError] = useState(false);
   const {
@@ -31,10 +41,10 @@ export default function ConsultantForm() {
     watch,
     formState: { errors },
   } = useForm({ mode: 'onBlur' });
-  const router = useRouter();
   const toast = useToast();
 
   const onSubmit = handleSubmit(async formData => {
+    console.log(formData);
     setIsSubmitting(true);
     setSignupError(false);
     const { error } = await supabase.auth.signUp({
@@ -43,7 +53,10 @@ export default function ConsultantForm() {
       options: {
         data: {
           name: formData.name,
-          role: 0,
+          role: formData.role,
+          percent: formData.percent,
+          upline: null,
+          company_id: companyId,
         },
       },
     });
@@ -55,7 +68,6 @@ export default function ConsultantForm() {
       return;
     }
 
-    router.push('/login');
     toast({
       title: 'Account created.',
       description: 'Please check your E-Mail inbox to verify your address.',
@@ -122,14 +134,21 @@ export default function ConsultantForm() {
             />
             {errors.confirmPassword && <FormError>{errors.confirmPassword?.message?.toString()}</FormError>}
           </FormControl>
-          <FormControl id="percent" isInvalid={'percent' in errors}>
+          <FormControl id="percent">
             <FormLabel>Umsatzbeteiligung</FormLabel>
-
-            <NumberInput defaultValue={0}>
+            <NumberInput defaultValue={0} max={100} min={0}>
               <NumberInputField min={0} max={100} {...register('percent')} />
             </NumberInput>
-            {errors.percent && <FormError>{errors.percent?.message?.toString()}</FormError>}
           </FormControl>
+
+          <FormControl id="role">
+            <Select defaultValue={3} {...register('role')}>
+              {ROLES.map(role => (
+                <option value={role.id}>{role.name}</option>
+              ))}
+            </Select>
+          </FormControl>
+
           <Flex gap={12}>
             <Button variant="outline" disabled={isSubmitting} as={Link} href="/login">
               Cancel

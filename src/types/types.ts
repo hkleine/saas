@@ -97,3 +97,5 @@ export type Overhead = BaseConsultant & {
 };
 
 export type Consultant = Overhead | Ausbilder | Azubi;
+
+export type Roles = Array<Database['public']['Tables']['roles']['Row']>;

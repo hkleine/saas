@@ -1,6 +1,6 @@
 import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
-import { ProductWithPrice, SubscriptionWithPriceAndProduct, UserWithEmail } from '../types/types';
+import { ProductWithPrice, Roles, SubscriptionWithPriceAndProduct, UserWithEmail } from '../types/types';
 
 export const supabase = createBrowserSupabaseClient<Database>({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -101,4 +101,14 @@ export async function getUser(): Promise<UserWithEmail | null> {
   }
 
   return { ...data, email: authData.user.email } as any;
+}
+
+export async function getRoles(): Promise<Roles | null> {
+  const { data, error } = await supabase.from('roles').select('*');
+  if (error) {
+    console.log(error.message);
+    return null;
+  }
+
+  return { data } as any;
 }
