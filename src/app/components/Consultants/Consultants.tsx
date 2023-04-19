@@ -16,7 +16,7 @@ import {
   Tag,
   TagLabel,
   Text,
-  VStack,
+  VStack
 } from '@chakra-ui/react';
 import { startCase } from 'lodash';
 import { FiPercent } from 'react-icons/fi';
@@ -61,8 +61,8 @@ function ConsultantCard({ consultant }: { consultant: Consultant }) {
       <Stack spacing={0} mb={5}>
         <HStack>
           <Avatar src="https://bit.ly/sage-adebayo" size="md" name="Segun Adebayo" ml={-1} mr={2} />
-          <Stack>
-            <HStack>
+          <Flex w="full" direction="column">
+            <HStack justify="space-between">
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
                 {consultant.name}
               </Heading>
@@ -74,7 +74,7 @@ function ConsultantCard({ consultant }: { consultant: Consultant }) {
             <Text mt="unset" color={'gray.500'}>
               {startCase(consultant.role.name)}
             </Text>
-          </Stack>
+          </Flex>
         </HStack>
       </Stack>
       <HStack>
