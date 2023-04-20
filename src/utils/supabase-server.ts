@@ -1,4 +1,4 @@
-import { Ausbilder, Azubi, Consultant, Overhead, SubscriptionWithPriceAndProduct, UserWithEmail } from '@/types/types';
+import { Ausbilder, Azubi, Consultant, Overhead, Roles, SubscriptionWithPriceAndProduct, UserWithEmail } from '@/types/types';
 import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { cookies, headers } from 'next/headers';
 import Stripe from 'stripe';
@@ -38,7 +38,8 @@ export async function getUser(): Promise<UserWithEmail | null> {
     return null;
   }
 
-  const { data, error } = await supabase.from('users').select('*').limit(1).single();
+  const { data, error } = await supabase.from('users u').select('*, consultant').limit(1).single();
+  console.log(data, error)
   if (error) {
     console.log(error.message);
     return null;
@@ -131,4 +132,15 @@ export async function getConsultants(): Promise<Array<Overhead> | null> {
 function calculateDownlineEarnings(upline: Consultant, downline: Consultant) {
   const percentageDifference = upline.percent - downline.percent;
   return (downline.earnings / 100) * percentageDifference;
+}
+
+export async function getRoles(): Promise<Roles | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.from('roles').select('*').neq('id', 0);
+  if (error) {
+    console.log(error.message);
+    return null;
+  }
+
+  return  data as any;
 }

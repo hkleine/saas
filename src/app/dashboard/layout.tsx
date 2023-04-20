@@ -7,7 +7,7 @@ import { RealTimeUserProvider } from '../components/Provider/RealTimeUserProvide
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const user = await getUser();
-
+  console.log(user)
   return (
     <AuthWrapper>
       <RealTimeUserProvider user={user}>

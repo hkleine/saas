@@ -1,5 +1,5 @@
 'use client';
-import { Consultant, Overhead } from '@/types/types';
+import { Consultant, Overhead, Roles } from '@/types/types';
 import {
   Avatar,
   Button,
@@ -24,14 +24,14 @@ import {
   TagLabel,
   Text,
   useDisclosure,
-  VStack,
+  VStack
 } from '@chakra-ui/react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { startCase } from 'lodash';
 import { FiPercent, FiUserPlus } from 'react-icons/fi';
 import ConsultantForm from '../Forms/ConsultantForm';
 
-export default function Consultants({ consultants }: { consultants: Array<Overhead> | null }) {
+export default function Consultants({ consultants, roles }: { consultants: Array<Overhead> | null, roles: Roles | null }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
@@ -69,7 +69,7 @@ export default function Consultants({ consultants }: { consultants: Array<Overhe
           <ModalHeader>Berater hinzufügen</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ConsultantForm />
+            <ConsultantForm roles={roles} />
           </ModalBody>
         </ModalContent>
       </Modal>

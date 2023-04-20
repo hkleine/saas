@@ -1,4 +1,5 @@
 'use client';
+import { Roles } from '@/types/types';
 import { supabase } from '@/utils/supabase-client';
 import {
   Alert,
@@ -15,7 +16,7 @@ import {
   NumberInputField,
   Select,
   Stack,
-  useToast,
+  useToast
 } from '@chakra-ui/react';
 import { useUser } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
@@ -23,13 +24,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
 
-const ROLES = [
-  { id: 1, name: 'Overhead' },
-  { id: 2, name: 'Ausbilder' },
-  { id: 3, name: 'Azubi' },
-];
-
-export default function ConsultantForm() {
+export default function ConsultantForm({roles}:{roles: Roles | null}) {
   const user = useUser();
   // Hier muss company_id von consultants benuttz werde nund user id von comapnies
   const companyId = user!.id;
@@ -143,9 +138,18 @@ export default function ConsultantForm() {
 
           <FormControl id="role">
             <Select defaultValue={3} {...register('role')}>
-              {ROLES.map(role => (
-                <option value={role.id}>{role.name}</option>
+              {roles && roles.map(role => (
+                <option key={`role-key-${role.id}`} value={role.id}>{role.name}</option>
               ))}
+            </Select>
+          </FormControl>
+
+          <FormControl id="upline">
+            <Select {...register('upline')}>
+              {/* watch role und dann subtrahiere um die nächst höhere role zu bekommen */}
+              {/* {roles && roles.map(role => (
+                <option key={`role-key-${role.id}`} value={role.id}>{role.name}</option>
+              ))} */}
             </Select>
           </FormControl>
 
