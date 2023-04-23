@@ -26,7 +26,6 @@ interface MobileProps extends FlexProps {
 
 export function MobileNav({ onOpen, ...rest }: MobileProps) {
   const user = useContext(RealTimeUserContext);
-  console.log(user);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | undefined>();
 
   const supabaseClient = useSupabaseClient();

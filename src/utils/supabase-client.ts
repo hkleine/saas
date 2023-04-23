@@ -102,3 +102,12 @@ export async function getUser(): Promise<UserWithEmail | null> {
 
   return { ...data, email: authData.user.email } as any;
 }
+
+export async function deleteConsultant(id: string) {
+  const { error } = await supabase.auth.admin.deleteUser(id);
+
+  if (error) {
+    console.log(error.message);
+    return null;
+  }
+}

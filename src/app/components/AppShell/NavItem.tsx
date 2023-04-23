@@ -22,11 +22,11 @@ export function NavItem({ icon, children, href, ...rest }: NavItemProps) {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: 'gray.50',
+          bg: 'primary.50',
           color: 'primary.500',
         }}
         color={isActive ? 'primary.500' : 'gray.800'}
-        background={isActive ? 'gray.50' : 'white'}
+        background={isActive ? 'primary.50' : 'white'}
         {...rest}
       >
         {icon && <Icon mr="4" fontSize="16" as={icon} />}

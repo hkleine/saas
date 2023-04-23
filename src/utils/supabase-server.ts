@@ -38,7 +38,6 @@ export async function getPaymentMethod(): Promise<Stripe.PaymentMethod['card'] |
   return data.payment_method as any;
 }
 
-// TYPEN ANPASSEN!
 export async function getUser(): Promise<UserWithEmail | null> {
   const supabase = createClient();
   const { data: authData, error: authUserError } = await supabase.auth.getUser();
@@ -54,7 +53,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
     .eq('id', authData.user.id)
     .limit(1)
     .single();
-  console.log('stuff', data);
+
   if (error) {
     console.log(error.message);
     return null;
@@ -70,13 +69,13 @@ function convertConsultant(consultantData: any): Array<ConsultantWithCurrentEarn
         const earningDate = new Date(earning.date);
         const now = new Date();
         return earningDate.getMonth() === now.getMonth();
-      });
+      })!;
 
       return {
         ...omit(consultant, ['users', 'earnings']),
         name,
         role,
-        currentEarning: currentMonthsEarning ? currentMonthsEarning.value : 0,
+        currentEarning: { value: currentMonthsEarning.value, id: currentMonthsEarning.id },
       };
     }
   );

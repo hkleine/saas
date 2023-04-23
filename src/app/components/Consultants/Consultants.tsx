@@ -1,11 +1,24 @@
 'use client';
 import { ConsultantWithCurrentEarning } from '@/types/types';
+import { deleteConsultant } from '@/utils/supabase-client';
 import {
   Avatar,
+  Button,
   Card,
   Flex,
   Heading,
   HStack,
+  IconButton,
+  InputGroup,
+  InputRightAddon,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  NumberInput,
+  NumberInputField,
   Stack,
   Stat,
   StatArrow,
@@ -15,10 +28,11 @@ import {
   Tag,
   TagLabel,
   Text,
+  useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { useMemo } from 'react';
-import { FiPercent } from 'react-icons/fi';
+import { useMemo, useState } from 'react';
+import { FiDollarSign, FiEdit2, FiPercent, FiTrash } from 'react-icons/fi';
 
 export default function Consultants({ consultants }: { consultants: Array<ConsultantWithCurrentEarning> | null }) {
   if (!consultants) {
@@ -62,6 +76,8 @@ function ConsultantCard({
   otherConsultants: Array<ConsultantWithCurrentEarning>;
   consultant: ConsultantWithCurrentEarning;
 }) {
+  const { onOpen, isOpen, onClose } = useDisclosure();
+  const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
   const downlineEarnings = useMemo(
     () => calculateDownlineEarnings({ otherConsultants, consultant }),
     [otherConsultants, consultant]
@@ -72,8 +88,10 @@ function ConsultantCard({
     [otherConsultants, consultant]
   );
 
+  const isConsultantDeletable = otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id);
+
   return (
-    <Card width={380} p={6} boxShadow={'lg'} rounded={'lg'}>
+    <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
       <Stack spacing={0} mb={5}>
         <HStack>
           <Avatar src="https://bit.ly/sage-adebayo" size="md" name="Segun Adebayo" ml={-1} mr={2} />
@@ -82,14 +100,34 @@ function ConsultantCard({
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
                 {consultant.name}
               </Heading>
-              <Tag size="md" colorScheme="cyan" borderRadius="full">
+              <Flex direction="row">
+                <IconButton
+                  onClick={onOpenAdjustEarning}
+                  size="xs"
+                  variant="ghost"
+                  aria-label="edit consultant"
+                  icon={<FiDollarSign />}
+                />
+                <IconButton size="xs" variant="ghost" aria-label="edit consultant" icon={<FiEdit2 />} />
+                <IconButton
+                  isDisabled={isConsultantDeletable}
+                  size="xs"
+                  variant="ghost"
+                  aria-label="delete consultant"
+                  icon={<FiTrash />}
+                  onClick={onOpen}
+                />
+              </Flex>
+            </HStack>
+            <Flex direction="row" gap="2">
+              <Text mt="unset" color={'gray.500'}>
+                {consultant.role.name}
+              </Text>
+              <Tag size="sm" colorScheme="cyan" borderRadius="full">
                 <TagLabel mr={1}>{consultant.percent}</TagLabel>
                 <FiPercent />
               </Tag>
-            </HStack>
-            <Text mt="unset" color={'gray.500'}>
-              {consultant.role.name}
-            </Text>
+            </Flex>
           </Flex>
         </HStack>
       </Stack>
@@ -97,7 +135,7 @@ function ConsultantCard({
         <Stat>
           <StatLabel>Eigene Einnahmen</StatLabel>
           <HStack>
-            <StatNumber>{consultant.currentEarning}€</StatNumber>
+            <StatNumber>{consultant.currentEarning.value}€</StatNumber>
             {uplineLevy > 0 ? (
               <StatHelpText>
                 <StatArrow type="decrease" />
@@ -115,7 +153,84 @@ function ConsultantCard({
           </Stat>
         ) : null}
       </HStack>
+      <DeletionModal id={consultant.id} onClose={onClose} isOpen={isOpen} />
+      <AdjustEarningModal
+        earning={consultant.currentEarning}
+        onClose={onCloseAdjustEarning}
+        isOpen={isAdjustEarningOpen}
+      />
     </Card>
+  );
+}
+
+function AdjustEarningModal({
+  isOpen,
+  onClose,
+  earning,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  earning: { id: string; value: number };
+}) {
+  const [earningValue, setEarningValue] = useState(earning.value);
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Einnahmen bearbeiten</ModalHeader>
+        <ModalBody>
+          <InputGroup>
+            <NumberInput
+              clampValueOnBlur={true}
+              precision={2}
+              min={0}
+              max={10000000}
+              w="full"
+              value={earningValue}
+              onChange={newValue => setEarningValue(parseFloat(newValue))}
+            >
+              <NumberInputField />
+            </NumberInput>
+            <InputRightAddon>€</InputRightAddon>
+          </InputGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button w="full" colorScheme="primary">
+            Speichern
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () => void; id: string }) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function onDelete() {
+    setIsDeleting(true);
+    await deleteConsultant(id);
+    setIsDeleting(false);
+    onClose();
+  }
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Berater unwideruflich löschen?</ModalHeader>
+        <ModalBody>Diese Aktion ist unwirderuflich und löscht den Account des Beraters.</ModalBody>
+
+        <ModalFooter>
+          <Button isLoading={isDeleting} mr={3} variant="ghost" onClick={onClose}>
+            Abbruch
+          </Button>
+          <Button isLoading={isDeleting} onClick={onDelete} colorScheme="red">
+            Löschen
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -128,7 +243,7 @@ function calculateUplineLevy({
 }) {
   const upline = otherConsultants.find(otherConsultants => otherConsultants.id === consultant.upline);
   const percentDifference = upline ? upline.percent - consultant.percent : 0;
-  return (consultant.currentEarning / 100) * percentDifference;
+  return (consultant.currentEarning.value / 100) * percentDifference;
 }
 
 function calculateDownlineEarnings({
@@ -142,6 +257,6 @@ function calculateDownlineEarnings({
   return downlines.reduce((previousNumber, currentDownline) => {
     const percentDifference = consultant.percent - currentDownline.percent;
 
-    return previousNumber + (currentDownline.currentEarning / 100) * percentDifference;
+    return previousNumber + (currentDownline.currentEarning.value / 100) * percentDifference;
   }, 0);
 }

@@ -46,6 +46,7 @@ export default function ConsultantForm({
     formState: { errors },
   } = useForm({ mode: 'onBlur' });
   const roleWatch = watch('role', DEFAULT_ROLE);
+  const isUplineRequired = roleWatch < 2 ? false : true;
   const toast = useToast();
   const user = useContext(RealTimeUserContext);
 
@@ -177,15 +178,21 @@ export default function ConsultantForm({
               </Select>
             </FormControl>
 
-            <FormControl id="upline">
+            <FormControl id="upline" isRequired={isUplineRequired}>
               <FormLabel>Upline</FormLabel>
-              <Select placeholder="Wähle eine Upline aus" {...register('upline')}>
+              <Select
+                placeholder="Wähle eine Upline aus"
+                {...register('upline', {
+                  required: { value: isUplineRequired, message: 'Diese Rolle braucht eine Upline' },
+                })}
+              >
                 {potentialUplines.map(upline => (
                   <option key={`upline-key-${upline.id}`} value={upline.id}>
                     {upline.name}
                   </option>
                 ))}
               </Select>
+              {errors.upline && <FormError>{errors.upline?.message?.toString()}</FormError>}
             </FormControl>
 
             <Button type="submit" w="full" isLoading={isSubmitting}>
