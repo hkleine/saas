@@ -73,7 +73,7 @@ export default function Profile() {
             required: { value: true, message: 'Email is required.' },
             pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid E-Mail address.' },
           })}
-          defaultValue={user?.email ?? ''}
+          defaultValue={user.email ?? ''}
           id="email"
           placeholder="your-email@example.com"
           _placeholder={{ color: 'gray.500' }}
@@ -85,7 +85,7 @@ export default function Profile() {
         <FormLabel>Full name</FormLabel>
         <Input
           {...register('fullName')}
-          defaultValue={user?.full_name ?? ''}
+          defaultValue={user?.name ?? ''}
           id="email"
           placeholder="John Doe"
           _placeholder={{ color: 'gray.500' }}

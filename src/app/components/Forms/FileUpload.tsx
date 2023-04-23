@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 interface FileUploadProps {
   uid: string;
   onUpload: (url: string) => void;
-  avatarUrl?: string;
+  avatarUrl: string | null;
   children?: ReactNode;
 }
 
