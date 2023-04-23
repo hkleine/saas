@@ -94,7 +94,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
     return null;
   }
 
-  const { data, error } = await supabase.from('users').select('*').limit(1).single();
+  const { data, error } = await supabase.from('users').select('*, role(name)').limit(1).single();
   if (error) {
     console.log(error.message);
     return null;

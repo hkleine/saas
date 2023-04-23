@@ -146,7 +146,12 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
     await copyBillingDetailsToCustomer(uuid, subscription.default_payment_method as Stripe.PaymentMethod);
 };
 
+async function createUser(attributes: { email: string; password: string; user_metadata: { [key: string]: any } }) {
+  return supabaseAdmin.auth.admin.createUser(attributes);
+}
+
 export {
+  createUser,
   upsertProductRecord,
   upsertPriceRecord,
   createOrRetrieveCustomer,

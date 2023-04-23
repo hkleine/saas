@@ -11,7 +11,7 @@ export function RealTimeUserProvider({ children, user }: { children?: ReactNode;
   useEffect(() => {
     const channel = subscribeToUser(async payload => {
       const { data: authData, error: authUserError } = await supabase.auth.getUser();
-
+      console.log(authData);
       if (authUserError) {
         console.log(authUserError.message);
         return null;

@@ -1,13 +1,12 @@
-import Consultants from '@/app/components/Consultants/Consultants';
+import ConsultantsContainer from '@/app/components/Consultants/ConsultantsContainer';
 import { getConsultants, getRoles } from '@/utils/supabase-server';
 
 export default async function Settings() {
-  const consultants = await getConsultants();
   const roles = await getRoles();
+  const consultants = await getConsultants();
+  if (!roles) {
+    return null;
+  }
 
-  return (
-    <div>
-      <Consultants consultants={consultants} roles={roles}/>
-    </div>
-  );
+  return <ConsultantsContainer roles={roles} consultants={consultants} />;
 }

@@ -1,4 +1,3 @@
-import { User } from '@supabase/auth-helpers-nextjs';
 import Stripe from 'stripe';
 import { Database } from './supabase';
 export interface PageMeta {
@@ -35,13 +34,16 @@ export interface SubscriptionWithPriceAndProduct extends Subscription {
 
 export interface UserDetails {
   id: string /* primary key */;
-  full_name?: string;
+  name?: string;
   avatar_url?: string;
   billing_address?: Stripe.Address;
   payment_method?: Stripe.PaymentMethod[Stripe.PaymentMethod.Type];
 }
 
-export type UserWithEmail = UserDetails & { email: User['email'] };
+export type UserWithEmail = DatabaseUser & { email: string } & {
+  consultants: DatabaseConsultant | null;
+  role: { name: Role['name'] };
+};
 
 export interface Price {
   id: string /* primary key */;
@@ -77,25 +79,18 @@ export interface Subscription {
   prices?: Price;
 }
 
-export type BaseConsultant = Omit<Database['public']['Tables']['consultants']['Row'], 'upline' | 'role'> & {
-  role: { name: string };
+export type DatabaseConsultant = Database['public']['Tables']['consultants']['Row'];
+export type DatabaseUser = Database['public']['Tables']['users']['Row'];
+export type DatabaseEarnings = Database['public']['Tables']['earnings']['Row'];
+export type Role = Database['public']['Tables']['roles']['Row'];
+
+export type BaseConsultant = Omit<DatabaseConsultant, 'role'> & {
+  role: Role;
+  name: string;
 };
 
-export type Azubi = BaseConsultant & {
-  upline: string;
+export type ConsultantWithCurrentEarning = BaseConsultant & {
+  currentEarning: number;
 };
-
-export type Ausbilder = BaseConsultant & {
-  downlines: Array<Azubi>;
-  downlineEarnings: number;
-  upline: string;
-};
-
-export type Overhead = BaseConsultant & {
-  downlineEarnings: number;
-  downlines: Array<Ausbilder>;
-};
-
-export type Consultant = Overhead | Ausbilder | Azubi;
 
 export type Roles = Array<Database['public']['Tables']['roles']['Row']>;

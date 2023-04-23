@@ -1,6 +1,7 @@
 import { createSignedImageUrl } from '@/utils/supabase-client';
 import {
   Avatar,
+  Badge,
   Box,
   Flex,
   FlexProps,
@@ -13,7 +14,6 @@ import {
   MenuList,
   Text,
   useColorModeValue,
-  VStack,
 } from '@chakra-ui/react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
@@ -47,6 +47,10 @@ export function MobileNav({ onOpen, ...rest }: MobileProps) {
     }
     setSignedAvatarUrl(undefined);
   }, [user]);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Flex
@@ -85,9 +89,12 @@ export function MobileNav({ onOpen, ...rest }: MobileProps) {
                   bg="gray.400"
                   icon={<FiUser fontWeight="400" />}
                 />
-                <VStack display={{ base: 'none', md: 'flex' }} alignItems="flex-start" spacing="1px" ml="2">
-                  <Text fontSize="sm">{user?.full_name ?? user?.email ?? ''}</Text>
-                </VStack>
+                <HStack gap={2} display={{ base: 'none', md: 'flex' }} alignItems="flex-start" spacing="1px" ml="2">
+                  <Text fontSize="sm">{user.name ?? user.email ?? ''}</Text>
+                  <Badge size="xs" borderRadius="lg" px={2} py={0.5}>
+                    {user.role.name}
+                  </Badge>
+                </HStack>
                 <Box display={{ base: 'none', md: 'flex' }}>
                   <FiChevronDown />
                 </Box>

@@ -1,19 +1,11 @@
 'use client';
-import { Consultant, Overhead, Roles } from '@/types/types';
+import { ConsultantWithCurrentEarning } from '@/types/types';
 import {
   Avatar,
-  Button,
   Card,
   Flex,
   Heading,
   HStack,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  SimpleGrid,
   Stack,
   Stat,
   StatArrow,
@@ -23,66 +15,62 @@ import {
   Tag,
   TagLabel,
   Text,
-  useDisclosure,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
-import { useUser } from '@supabase/auth-helpers-react';
-import { startCase } from 'lodash';
-import { FiPercent, FiUserPlus } from 'react-icons/fi';
-import ConsultantForm from '../Forms/ConsultantForm';
+import { useMemo } from 'react';
+import { FiPercent } from 'react-icons/fi';
 
-export default function Consultants({ consultants, roles }: { consultants: Array<Overhead> | null, roles: Roles | null }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+export default function Consultants({ consultants }: { consultants: Array<ConsultantWithCurrentEarning> | null }) {
+  if (!consultants) {
+    return null;
+  }
+  const overheads = consultants.filter(consultant => consultant.role.id === 1);
+  const ausbilder = consultants.filter(consultant => consultant.role.id === 2);
+  const azubis = consultants.filter(consultant => consultant.role.id === 3);
+
   return (
-    <>
-      <Button leftIcon={<FiUserPlus />} onClick={onOpen}>
-        Berater hinzufügen
-      </Button>
-      {consultants &&
-        consultants.map(consultant => {
-          return (
-            <VStack key={consultant.id} gap={6}>
-              <ConsultantCard consultant={consultant} />
-              <Flex>
-                {consultant.downlines &&
-                  consultant.downlines.map(downline => {
-                    return (
-                      <VStack key={downline.id} gap={6}>
-                        <ConsultantCard consultant={downline} />
-                        <SimpleGrid columns={2} spacing={4}>
-                          {downline.downlines &&
-                            downline.downlines.map(deeperDownline => (
-                              <ConsultantCard key={deeperDownline.id} consultant={deeperDownline} />
-                            ))}
-                        </SimpleGrid>
-                      </VStack>
-                    );
-                  })}
-              </Flex>
-            </VStack>
-          );
-        })}
-
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent p={4} borderRadius="xl">
-          <ModalHeader>Berater hinzufügen</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <ConsultantForm roles={roles} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+    <Flex gap={20}>
+      {overheads.map(overhead => (
+        <VStack key={overhead.id}>
+          <ConsultantCard consultant={overhead} otherConsultants={consultants} />
+          <Flex>
+            {ausbilder
+              .filter(a => a.upline === overhead.id)
+              .map(au => (
+                <VStack key={au.id}>
+                  <ConsultantCard consultant={au} otherConsultants={consultants} />
+                  <HStack>
+                    {azubis
+                      .filter(a => a.upline === au.id)
+                      .map(az => (
+                        <ConsultantCard key={az.id} consultant={az} otherConsultants={consultants} />
+                      ))}
+                  </HStack>
+                </VStack>
+              ))}
+          </Flex>
+        </VStack>
+      ))}
+    </Flex>
   );
 }
 
-function ConsultantCard({ consultant }: { consultant: Consultant }) {
-  const user = useUser();
+function ConsultantCard({
+  consultant,
+  otherConsultants,
+}: {
+  otherConsultants: Array<ConsultantWithCurrentEarning>;
+  consultant: ConsultantWithCurrentEarning;
+}) {
+  const downlineEarnings = useMemo(
+    () => calculateDownlineEarnings({ otherConsultants, consultant }),
+    [otherConsultants, consultant]
+  );
 
-  if (!user) {
-    return null;
-  }
+  const uplineLevy = useMemo(
+    () => calculateUplineLevy({ otherConsultants, consultant }),
+    [otherConsultants, consultant]
+  );
 
   return (
     <Card width={380} p={6} boxShadow={'lg'} rounded={'lg'}>
@@ -92,7 +80,7 @@ function ConsultantCard({ consultant }: { consultant: Consultant }) {
           <Flex w="full" direction="column">
             <HStack justify="space-between">
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
-                {user.user_metadata.name}
+                {consultant.name}
               </Heading>
               <Tag size="md" colorScheme="cyan" borderRadius="full">
                 <TagLabel mr={1}>{consultant.percent}</TagLabel>
@@ -100,7 +88,7 @@ function ConsultantCard({ consultant }: { consultant: Consultant }) {
               </Tag>
             </HStack>
             <Text mt="unset" color={'gray.500'}>
-              {startCase(consultant.role.name)}
+              {consultant.role.name}
             </Text>
           </Flex>
         </HStack>
@@ -109,22 +97,51 @@ function ConsultantCard({ consultant }: { consultant: Consultant }) {
         <Stat>
           <StatLabel>Eigene Einnahmen</StatLabel>
           <HStack>
-            {/* <StatNumber>{consultant.earnings}€</StatNumber> */}
-            <StatHelpText>
-              <StatArrow type="increase" />
-              23.36%
-            </StatHelpText>
+            <StatNumber>{consultant.currentEarning}€</StatNumber>
+            {uplineLevy > 0 ? (
+              <StatHelpText>
+                <StatArrow type="decrease" />
+                {uplineLevy.toFixed(2)}
+              </StatHelpText>
+            ) : null}
           </HStack>
         </Stat>
-        {'downlineEarnings' in consultant ? (
+        {downlineEarnings > 0 ? (
           <Stat>
             <StatLabel>Downline Einnahmen</StatLabel>
             <HStack>
-              <StatNumber>{consultant.downlineEarnings}€</StatNumber>
+              <StatNumber>{downlineEarnings.toFixed(2)}€</StatNumber>
             </HStack>
           </Stat>
         ) : null}
       </HStack>
     </Card>
   );
+}
+
+function calculateUplineLevy({
+  otherConsultants,
+  consultant,
+}: {
+  otherConsultants: Array<ConsultantWithCurrentEarning>;
+  consultant: ConsultantWithCurrentEarning;
+}) {
+  const upline = otherConsultants.find(otherConsultants => otherConsultants.id === consultant.upline);
+  const percentDifference = upline ? upline.percent - consultant.percent : 0;
+  return (consultant.currentEarning / 100) * percentDifference;
+}
+
+function calculateDownlineEarnings({
+  otherConsultants,
+  consultant,
+}: {
+  otherConsultants: Array<ConsultantWithCurrentEarning>;
+  consultant: ConsultantWithCurrentEarning;
+}) {
+  const downlines = otherConsultants.filter(otherConsultant => otherConsultant.upline === consultant.id);
+  return downlines.reduce((previousNumber, currentDownline) => {
+    const percentDifference = consultant.percent - currentDownline.percent;
+
+    return previousNumber + (currentDownline.currentEarning / 100) * percentDifference;
+  }, 0);
 }
