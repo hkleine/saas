@@ -11,6 +11,9 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
       if (event === 'SIGNED_OUT' && !session) {
         router.push('/login');
       }
+      if (event === 'SIGNED_IN' && !session) {
+        router.push('/dashboard');
+      }
     });
   }, []);
 

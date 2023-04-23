@@ -13,7 +13,6 @@ import {
   MenuItem,
   MenuList,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
@@ -27,6 +26,7 @@ interface MobileProps extends FlexProps {
 
 export function MobileNav({ onOpen, ...rest }: MobileProps) {
   const user = useContext(RealTimeUserContext);
+  console.log(user);
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | undefined>();
 
   const supabaseClient = useSupabaseClient();
@@ -58,9 +58,9 @@ export function MobileNav({ onOpen, ...rest }: MobileProps) {
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue('white', 'gray.900')}
+      bg="white"
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+      borderBottomColor="gray.200"
       justifyContent={{ base: 'space-between', md: 'flex-end' }}
       {...rest}
     >
@@ -100,12 +100,7 @@ export function MobileNav({ onOpen, ...rest }: MobileProps) {
                 </Box>
               </HStack>
             </MenuButton>
-            <MenuList
-              paddingX={4}
-              bg={useColorModeValue('white', 'gray.900')}
-              borderColor={useColorModeValue('gray.100', 'gray.700')}
-              boxShadow="lg"
-            >
+            <MenuList paddingX={4} bg="white" borderColor="gray.100" boxShadow="lg">
               <MenuItem as={Link} href={'/dashboard/profile'}>
                 Profile
               </MenuItem>
