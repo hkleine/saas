@@ -65,6 +65,7 @@ function convertConsultant(consultantData: any): Array<ConsultantWithCurrentEarn
   return consultantData.map(
     (consultant: DatabaseConsultant & { users: DatabaseUser; earnings: Array<DatabaseEarnings> }) => {
       const { name, role } = consultant.users;
+
       const currentMonthsEarning = consultant.earnings.find(earning => {
         const earningDate = new Date(earning.date);
         const now = new Date();

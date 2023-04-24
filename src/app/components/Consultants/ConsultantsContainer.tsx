@@ -41,7 +41,7 @@ export default function ConsultantsContainer({
           <ModalHeader>Berater hinzufügen</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ConsultantForm roles={roles} consultants={consultants} />
+            <ConsultantForm onClose={onClose} roles={roles} consultants={consultants} />
           </ModalBody>
         </ModalContent>
       </Modal>

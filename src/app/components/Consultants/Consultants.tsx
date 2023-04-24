@@ -1,7 +1,12 @@
 'use client';
 import { ConsultantWithCurrentEarning } from '@/types/types';
-import { deleteConsultant } from '@/utils/supabase-client';
+import { deleteData } from '@/utils/helpers';
+import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
   Avatar,
   Button,
   Card,
@@ -29,6 +34,7 @@ import {
   TagLabel,
   Text,
   useDisclosure,
+  useToast,
   VStack,
 } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
@@ -155,6 +161,7 @@ function ConsultantCard({
       </HStack>
       <DeletionModal id={consultant.id} onClose={onClose} isOpen={isOpen} />
       <AdjustEarningModal
+        id={consultant.id}
         earning={consultant.currentEarning}
         onClose={onCloseAdjustEarning}
         isOpen={isAdjustEarningOpen}
@@ -167,12 +174,41 @@ function AdjustEarningModal({
   isOpen,
   onClose,
   earning,
+  id,
 }: {
   isOpen: boolean;
   onClose: () => void;
   earning: { id: string; value: number };
+  id: string;
 }) {
-  const [earningValue, setEarningValue] = useState(earning.value);
+  const [earningValue, setEarningValue] = useState(`${earning.value}`);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const toast = useToast();
+
+  async function updateEarning() {
+    setIsUpdating(true);
+
+    try {
+      await updateCurrentEarning({ id, newValue: earningValue });
+    } catch (error) {
+      console.log(error);
+      setHasError(true);
+      setIsUpdating(false);
+      return;
+    }
+
+    setIsUpdating(false);
+    onClose();
+    toast({
+      title: 'Einnahmen angepasst',
+      status: 'success',
+      icon: <FiDollarSign />,
+      duration: 9000,
+      isClosable: true,
+    });
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -187,7 +223,7 @@ function AdjustEarningModal({
               max={10000000}
               w="full"
               value={earningValue}
-              onChange={newValue => setEarningValue(parseFloat(newValue))}
+              onChange={newValue => setEarningValue(newValue)}
             >
               <NumberInputField />
             </NumberInput>
@@ -195,7 +231,7 @@ function AdjustEarningModal({
           </InputGroup>
         </ModalBody>
         <ModalFooter>
-          <Button w="full" colorScheme="primary">
+          <Button onClick={updateEarning} isLoading={isUpdating} w="full" colorScheme="primary">
             Speichern
           </Button>
         </ModalFooter>
@@ -206,10 +242,34 @@ function AdjustEarningModal({
 
 function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () => void; id: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [hasDeletionError, setHasDeletionError] = useState(false);
+  const toast = useToast();
 
   async function onDelete() {
+    setHasDeletionError(false);
     setIsDeleting(true);
-    await deleteConsultant(id);
+
+    try {
+      await deleteData({
+        url: '/api/delete-user',
+        data: {
+          id,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      setHasDeletionError(true);
+      setIsDeleting(false);
+      return;
+    }
+
+    toast({
+      title: 'Berater gelöscht.',
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+    });
+
     setIsDeleting(false);
     onClose();
   }
@@ -219,6 +279,13 @@ function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () =
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Berater unwideruflich löschen?</ModalHeader>
+        {hasDeletionError && (
+          <Alert mb="2" rounded={'lg'} status="error">
+            <AlertIcon />
+            <AlertTitle>Fehler beim Löschen!</AlertTitle>
+            <AlertDescription>Versuche es später erneut.</AlertDescription>
+          </Alert>
+        )}
         <ModalBody>Diese Aktion ist unwirderuflich und löscht den Account des Beraters.</ModalBody>
 
         <ModalFooter>

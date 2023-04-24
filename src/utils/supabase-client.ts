@@ -1,6 +1,6 @@
 import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
-import { ProductWithPrice, SubscriptionWithPriceAndProduct, UserWithEmail } from '../types/types';
+import { ProductWithPrice, Roles, SubscriptionWithPriceAndProduct, UserWithEmail } from '../types/types';
 
 export const supabase = createBrowserSupabaseClient<Database>({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -79,10 +79,21 @@ export async function deleteFile({ filePath }: { filePath: string }) {
   return supabase.storage.from('avatars').remove([filePath]);
 }
 
-export function subscribeToUser(callback: (paylod: { [key: string]: any }) => void) {
+export function subscribeToUser(userId: string, callback: (paylod: { [key: string]: any }) => void) {
   return supabase
     .channel('schema-db-changes')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users' }, callback)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'users', filter: `id=eq.${userId}` }, callback)
+    .subscribe();
+}
+
+export function subscribeToCompanyUsers(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
+  return supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'users', filter: `company=eq.${companyId}` },
+      callback
+    )
     .subscribe();
 }
 
@@ -103,11 +114,24 @@ export async function getUser(): Promise<UserWithEmail | null> {
   return { ...data, email: authData.user.email } as any;
 }
 
-export async function deleteConsultant(id: string) {
-  const { error } = await supabase.auth.admin.deleteUser(id);
+export async function updateCurrentEarning({ id, newValue }: { id: string; newValue: string }) {
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0).toISOString();
+  const { error } = await supabase
+    .from('earnings')
+    .update({ value: Number(newValue) })
+    .eq('consultant_id', id)
+    .gte('date', firstDayOfMonth);
+  if (error) throw error;
+  return null;
+}
 
+export async function getRoles(): Promise<Roles | null> {
+  const { data, error } = await supabase.from('roles').select('*');
   if (error) {
     console.log(error.message);
     return null;
   }
+
+  return data as any;
 }

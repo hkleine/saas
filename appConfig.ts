@@ -1,3 +1,3 @@
 export const appConfig = {
-  name: 'Saas',
+  name: 'MLMania',
 } as const;

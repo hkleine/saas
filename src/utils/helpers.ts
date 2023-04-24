@@ -29,6 +29,25 @@ export const postData = async ({ url, data }: { url: string; data?: any }) => {
   return res.json();
 };
 
+export const deleteData = async ({ url, data }: { url: string; data?: any }) => {
+  console.log('deleting,', url, data);
+
+  const res: Response = await fetch(url, {
+    method: 'DELETE',
+    headers: new Headers({ 'Content-Type': 'application/json' }),
+    credentials: 'same-origin',
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    console.log('Error in postData', { url, data, res });
+
+    throw Error(res.statusText);
+  }
+
+  return res.json();
+};
+
 export const toDateTime = (secs: number) => {
   const t = new Date('1970-01-01T00:30:00Z'); // Unix epoch start.
   t.setSeconds(secs);

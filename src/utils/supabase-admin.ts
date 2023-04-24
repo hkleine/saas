@@ -150,6 +150,10 @@ async function createUser(attributes: { email: string; password: string; user_me
   return supabaseAdmin.auth.admin.createUser(attributes);
 }
 
+export async function deleteUser(id: string) {
+  return supabaseAdmin.auth.admin.deleteUser(id);
+}
+
 export {
   createUser,
   upsertProductRecord,

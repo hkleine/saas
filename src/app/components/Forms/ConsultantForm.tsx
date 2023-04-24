@@ -28,9 +28,11 @@ import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 export default function ConsultantForm({
   roles,
   consultants,
+  onClose,
 }: {
   consultants: Array<ConsultantWithCurrentEarning> | null;
   roles: Roles;
+  onClose: () => void;
 }) {
   const DEFAULT_ROLE = 3;
   const DEFAULT_POTENTIAL_UPLINE = DEFAULT_ROLE - 1;
@@ -85,7 +87,7 @@ export default function ConsultantForm({
       setIsSubmitting(false);
       return;
     }
-
+    onClose();
     toast({
       title: 'Berater angelegt.',
       description: 'Die E-Mail Adresse des Beraters muss noch bestätigt werden.',
