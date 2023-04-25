@@ -1,6 +1,14 @@
 import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
-import { ProductWithPrice, Roles, SubscriptionWithPriceAndProduct, UserWithEmail } from '../types/types';
+import { isNil } from 'lodash';
+import {
+  ConsultantWithCurrentEarning,
+  ProductWithPrice,
+  Roles,
+  SubscriptionWithPriceAndProduct,
+  UserWithEmail,
+} from '../types/types';
+import { convertConsultant } from './convertConsultant';
 
 export const supabase = createBrowserSupabaseClient<Database>({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -81,17 +89,36 @@ export async function deleteFile({ filePath }: { filePath: string }) {
 
 export function subscribeToUser(userId: string, callback: (paylod: { [key: string]: any }) => void) {
   return supabase
-    .channel('schema-db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'users', filter: `id=eq.${userId}` }, callback)
+    .channel('user-changes')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `id=eq.${userId}` }, callback)
     .subscribe();
 }
 
 export function subscribeToCompanyUsers(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
   return supabase
-    .channel('schema-db-changes')
+    .channel('consultant-changes')
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'users', filter: `company=eq.${companyId}` },
+      { event: '*', schema: 'public', table: 'consultants', filter: `company_id=eq.${companyId}` },
+      callback
+    )
+    .subscribe();
+}
+
+export function subscribeToCompanyEarnings(
+  consultantIds: Array<string>,
+  callback: (paylod: { [key: string]: any }) => void
+) {
+  return supabase
+    .channel('earning-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'earnings',
+        filter: `consultant_id=in.(${consultantIds.toString()})`,
+      },
       callback
     )
     .subscribe();
@@ -105,13 +132,41 @@ export async function getUser(): Promise<UserWithEmail | null> {
     return null;
   }
 
-  const { data, error } = await supabase.from('users').select('*, role(name)').limit(1).single();
+  const { data, error } = await supabase
+    .from('users')
+    .select('*, consultants!consultants_id_fkey(*), role(name)')
+    .eq('id', authData.user.id)
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.log(error.message);
+    return null;
+  }
+  return { ...data, email: authData.user.email } as any;
+}
+
+export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarning> | null> {
+  const user = await getUser();
+
+  if (!user) {
+    return null;
+  }
+  const companyId = isNil(user.consultants) ? user.id : user.consultants.company_id;
+
+  const { data, error } = await supabase
+    .from('consultants')
+    .select('*, earnings(*), users!consultants_id_fkey(name, role:role(*))')
+    .eq('company_id', companyId);
+
   if (error) {
     console.log(error.message);
     return null;
   }
 
-  return { ...data, email: authData.user.email } as any;
+  const consultant = convertConsultant(data);
+
+  return consultant;
 }
 
 export async function updateCurrentEarning({ id, newValue }: { id: string; newValue: string }) {

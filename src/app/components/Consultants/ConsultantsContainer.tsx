@@ -33,7 +33,7 @@ export default function ConsultantsContainer({
         </Button>
       </Flex>
 
-      <Consultants consultants={consultants} />
+      <Consultants />
 
       <Modal size="2xl" isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

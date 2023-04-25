@@ -11,6 +11,7 @@ import {
   Button,
   Card,
   Flex,
+  Grid,
   Heading,
   HStack,
   IconButton,
@@ -37,10 +38,13 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { FiDollarSign, FiEdit2, FiPercent, FiTrash } from 'react-icons/fi';
+import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 
-export default function Consultants({ consultants }: { consultants: Array<ConsultantWithCurrentEarning> | null }) {
+export default function Consultants() {
+  const consultants = useContext(RealTimeCompanyConsultantsContext);
+
   if (!consultants) {
     return null;
   }
@@ -53,19 +57,19 @@ export default function Consultants({ consultants }: { consultants: Array<Consul
       {overheads.map(overhead => (
         <VStack key={overhead.id}>
           <ConsultantCard consultant={overhead} otherConsultants={consultants} />
-          <Flex>
+          <Flex gap={2}>
             {ausbilder
               .filter(a => a.upline === overhead.id)
               .map(au => (
                 <VStack key={au.id}>
                   <ConsultantCard consultant={au} otherConsultants={consultants} />
-                  <HStack>
+                  <Grid templateColumns="auto auto" gap={2}>
                     {azubis
                       .filter(a => a.upline === au.id)
                       .map(az => (
                         <ConsultantCard key={az.id} consultant={az} otherConsultants={consultants} />
                       ))}
-                  </HStack>
+                  </Grid>
                 </VStack>
               ))}
           </Flex>
@@ -181,9 +185,9 @@ function AdjustEarningModal({
   earning: { id: string; value: number };
   id: string;
 }) {
-  const [earningValue, setEarningValue] = useState(`${earning.value}`);
+  const [earningValue, setEarningValue] = useState(earning.value.toFixed(2));
   const [isUpdating, setIsUpdating] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [, setHasError] = useState(false);
   const toast = useToast();
 
   async function updateEarning() {

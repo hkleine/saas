@@ -1,16 +1,9 @@
-import {
-  ConsultantWithCurrentEarning,
-  DatabaseConsultant,
-  DatabaseEarnings,
-  Roles,
-  SubscriptionWithPriceAndProduct,
-  UserWithEmail,
-} from '@/types/types';
+import { ConsultantWithCurrentEarning, Roles, SubscriptionWithPriceAndProduct, UserWithEmail } from '@/types/types';
 import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs';
-import { isNil, omit } from 'lodash';
+import { isNil } from 'lodash';
 import { cookies, headers } from 'next/headers';
 import Stripe from 'stripe';
-import { DatabaseUser } from './../types/types';
+import { convertConsultant } from './convertConsultant';
 
 export const createClient = () =>
   createServerComponentSupabaseClient({
@@ -59,27 +52,6 @@ export async function getUser(): Promise<UserWithEmail | null> {
     return null;
   }
   return { ...data, email: authData.user.email } as any;
-}
-
-function convertConsultant(consultantData: any): Array<ConsultantWithCurrentEarning> {
-  return consultantData.map(
-    (consultant: DatabaseConsultant & { users: DatabaseUser; earnings: Array<DatabaseEarnings> }) => {
-      const { name, role } = consultant.users;
-
-      const currentMonthsEarning = consultant.earnings.find(earning => {
-        const earningDate = new Date(earning.date);
-        const now = new Date();
-        return earningDate.getMonth() === now.getMonth();
-      })!;
-
-      return {
-        ...omit(consultant, ['users', 'earnings']),
-        name,
-        role,
-        currentEarning: { value: currentMonthsEarning.value, id: currentMonthsEarning.id },
-      };
-    }
-  );
 }
 
 export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarning> | null> {

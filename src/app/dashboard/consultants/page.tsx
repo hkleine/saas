@@ -1,4 +1,5 @@
 import ConsultantsContainer from '@/app/components/Consultants/ConsultantsContainer';
+import { RealTimeCompanyConsultantsProvider } from '@/app/components/Provider/RealTimeCompanyConsultantsProvider';
 import { getConsultants, getRoles } from '@/utils/supabase-server';
 export const revalidate = 0;
 export default async function Berater() {
@@ -8,5 +9,9 @@ export default async function Berater() {
     return null;
   }
 
-  return <ConsultantsContainer roles={roles} consultants={consultants} />;
+  return (
+    <RealTimeCompanyConsultantsProvider consultants={consultants}>
+      <ConsultantsContainer roles={roles} consultants={consultants} />
+    </RealTimeCompanyConsultantsProvider>
+  );
 }
