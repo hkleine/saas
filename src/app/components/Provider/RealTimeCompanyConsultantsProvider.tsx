@@ -31,9 +31,10 @@ export function RealTimeCompanyConsultantsProvider({
   }, [supabase]);
 
   useEffect(() => {
-    const consultantIds = consultants!.map(consultant => consultant.id);
+    const consultantIds = realtimeConsultants!.map(consultant => consultant.id);
 
     const earningsChannel = subscribeToCompanyEarnings(consultantIds, async payload => {
+      console.log('hallo earnigns');
       const newConsultants = realtimeConsultants!.map(consultant => {
         if (consultant.id === payload.new.consultant_id) {
           return { ...consultant, currentEarning: { ...consultant.currentEarning, value: payload.new.value } };
@@ -47,7 +48,7 @@ export function RealTimeCompanyConsultantsProvider({
     return () => {
       supabase.removeChannel(earningsChannel);
     };
-  }, [supabase]);
+  }, [supabase, realtimeConsultants]);
 
   return (
     <RealTimeCompanyConsultantsContext.Provider value={realtimeConsultants}>

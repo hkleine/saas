@@ -114,7 +114,7 @@ export function subscribeToCompanyEarnings(
     .on(
       'postgres_changes',
       {
-        event: '*',
+        event: 'UPDATE',
         schema: 'public',
         table: 'earnings',
         filter: `consultant_id=in.(${consultantIds.toString()})`,
