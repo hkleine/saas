@@ -1,5 +1,6 @@
 'use client';
 import { ConsultantWithCurrentEarning } from '@/types/types';
+import { createToastSettings } from '@/utils/createToastSettings';
 import { deleteData } from '@/utils/helpers';
 import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
@@ -19,6 +20,7 @@ import {
   InputRightAddon,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
@@ -36,9 +38,9 @@ import {
   Text,
   useDisclosure,
   useToast,
-  VStack,
+  VStack
 } from '@chakra-ui/react';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { FiDollarSign, FiEdit2, FiPercent, FiTrash } from 'react-icons/fi';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 
@@ -185,10 +187,16 @@ function AdjustEarningModal({
   earning: { id: string; value: number };
   id: string;
 }) {
-  const [earningValue, setEarningValue] = useState(earning.value.toFixed(2));
+  const fixedInputEarning = earning.value.toFixed(2);
+  const [isDirty, setIsDirty] = useState(false);
+  const [earningValue, setEarningValue] = useState(fixedInputEarning);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [, setHasError] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    setIsDirty(fixedInputEarning !== earningValue)
+  }, [earningValue, fixedInputEarning]);
 
   async function updateEarning() {
     setIsUpdating(true);
@@ -204,13 +212,7 @@ function AdjustEarningModal({
 
     setIsUpdating(false);
     onClose();
-    toast({
-      title: 'Einnahmen angepasst',
-      status: 'success',
-      icon: <FiDollarSign />,
-      duration: 9000,
-      isClosable: true,
-    });
+    toast(createToastSettings({title: 'Einnahmen erfolgreich bearbeiter', status: 'success'}));
   }
 
   return (
@@ -218,6 +220,14 @@ function AdjustEarningModal({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Einnahmen bearbeiten</ModalHeader>
+        <ModalCloseButton />
+        {hasError && (
+          <Alert mb="2" rounded={'lg'} status="error">
+            <AlertIcon />
+            <AlertTitle>Fehler beim bearbeiten!</AlertTitle>
+            <AlertDescription>Versuche es später erneut.</AlertDescription>
+          </Alert>
+        )}
         <ModalBody>
           <InputGroup>
             <NumberInput
@@ -235,7 +245,7 @@ function AdjustEarningModal({
           </InputGroup>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={updateEarning} isLoading={isUpdating} w="full" colorScheme="primary">
+          <Button isDisabled={!isDirty} onClick={updateEarning} isLoading={isUpdating} w="full" colorScheme="primary">
             Speichern
           </Button>
         </ModalFooter>
@@ -267,12 +277,8 @@ function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () =
       return;
     }
 
-    toast({
-      title: 'Berater gelöscht.',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-    });
+    toast(createToastSettings({title: 'Berater erfolgreich gelöscht.', status: 'success'}));
+
 
     setIsDeleting(false);
     onClose();

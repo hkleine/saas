@@ -1,4 +1,5 @@
 'use client';
+import { createToastSettings } from '@/utils/createToastSettings';
 import { supabase } from '@/utils/supabase-client';
 import {
   Alert,
@@ -15,7 +16,7 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  useToast,
+  useToast
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -57,13 +58,8 @@ export default function SimpleCard() {
     }
 
     router.push('/login');
-    toast({
-      title: 'Account created.',
-      description: 'Please check your E-Mail inbox to verify your address.',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-    });
+    toast(createToastSettings({title: 'Company Account erfolgreich erstellt.', status: 'success'}));
+
     setIsSubmitting(false);
   });
 

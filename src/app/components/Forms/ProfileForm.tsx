@@ -1,4 +1,5 @@
 'use client';
+import { createToastSettings } from '@/utils/createToastSettings';
 import { updateAvatarUrl, updateUserName } from '@/utils/supabase-client';
 import { Button, Center, FormControl, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
 import { useContext, useState } from 'react';
@@ -33,21 +34,12 @@ export default function Profile() {
     const { error } = await updateUserName(user, formData.fullName);
 
     if (error) {
-      toast({
-        title: 'Failed to update.',
-        description: 'Something went wrong while updating please try again later.',
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-      });
+      toast(createToastSettings({title: 'Profil konnte nicht aktualisiert werden.', status: 'error', description: 'Etwas ist schief gelaufen, versuche es später erneut.'}));
+
     }
 
-    toast({
-      title: 'Successfully updated profile.',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-    });
+    toast(createToastSettings({title: 'Profil erfolgreich aktualisiert.', status: 'success' }));
+
 
     setIsSubmitting(false);
   });

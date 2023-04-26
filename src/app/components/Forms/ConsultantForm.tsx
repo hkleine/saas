@@ -1,5 +1,6 @@
 'use client';
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { createToastSettings } from '@/utils/createToastSettings';
 import { postData } from '@/utils/helpers';
 import {
   Alert,
@@ -17,7 +18,7 @@ import {
   NumberInput,
   NumberInputField,
   Select,
-  useToast,
+  useToast
 } from '@chakra-ui/react';
 import { isNull } from 'lodash';
 import { useContext, useEffect, useState } from 'react';
@@ -40,6 +41,9 @@ export default function ConsultantForm({
     consultants?.filter(consultant => consultant.role.id === DEFAULT_POTENTIAL_UPLINE) ?? []
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUplineSelectionDisabled, setIsUplineSelectionDisabled] = useState(false);
+  console.log(isUplineSelectionDisabled)
+
   const [signupError, setSignupError] = useState(false);
   const {
     register,
@@ -54,7 +58,8 @@ export default function ConsultantForm({
 
   useEffect(() => {
     setPotentialUplines(consultants?.filter(consultant => consultant.role.id === roleWatch - 1) ?? []);
-  }, [roleWatch]);
+    setIsUplineSelectionDisabled(Number(roleWatch) === 1);
+  }, [roleWatch, consultants]);
 
   if (!user) {
     return null;
@@ -88,13 +93,8 @@ export default function ConsultantForm({
       return;
     }
     onClose();
-    toast({
-      title: 'Berater angelegt.',
-      description: 'Die E-Mail Adresse des Beraters muss noch bestätigt werden.',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-    });
+    toast(createToastSettings({title: 'Berater erfolgreich erstellt.', status: 'success', description: 'Die E-Mail Adresse des Beraters muss noch bestätigt werden.'}));
+
     setIsSubmitting(false);
   });
 
@@ -179,8 +179,7 @@ export default function ConsultantForm({
                   ))}
               </Select>
             </FormControl>
-
-            <FormControl id="upline" isRequired={isUplineRequired}>
+            <FormControl isDisabled={isUplineSelectionDisabled} id="upline" isRequired={isUplineRequired}>
               <FormLabel>Upline</FormLabel>
               <Select
                 placeholder="Wähle eine Upline aus"
