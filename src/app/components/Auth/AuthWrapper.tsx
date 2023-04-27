@@ -12,10 +12,11 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
         deleteAllCookies();
         router.push('/login');
       }
-      if (event === 'SIGNED_IN' && session) {
-        router.push('/dashboard');
-      }
-    });
+      // if (event === 'SIGNED_IN' && session) {
+      //   console.log(event);
+      //   router.push('/dashboard');
+      // }
+    }); 
   }, []);
 
   return <>{children}</>;
