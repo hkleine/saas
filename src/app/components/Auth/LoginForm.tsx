@@ -1,5 +1,4 @@
 'use client';
-import { supabase } from '@/utils/supabase-client';
 import {
   Alert,
   AlertDescription,
@@ -15,9 +14,9 @@ import {
   HStack,
   Input,
   Stack,
-  Text,
+  Text
 } from '@chakra-ui/react';
-import { useUser } from '@supabase/auth-helpers-react';
+import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -31,6 +30,8 @@ import { PasswordField } from './PasswordField';
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginFailed, setLoginFailed] = useState(false);
+  const supabase = useSupabaseClient();
+
   const user = useUser();
 
   const router = useRouter();

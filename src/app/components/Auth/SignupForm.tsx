@@ -1,6 +1,5 @@
 'use client';
 import { createToastSettings } from '@/utils/createToastSettings';
-import { supabase } from '@/utils/supabase-client';
 import {
   Alert,
   AlertDescription,
@@ -18,6 +17,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react';
+import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -25,6 +25,7 @@ import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
 
 export default function SimpleCard() {
+  const supabase = useSupabaseClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [signupError, setSignupError] = useState(false);
   const {
