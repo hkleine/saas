@@ -8,6 +8,7 @@ import { RealTimeUserProvider } from '../components/Provider/RealTimeUserProvide
 export const revalidate = 0;
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  // This is giving outdated data from time to time
   const user = await getUser();
 
   return (

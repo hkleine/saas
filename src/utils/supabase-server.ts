@@ -34,7 +34,7 @@ export async function getPaymentMethod(): Promise<Stripe.PaymentMethod['card'] |
 export async function getUser(): Promise<UserWithEmail | null> {
   const supabase = createClient();
   const { data: authData, error: authUserError } = await supabase.auth.getUser();
-
+  console.log(authData);
   if (authUserError) {
     console.log(authUserError.message);
     return null;

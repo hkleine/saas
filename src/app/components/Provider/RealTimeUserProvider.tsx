@@ -6,7 +6,6 @@ import { createContext, ReactNode, useEffect, useState } from 'react';
 export const RealTimeUserContext = createContext<UserWithEmail | null>(null);
 
 export function RealTimeUserProvider({ children, user }: { children?: ReactNode; user: UserWithEmail | null }) {
-  console.log(user);
   const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(user);
 
   useEffect(() => {
