@@ -6,11 +6,14 @@ import { createContext, ReactNode, useEffect, useState } from 'react';
 export const RealTimeUserContext = createContext<UserWithEmail | null>(null);
 
 export function RealTimeUserProvider({ children, user }: { children?: ReactNode; user: UserWithEmail | null }) {
+  console.log(user);
   const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(user);
 
   useEffect(() => {
     const channel = subscribeToUser(user!.id, async payload => {
       const { data: authData, error: authUserError } = await supabase.auth.getUser();
+      console.log("authData", authData);
+
       if (authUserError) {
         console.log(authUserError.message);
         return null;
