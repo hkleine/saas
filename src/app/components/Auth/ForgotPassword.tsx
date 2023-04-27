@@ -10,7 +10,7 @@ import {
   Input,
   Stack,
   Text,
-  useColorModeValue,
+  useColorModeValue
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState } from 'react';
