@@ -5,6 +5,8 @@ import AppShell from '../components/AppShell/AppShell';
 import AuthWrapper from '../components/Auth/AuthWrapper';
 import { RealTimeUserProvider } from '../components/Provider/RealTimeUserProvider';
 
+export const revalidate = 0;
+
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const user = await getUser();
 
