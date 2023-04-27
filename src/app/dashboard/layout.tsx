@@ -1,6 +1,6 @@
-'server only';
 import { getUser } from '@/utils/supabase-server';
 import { ReactNode } from 'react';
+import 'server-only';
 import AppShell from '../components/AppShell/AppShell';
 import AuthWrapper from '../components/Auth/AuthWrapper';
 import { RealTimeUserProvider } from '../components/Provider/RealTimeUserProvider';
