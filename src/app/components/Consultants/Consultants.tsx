@@ -55,7 +55,7 @@ export default function Consultants() {
   const overheads = consultants.filter(consultant => consultant.role.id === 1);
   const ausbilder = consultants.filter(consultant => consultant.role.id === 2);
   const azubis = consultants.filter(consultant => consultant.role.id === 3);
-
+  
   return (
     <Flex gap={20}>
       {overheads.map(overhead => (
@@ -99,10 +99,7 @@ function ConsultantCard({
     [otherConsultants, consultant]
   );
 
-  const uplineLevy = useMemo(
-    () => calculateUplineLevy({ otherConsultants, consultant }),
-    [otherConsultants, consultant]
-  );
+  const uplineLevy = calculateUplineLevy({ consultant });
 
   if(!user) {
     return null;
@@ -161,7 +158,7 @@ function ConsultantCard({
             {uplineLevy > 0 ? (
               <StatHelpText>
                 <StatArrow type="decrease" />
-                {uplineLevy.toFixed(2)}
+                {((consultant.currentEarning.value / 100)*(100-consultant.percent)).toFixed(2)}
               </StatHelpText>
             ) : null}
           </HStack>
@@ -322,15 +319,11 @@ function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () =
 }
 
 function calculateUplineLevy({
-  otherConsultants,
   consultant,
 }: {
-  otherConsultants: Array<ConsultantWithCurrentEarning>;
   consultant: ConsultantWithCurrentEarning;
 }) {
-  const upline = otherConsultants.find(otherConsultants => otherConsultants.id === consultant.upline);
-  const percentDifference = upline ? upline.percent - consultant.percent : 0;
-  return (consultant.currentEarning.value / 100) * percentDifference;
+  return (consultant.currentEarning.value / 100) * consultant.percent
 }
 
 function calculateDownlineEarnings({
@@ -340,12 +333,39 @@ function calculateDownlineEarnings({
   otherConsultants: Array<ConsultantWithCurrentEarning>;
   consultant: ConsultantWithCurrentEarning;
 }) {
-  const downlines = otherConsultants.filter(otherConsultant => otherConsultant.upline === consultant.id);
-  return downlines.reduce((previousNumber, currentDownline) => {
-    const percentDifference = consultant.percent - currentDownline.percent;
+  const firstDownlines = getConsultantDownlines({consultant, otherConsultants});
+  const downlines = otherConsultants.reduce((previousDownlines, currentOtherConsultant) => {
+    const isDownline = !!previousDownlines.find(prevDown => prevDown.id === currentOtherConsultant.upline);
 
+    if(isDownline) {
+      return [...previousDownlines, currentOtherConsultant];
+    }
+
+    return previousDownlines;
+  }, firstDownlines);
+
+  return downlines.reduce((previousNumber, currentDownline) => {
+    if(currentDownline.currentEarning.value === 0 ) {
+      return previousNumber;
+    }
+    
+    if(currentDownline.upline === consultant.id) {
+      const percentDifference = consultant.percent - currentDownline.percent;
+      return previousNumber + (currentDownline.currentEarning.value / 100) * percentDifference;
+    }
+
+    let upline = downlines.find(downline => downline.id === currentDownline.upline)
+    while(upline!.upline !== consultant.id) {
+      upline = downlines.find(downline => downline.id === upline!.upline)
+    }
+
+    const percentDifference = consultant.percent - upline!.percent;
     return previousNumber + (currentDownline.currentEarning.value / 100) * percentDifference;
   }, 0);
+}
+
+function getConsultantDownlines({consultant, otherConsultants}:{consultant: ConsultantWithCurrentEarning, otherConsultants: Array<ConsultantWithCurrentEarning>}) {
+  return otherConsultants.filter(otherConsultants => consultant.id === otherConsultants.upline); 
 }
 
 
