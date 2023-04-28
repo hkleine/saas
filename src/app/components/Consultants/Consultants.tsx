@@ -1,5 +1,5 @@
 'use client';
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { deleteData } from '@/utils/helpers';
 import { updateCurrentEarning } from '@/utils/supabase-client';
@@ -40,9 +40,11 @@ import {
   useToast,
   VStack
 } from '@chakra-ui/react';
+import { isNull } from 'lodash';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { FiDollarSign, FiEdit2, FiPercent, FiTrash } from 'react-icons/fi';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
+import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
 export default function Consultants() {
   const consultants = useContext(RealTimeCompanyConsultantsContext);
@@ -87,7 +89,9 @@ function ConsultantCard({
 }: {
   otherConsultants: Array<ConsultantWithCurrentEarning>;
   consultant: ConsultantWithCurrentEarning;
-}) {
+}) { 
+  const user = useContext(RealTimeUserContext);
+
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
   const downlineEarnings = useMemo(
@@ -100,7 +104,12 @@ function ConsultantCard({
     [otherConsultants, consultant]
   );
 
-  const isConsultantDeletable = otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id);
+  if(!user) {
+    return null;
+  }
+
+  const isConsultantDeletable = otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id) || checkIfActionAllowedForCurrentUser({user, otherConsultants, currentConsultant: consultant});
+  const isUpdateEarningDisabled = checkIfActionAllowedForCurrentUser({user, currentConsultant: consultant, otherConsultants});
 
   return (
     <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
@@ -119,6 +128,7 @@ function ConsultantCard({
                   variant="ghost"
                   aria-label="edit consultant"
                   icon={<FiDollarSign />}
+                  isDisabled={isUpdateEarningDisabled}
                 />
                 <IconButton size="xs" variant="ghost" aria-label="edit consultant" icon={<FiEdit2 />} />
                 <IconButton
@@ -336,4 +346,34 @@ function calculateDownlineEarnings({
 
     return previousNumber + (currentDownline.currentEarning.value / 100) * percentDifference;
   }, 0);
+}
+
+
+function checkIfActionAllowedForCurrentUser({user, currentConsultant, otherConsultants} :{user: UserWithEmail , currentConsultant: ConsultantWithCurrentEarning, otherConsultants: Array<ConsultantWithCurrentEarning>}) {
+  if(user.role.id === 0) {
+    return false;
+  }
+  
+  if(user.id === currentConsultant.id) {
+    return false;
+  }
+
+  if(currentConsultant.upline === user.id) {
+    return false;
+  }
+
+  let uplineConsultant = currentConsultant;
+  while(hasConsultantUpline(uplineConsultant)) {
+    uplineConsultant = otherConsultants.find(otherConsultant => otherConsultant.id === uplineConsultant.upline!)!;
+
+    if(uplineConsultant.id === user.id) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function hasConsultantUpline(consultant: ConsultantWithCurrentEarning) {
+  return !isNull(consultant.upline);
 }

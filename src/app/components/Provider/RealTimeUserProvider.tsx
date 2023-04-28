@@ -24,9 +24,9 @@ export function RealTimeUserProvider({ children, user }: { children?: ReactNode;
         return null;
       }
 
-      const roleName = roles.find(role => role.id === payload.new.role)!.name;
+      const role = roles.find(role => role.id === payload.new.role)!;
 
-      setRealTimeUser({ ...payload.new, role: { name: roleName }, email: authData.user.email });
+      setRealTimeUser({ ...payload.new, role: role, email: authData.user.email });
     });
 
     return () => {

@@ -11,7 +11,7 @@ export default async function Berater() {
 
   return (
     <RealTimeCompanyConsultantsProvider consultants={consultants}>
-      <ConsultantsContainer roles={roles} consultants={consultants} />
+      <ConsultantsContainer roles={roles} />
     </RealTimeCompanyConsultantsProvider>
   );
 }

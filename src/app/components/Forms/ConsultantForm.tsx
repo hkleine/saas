@@ -1,5 +1,5 @@
 'use client';
-import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { Roles } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { postData } from '@/utils/helpers';
 import {
@@ -24,17 +24,17 @@ import { isNull } from 'lodash';
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
+import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
 export default function ConsultantForm({
   roles,
-  consultants,
   onClose,
 }: {
-  consultants: Array<ConsultantWithCurrentEarning> | null;
   roles: Roles;
   onClose: () => void;
 }) {
+  const consultants = useContext(RealTimeCompanyConsultantsContext);
   const DEFAULT_ROLE = 3;
   const DEFAULT_POTENTIAL_UPLINE = DEFAULT_ROLE - 1;
   const [potentialUplines, setPotentialUplines] = useState(
@@ -42,7 +42,6 @@ export default function ConsultantForm({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUplineSelectionDisabled, setIsUplineSelectionDisabled] = useState(false);
-  console.log(isUplineSelectionDisabled)
 
   const [signupError, setSignupError] = useState(false);
   const {

@@ -8,18 +8,16 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
+  useDisclosure
 } from '@chakra-ui/react';
 import { FiUserPlus } from 'react-icons/fi';
-import { ConsultantWithCurrentEarning, Roles } from '../../../types/types';
+import { Roles } from '../../../types/types';
 import ConsultantForm from '../Forms/ConsultantForm';
 import Consultants from './Consultants';
 
 export default function ConsultantsContainer({
   roles,
-  consultants,
 }: {
-  consultants: Array<ConsultantWithCurrentEarning> | null;
   roles: Roles;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -41,7 +39,7 @@ export default function ConsultantsContainer({
           <ModalHeader>Berater hinzufügen</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ConsultantForm onClose={onClose} roles={roles} consultants={consultants} />
+            <ConsultantForm onClose={onClose} roles={roles} />
           </ModalBody>
         </ModalContent>
       </Modal>

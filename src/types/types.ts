@@ -42,7 +42,7 @@ export interface UserDetails {
 
 export type UserWithEmail = DatabaseUser & { email: string } & {
   consultants: DatabaseConsultant | null;
-  role: { name: Role['name'] };
+  role: Role;
 };
 
 export interface Price {

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   // This is giving outdated data from time to time
   const user = await getUser();
-
+  
   return (
     <AuthWrapper>
       <RealTimeUserProvider user={user}>
