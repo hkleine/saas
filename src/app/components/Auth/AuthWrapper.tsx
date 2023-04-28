@@ -17,7 +17,7 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
       //   router.push('/dashboard');
       // }
     }); 
-  }, []);
+  }, [router, supabaseClient.auth]);
 
   return <>{children}</>;
 }

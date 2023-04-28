@@ -32,7 +32,7 @@ export function RealTimeUserProvider({ children, user }: { children?: ReactNode;
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [user]);
 
   return <RealTimeUserContext.Provider value={realTimeUser}>{children}</RealTimeUserContext.Provider>;
 }

@@ -28,7 +28,7 @@ export function RealTimeCompanyConsultantsProvider({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [companyId]);
 
   useEffect(() => {
     const consultantIds = realtimeConsultants!.map(consultant => consultant.id);
@@ -47,7 +47,7 @@ export function RealTimeCompanyConsultantsProvider({
     return () => {
       supabase.removeChannel(earningsChannel);
     };
-  }, [supabase, realtimeConsultants]);
+  }, [realtimeConsultants]);
 
   return (
     <RealTimeCompanyConsultantsContext.Provider value={realtimeConsultants}>
