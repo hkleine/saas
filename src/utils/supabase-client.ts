@@ -134,7 +134,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
 
   const { data, error } = await supabase
     .from('users')
-    .select('*, consultants!consultants_id_fkey(*), role(name)')
+    .select('*, consultants!consultants_id_fkey(*), role(*)')
     .eq('id', authData.user.id)
     .limit(1)
     .single();
