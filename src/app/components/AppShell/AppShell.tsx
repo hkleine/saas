@@ -1,7 +1,7 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
 import { getUser } from '@/utils/supabase-client';
-import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react';
+import { Box, Drawer, DrawerContent, Flex, useDisclosure } from '@chakra-ui/react';
 import '@fontsource/poppins';
 import { ReactNode, useEffect, useState } from 'react';
 import { RealTimeUserProvider } from '../Provider/RealTimeUserProvider';
@@ -44,9 +44,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </DrawerContent>
         </Drawer>
         <MobileNav onOpen={onOpen} />
-        <Box ml={{ base: 0, md: 60 }} p="4">
+        <Flex direction="column" ml={{ base: 0, md: 60 }} height="calc(100vh - 80px)" p="4">
           {children}
-        </Box>
+        </Flex>
       </Box>
     </RealTimeUserProvider>
   );
