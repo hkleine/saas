@@ -38,7 +38,7 @@ import {
   Text,
   useDisclosure,
   useToast,
-  VStack,
+  VStack
 } from '@chakra-ui/react';
 import { isNull } from 'lodash';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -53,8 +53,8 @@ export default function Consultants() {
     return null;
   }
   const overheads = consultants.filter(consultant => consultant.role.id === 1);
-  const ausbilder = consultants.filter(consultant => consultant.role.id === 2);
-  const azubis = consultants.filter(consultant => consultant.role.id === 3);
+  // const ausbilder = consultants.filter(consultant => consultant.role.id === 2);
+  // const azubis = consultants.filter(consultant => consultant.role.id === 3);
 
   return (
     <Flex gap={20} flex="1 1 auto" overflowX="auto">
@@ -62,13 +62,13 @@ export default function Consultants() {
         <VStack key={overhead.id}>
           <ConsultantCard consultant={overhead} otherConsultants={consultants} />
           <Flex gap={2}>
-            {ausbilder
+            {consultants
               .filter(a => a.upline === overhead.id)
               .map(au => (
                 <VStack key={au.id}>
                   <ConsultantCard consultant={au} otherConsultants={consultants} />
                   <Grid templateColumns="auto auto" gap={2}>
-                    {azubis
+                    {consultants
                       .filter(a => a.upline === au.id)
                       .map(az => (
                         <ConsultantCard key={az.id} consultant={az} otherConsultants={consultants} />
@@ -118,7 +118,7 @@ function ConsultantCard({
     <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
       <Stack spacing={0} mb={5}>
         <HStack>
-          <Avatar src="https://bit.ly/sage-adebayo" size="md" name="Segun Adebayo" ml={-1} mr={2} />
+          <Avatar src={user.avatar_url ?? undefined} size="md" name={consultant.name} ml={-1} mr={2} />
           <Flex w="full" direction="column">
             <HStack justify="space-between">
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
@@ -160,7 +160,7 @@ function ConsultantCard({
         <Stat>
           <StatLabel>Eigene Einnahmen</StatLabel>
           <HStack>
-            <StatNumber>{consultant.currentEarning.value}€</StatNumber>
+            <StatNumber>{consultant.currentEarning.value.toFixed(2)}€</StatNumber>
             {uplineLevy > 0 ? (
               <StatHelpText>
                 <StatArrow type="decrease" />
@@ -258,7 +258,7 @@ function AdjustEarningModal({
           </InputGroup>
         </ModalBody>
         <ModalFooter>
-          <Button isDisabled={!isDirty} onClick={updateEarning} isLoading={isUpdating} w="full" colorScheme="primary">
+          <Button autoFocus type="submit" isDisabled={!isDirty} onClick={updateEarning} isLoading={isUpdating} w="full" colorScheme="primary">
             Speichern
           </Button>
         </ModalFooter>

@@ -1,4 +1,5 @@
 'use client';
+import { isUserAllowed } from '@/utils/isUserAllowed';
 import {
   Button,
   Flex,
@@ -10,9 +11,11 @@ import {
   ModalOverlay,
   useDisclosure
 } from '@chakra-ui/react';
+import { useContext } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { Roles } from '../../../types/types';
 import ConsultantForm from '../Forms/ConsultantForm';
+import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import Consultants from './Consultants';
 
 export default function ConsultantsContainer({
@@ -21,14 +24,19 @@ export default function ConsultantsContainer({
   roles: Roles;
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const user = useContext(RealTimeUserContext);
+  if(!user) {
+    return null;
+  }
 
+  const isUserAllowedToAddConsultant = isUserAllowed({user, minimalRoleRequired: 2})
   return (
     <>
       <Flex justify="space-between">
         <div></div>
-        <Button leftIcon={<FiUserPlus />} onClick={onOpen}>
+        {isUserAllowedToAddConsultant && <Button leftIcon={<FiUserPlus />} onClick={onOpen}>
           Berater hinzufügen
-        </Button>
+        </Button>}
       </Flex>
 
       <Consultants />

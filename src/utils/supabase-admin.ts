@@ -147,7 +147,7 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
 };
 
 async function createUser(attributes: { email: string; password: string; user_metadata: { [key: string]: any } }) {
-  return supabaseAdmin.auth.admin.createUser(attributes);
+  return supabaseAdmin.auth.admin.createUser({...attributes, email_confirm: true});
 }
 
 export async function deleteUser(id: string) {
@@ -162,3 +162,4 @@ export {
   manageSubscriptionStatusChange,
   removeSubscription,
 };
+
