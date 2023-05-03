@@ -55,7 +55,7 @@ export const updateUserName = async (user: User | UserWithEmail, name: string) =
   return supabase
     .from('users')
     .update({
-      name: name,
+      name,
     })
     .eq('id', user.id);
 };
@@ -131,10 +131,9 @@ export async function getUser(): Promise<UserWithEmail | null> {
     console.log(authUserError.message);
     return null;
   }
-
   const { data, error } = await supabase
     .from('users')
-    .select('*, consultants!consultants_id_fkey(*), role(name)')
+    .select('*, consultants!consultants_id_fkey(*), role(*)')
     .eq('id', authData.user.id)
     .limit(1)
     .single();

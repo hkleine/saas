@@ -1,6 +1,6 @@
 import { UserWithEmail } from '@/types/types';
-import { isNull } from 'lodash';
+import { isNil } from 'lodash';
 
 export function getCompanyId(user: UserWithEmail) {
-  return isNull(user.consultants) ? user.id : user.consultants.company_id;
+  return isNil(user.consultants) ? user.id : user.consultants.company_id;
 }

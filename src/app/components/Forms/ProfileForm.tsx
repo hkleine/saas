@@ -31,15 +31,19 @@ export default function Profile() {
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
-    const { error } = await updateUserName(user, formData.fullName);
-
+    const { error, status } = await updateUserName(user, formData.name);
+    console.log(error, status);
     if (error) {
-      toast(createToastSettings({title: 'Profil konnte nicht aktualisiert werden.', status: 'error', description: 'Etwas ist schief gelaufen, versuche es später erneut.'}));
-
+      toast(
+        createToastSettings({
+          title: 'Profil konnte nicht aktualisiert werden.',
+          status: 'error',
+          description: 'Etwas ist schief gelaufen, versuche es später erneut.',
+        })
+      );
     }
 
-    toast(createToastSettings({title: 'Profil erfolgreich aktualisiert.', status: 'success' }));
-
+    toast(createToastSettings({ title: 'Profil erfolgreich aktualisiert.', status: 'success' }));
 
     setIsSubmitting(false);
   });
@@ -73,10 +77,10 @@ export default function Profile() {
         />
         {errors.email && <FormError>{errors.email?.message?.toString()}</FormError>}
       </FormControl>
-      <FormControl id="fullName">
+      <FormControl id="name">
         <FormLabel>Full name</FormLabel>
         <Input
-          {...register('fullName')}
+          {...register('name')}
           defaultValue={user?.name ?? ''}
           id="email"
           placeholder="John Doe"

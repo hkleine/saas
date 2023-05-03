@@ -38,7 +38,7 @@ import {
   Text,
   useDisclosure,
   useToast,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
 import { isNull } from 'lodash';
 import { useContext, useEffect, useMemo, useState } from 'react';
@@ -55,9 +55,9 @@ export default function Consultants() {
   const overheads = consultants.filter(consultant => consultant.role.id === 1);
   const ausbilder = consultants.filter(consultant => consultant.role.id === 2);
   const azubis = consultants.filter(consultant => consultant.role.id === 3);
-  
+
   return (
-    <Flex gap={20}>
+    <Flex gap={20} flex="1 1 auto" overflowX="auto">
       {overheads.map(overhead => (
         <VStack key={overhead.id}>
           <ConsultantCard consultant={overhead} otherConsultants={consultants} />
@@ -89,7 +89,7 @@ function ConsultantCard({
 }: {
   otherConsultants: Array<ConsultantWithCurrentEarning>;
   consultant: ConsultantWithCurrentEarning;
-}) { 
+}) {
   const user = useContext(RealTimeUserContext);
 
   const { onOpen, isOpen, onClose } = useDisclosure();
@@ -101,12 +101,18 @@ function ConsultantCard({
 
   const uplineLevy = calculateUplineLevy({ consultant });
 
-  if(!user) {
+  if (!user) {
     return null;
   }
 
-  const isConsultantDeletable = otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id) || checkIfActionAllowedForCurrentUser({user, otherConsultants, currentConsultant: consultant});
-  const isUpdateEarningDisabled = checkIfActionAllowedForCurrentUser({user, currentConsultant: consultant, otherConsultants});
+  const isConsultantDeletable =
+    otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id) ||
+    checkIfActionAllowedForCurrentUser({ user, otherConsultants, currentConsultant: consultant });
+  const isUpdateEarningDisabled = checkIfActionAllowedForCurrentUser({
+    user,
+    currentConsultant: consultant,
+    otherConsultants,
+  });
 
   return (
     <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
@@ -158,7 +164,7 @@ function ConsultantCard({
             {uplineLevy > 0 ? (
               <StatHelpText>
                 <StatArrow type="decrease" />
-                {((consultant.currentEarning.value / 100)*(100-consultant.percent)).toFixed(2)}
+                {((consultant.currentEarning.value / 100) * (100 - consultant.percent)).toFixed(2)}
               </StatHelpText>
             ) : null}
           </HStack>
@@ -202,7 +208,7 @@ function AdjustEarningModal({
   const toast = useToast();
 
   useEffect(() => {
-    setIsDirty(fixedInputEarning !== earningValue)
+    setIsDirty(fixedInputEarning !== earningValue);
   }, [earningValue, fixedInputEarning]);
 
   async function updateEarning() {
@@ -219,7 +225,7 @@ function AdjustEarningModal({
 
     setIsUpdating(false);
     onClose();
-    toast(createToastSettings({title: 'Einnahmen erfolgreich bearbeiter', status: 'success'}));
+    toast(createToastSettings({ title: 'Einnahmen erfolgreich bearbeiter', status: 'success' }));
   }
 
   return (
@@ -284,8 +290,7 @@ function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () =
       return;
     }
 
-    toast(createToastSettings({title: 'Berater erfolgreich gelöscht.', status: 'success'}));
-
+    toast(createToastSettings({ title: 'Berater erfolgreich gelöscht.', status: 'success' }));
 
     setIsDeleting(false);
     onClose();
@@ -318,12 +323,8 @@ function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () =
   );
 }
 
-function calculateUplineLevy({
-  consultant,
-}: {
-  consultant: ConsultantWithCurrentEarning;
-}) {
-  return (consultant.currentEarning.value / 100) * consultant.percent
+function calculateUplineLevy({ consultant }: { consultant: ConsultantWithCurrentEarning }) {
+  return (consultant.currentEarning.value / 100) * consultant.percent;
 }
 
 function calculateDownlineEarnings({
@@ -333,11 +334,11 @@ function calculateDownlineEarnings({
   otherConsultants: Array<ConsultantWithCurrentEarning>;
   consultant: ConsultantWithCurrentEarning;
 }) {
-  const firstDownlines = getConsultantDownlines({consultant, otherConsultants});
+  const firstDownlines = getConsultantDownlines({ consultant, otherConsultants });
   const downlines = otherConsultants.reduce((previousDownlines, currentOtherConsultant) => {
     const isDownline = !!previousDownlines.find(prevDown => prevDown.id === currentOtherConsultant.upline);
 
-    if(isDownline) {
+    if (isDownline) {
       return [...previousDownlines, currentOtherConsultant];
     }
 
@@ -345,18 +346,18 @@ function calculateDownlineEarnings({
   }, firstDownlines);
 
   return downlines.reduce((previousNumber, currentDownline) => {
-    if(currentDownline.currentEarning.value === 0 ) {
+    if (currentDownline.currentEarning.value === 0) {
       return previousNumber;
     }
-    
-    if(currentDownline.upline === consultant.id) {
+
+    if (currentDownline.upline === consultant.id) {
       const percentDifference = consultant.percent - currentDownline.percent;
       return previousNumber + (currentDownline.currentEarning.value / 100) * percentDifference;
     }
 
-    let upline = downlines.find(downline => downline.id === currentDownline.upline)
-    while(upline!.upline !== consultant.id) {
-      upline = downlines.find(downline => downline.id === upline!.upline)
+    let upline = downlines.find(downline => downline.id === currentDownline.upline);
+    while (upline!.upline !== consultant.id) {
+      upline = downlines.find(downline => downline.id === upline!.upline);
     }
 
     const percentDifference = consultant.percent - upline!.percent;
@@ -364,29 +365,42 @@ function calculateDownlineEarnings({
   }, 0);
 }
 
-function getConsultantDownlines({consultant, otherConsultants}:{consultant: ConsultantWithCurrentEarning, otherConsultants: Array<ConsultantWithCurrentEarning>}) {
-  return otherConsultants.filter(otherConsultants => consultant.id === otherConsultants.upline); 
+function getConsultantDownlines({
+  consultant,
+  otherConsultants,
+}: {
+  consultant: ConsultantWithCurrentEarning;
+  otherConsultants: Array<ConsultantWithCurrentEarning>;
+}) {
+  return otherConsultants.filter(otherConsultants => consultant.id === otherConsultants.upline);
 }
 
-
-function checkIfActionAllowedForCurrentUser({user, currentConsultant, otherConsultants} :{user: UserWithEmail , currentConsultant: ConsultantWithCurrentEarning, otherConsultants: Array<ConsultantWithCurrentEarning>}) {
-  if(user.role.id === 0) {
+function checkIfActionAllowedForCurrentUser({
+  user,
+  currentConsultant,
+  otherConsultants,
+}: {
+  user: UserWithEmail;
+  currentConsultant: ConsultantWithCurrentEarning;
+  otherConsultants: Array<ConsultantWithCurrentEarning>;
+}) {
+  if (user.role.id === 0) {
     return false;
   }
-  
-  if(user.id === currentConsultant.id) {
+
+  if (user.id === currentConsultant.id) {
     return false;
   }
 
-  if(currentConsultant.upline === user.id) {
+  if (currentConsultant.upline === user.id) {
     return false;
   }
 
   let uplineConsultant = currentConsultant;
-  while(hasConsultantUpline(uplineConsultant)) {
+  while (hasConsultantUpline(uplineConsultant)) {
     uplineConsultant = otherConsultants.find(otherConsultant => otherConsultant.id === uplineConsultant.upline!)!;
 
-    if(uplineConsultant.id === user.id) {
+    if (uplineConsultant.id === user.id) {
       return false;
     }
   }
