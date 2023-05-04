@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
+import { findOverhead } from '@/utils/findOverhead';
 import { deleteData } from '@/utils/helpers';
 import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
@@ -47,14 +49,14 @@ import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyCo
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
 export default function Consultants() {
+  const user = useContext(RealTimeUserContext);
   const consultants = useContext(RealTimeCompanyConsultantsContext);
-
-  if (!consultants) {
+  
+  if (!consultants || !user) {
     return null;
   }
-  const overheads = consultants.filter(consultant => consultant.role.id === 1);
-  // const ausbilder = consultants.filter(consultant => consultant.role.id === 2);
-  // const azubis = consultants.filter(consultant => consultant.role.id === 3);
+  
+  const overheads = getOverheads({user, otherConsultants: consultants})
 
   return (
     <Flex gap={20} flex="1 1 auto" overflowX="auto">
@@ -94,6 +96,7 @@ function ConsultantCard({
 
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
+  const { onOpen: onOpenUpdateConsultant, isOpen: isUpdateConsultantOpen, onClose: onCloseUpdateConsultant } = useDisclosure();
   const downlineEarnings = useMemo(
     () => calculateDownlineEarnings({ otherConsultants, consultant }),
     [otherConsultants, consultant]
@@ -118,7 +121,7 @@ function ConsultantCard({
     <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
       <Stack spacing={0} mb={5}>
         <HStack>
-          <Avatar src={user.avatar_url ?? undefined} size="md" name={consultant.name} ml={-1} mr={2} />
+          <Avatar size="md" name={consultant.name} ml={-1} mr={2} />
           <Flex w="full" direction="column">
             <HStack justify="space-between">
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
@@ -133,7 +136,7 @@ function ConsultantCard({
                   icon={<FiDollarSign />}
                   isDisabled={isUpdateEarningDisabled}
                 />
-                <IconButton size="xs" variant="ghost" aria-label="edit consultant" icon={<FiEdit2 />} />
+                <IconButton isDisabled={isConsultantDeletable} onClick={onOpenUpdateConsultant} size="xs" variant="ghost" aria-label="edit consultant" icon={<FiEdit2 />} />
                 <IconButton
                   isDisabled={isConsultantDeletable}
                   size="xs"
@@ -185,6 +188,7 @@ function ConsultantCard({
         onClose={onCloseAdjustEarning}
         isOpen={isAdjustEarningOpen}
       />
+      <UpdateModal isOpen={isUpdateConsultantOpen} consultant={consultant} onClose={onCloseUpdateConsultant}  />
     </Card>
   );
 }
@@ -267,6 +271,64 @@ function AdjustEarningModal({
   );
 }
 
+function UpdateModal({ isOpen, onClose, consultant }: { isOpen: boolean; onClose: () => void; consultant: ConsultantWithCurrentEarning }) {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [hasUpdatingError, setHasUpdatingError] = useState(false);
+  const toast = useToast();
+
+  async function onUpdate() {
+    setHasUpdatingError(false);
+    setIsUpdating(true);
+
+    try {
+      // await deleteData({
+      //   url: '/api/delete-user',
+      //   data: {
+      //     id,
+      //   },
+      // });
+    } catch (error) {
+      console.log(error);
+      setHasUpdatingError(true);
+      setIsUpdating(false);
+      return;
+    }
+
+    toast(createToastSettings({ title: 'Berater erfolgreich geupdatet.', status: 'success' }));
+
+    setIsUpdating(false);
+    onClose();
+  }
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Berater anpassen</ModalHeader>
+        <ModalCloseButton />
+        {hasUpdatingError && (
+          <Alert mb="2" rounded={'lg'} status="error">
+            <AlertIcon />
+            <AlertTitle>Fehler beim Updaten!</AlertTitle>
+            <AlertDescription>Versuche es später erneut.</AlertDescription>
+          </Alert>
+        )}
+        <ModalBody>
+          
+        </ModalBody>
+
+        <ModalFooter>
+          <Button isLoading={isUpdating} mr={3} variant="ghost" onClick={onClose}>
+            Abbruch
+          </Button>
+          <Button isLoading={isUpdating} onClick={onUpdate}>
+            Speichern
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
 function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () => void; id: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [hasDeletionError, setHasDeletionError] = useState(false);
@@ -295,12 +357,12 @@ function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () =
     setIsDeleting(false);
     onClose();
   }
-
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Berater unwideruflich löschen?</ModalHeader>
+        <ModalCloseButton />
         {hasDeletionError && (
           <Alert mb="2" rounded={'lg'} status="error">
             <AlertIcon />
@@ -410,4 +472,17 @@ function checkIfActionAllowedForCurrentUser({
 
 function hasConsultantUpline(consultant: ConsultantWithCurrentEarning) {
   return !isNull(consultant.upline);
+}
+
+function getOverheads({user, otherConsultants}:{user: UserWithEmail, otherConsultants: Array<ConsultantWithCurrentEarning>}) {
+  if(user.role.id === 0 || user.role.id === 1) {
+    return otherConsultants.filter(consultant => consultant.role.id === 1);
+  } 
+  const consultant = otherConsultants.find((otherConsultant) => otherConsultant.id === user.id);
+
+  if(!consultant) {
+    return [];
+  }
+
+  return [findOverhead({consultant, otherConsultants})];
 }

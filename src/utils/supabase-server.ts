@@ -66,7 +66,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
 
   const { data, error } = await supabase
     .from('consultants')
-    .select('*, earnings(*), users!consultants_id_fkey(name, role:role(*))')
+    .select('*, earnings(*), users!consultants_id_fkey(name, avatar_url, role:role(*))')
     .eq('company_id', companyId);
 
   if (error) {
