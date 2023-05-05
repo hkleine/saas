@@ -1,6 +1,4 @@
-import { createSignedImageUrl } from '@/utils/supabase-client';
 import {
-  Avatar,
   Badge,
   Box,
   Flex,
@@ -16,9 +14,10 @@ import {
 } from '@chakra-ui/react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
-import { useContext, useEffect, useState } from 'react';
-import { FiBell, FiChevronDown, FiMenu, FiUser } from 'react-icons/fi';
+import { useContext } from 'react';
+import { FiBell, FiChevronDown, FiMenu } from 'react-icons/fi';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { Avatar } from './Avatar';
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
@@ -26,26 +25,7 @@ interface MobileProps extends FlexProps {
 
 export function MobileNav({ onOpen, ...rest }: MobileProps) {
   const user = useContext(RealTimeUserContext);
-  const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | undefined>();
-
   const supabaseClient = useSupabaseClient();
-
-  async function getAvatarSignedImageUrl(filePath: string) {
-    const { error, data } = await createSignedImageUrl(filePath);
-    if (error) {
-      console.log(error);
-      return;
-    }
-    setSignedAvatarUrl(data.signedUrl);
-  }
-
-  useEffect(() => {
-    if (user && user.avatar_url) {
-      getAvatarSignedImageUrl(user.avatar_url);
-      return;
-    }
-    setSignedAvatarUrl(undefined);
-  }, [user]);
 
   if (!user) {
     return null;
@@ -81,13 +61,7 @@ export function MobileNav({ onOpen, ...rest }: MobileProps) {
           <Menu isLazy>
             <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
               <HStack>
-                <Avatar
-                  size={'sm'}
-                  fontSize={18}
-                  src={signedAvatarUrl}
-                  bg="gray.400"
-                  icon={<FiUser fontWeight="400" />}
-                />
+                <Avatar size={'sm'} name={user.name ?? undefined} avatarUrl={user.avatar_url} />
                 <HStack gap={2} display={{ base: 'none', md: 'flex' }} alignItems="flex-start" spacing="1px" ml="2">
                   <Text fontSize="sm">{user.name ?? user.email ?? ''}</Text>
                   <Badge size="xs" borderRadius="lg" px={2} py={0.5}>

@@ -47,7 +47,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
     .limit(1)
     .single();
 
-    if (error) {
+  if (error) {
     console.log(error.message);
     return null;
   }
@@ -69,6 +69,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
     .select('*, earnings(*), users!consultants_id_fkey(name, avatar_url, role:role(*))')
     .eq('company_id', companyId);
 
+  console.log(data);
   if (error) {
     console.log(error.message);
     return null;

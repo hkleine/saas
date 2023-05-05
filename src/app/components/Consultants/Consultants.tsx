@@ -4,20 +4,22 @@ import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { findOverhead } from '@/utils/findOverhead';
 import { deleteData } from '@/utils/helpers';
-import { updateCurrentEarning } from '@/utils/supabase-client';
+import { updateConsultantPercent, updateCurrentEarning, updateUserName } from '@/utils/supabase-client';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Avatar,
   Button,
   Card,
   Flex,
+  FormControl,
+  FormLabel,
   Grid,
   Heading,
   HStack,
   IconButton,
+  Input,
   InputGroup,
   InputRightAddon,
   Modal,
@@ -40,23 +42,25 @@ import {
   Text,
   useDisclosure,
   useToast,
-  VStack
+  VStack,
 } from '@chakra-ui/react';
 import { isNull } from 'lodash';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FiDollarSign, FiEdit2, FiPercent, FiTrash } from 'react-icons/fi';
+import { Avatar } from '../AppShell/Avatar';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
 export default function Consultants() {
   const user = useContext(RealTimeUserContext);
   const consultants = useContext(RealTimeCompanyConsultantsContext);
-  
+
   if (!consultants || !user) {
     return null;
   }
-  
-  const overheads = getOverheads({user, otherConsultants: consultants})
+
+  const overheads = getOverheads({ user, otherConsultants: consultants });
 
   return (
     <Flex gap={20} flex="1 1 auto" overflowX="auto">
@@ -96,7 +100,11 @@ function ConsultantCard({
 
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
-  const { onOpen: onOpenUpdateConsultant, isOpen: isUpdateConsultantOpen, onClose: onCloseUpdateConsultant } = useDisclosure();
+  const {
+    onOpen: onOpenUpdateConsultant,
+    isOpen: isUpdateConsultantOpen,
+    onClose: onCloseUpdateConsultant,
+  } = useDisclosure();
   const downlineEarnings = useMemo(
     () => calculateDownlineEarnings({ otherConsultants, consultant }),
     [otherConsultants, consultant]
@@ -111,17 +119,16 @@ function ConsultantCard({
   const isConsultantDeletable =
     otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id) ||
     checkIfActionAllowedForCurrentUser({ user, otherConsultants, currentConsultant: consultant });
-  const isUpdateEarningDisabled = checkIfActionAllowedForCurrentUser({
+  const isUpdateDisabled = checkIfActionAllowedForCurrentUser({
     user,
     currentConsultant: consultant,
     otherConsultants,
   });
-
   return (
     <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
       <Stack spacing={0} mb={5}>
         <HStack>
-          <Avatar size="md" name={consultant.name} ml={-1} mr={2} />
+          <Avatar avatarUrl={consultant.avatar_url} name={consultant.name} size="md" ml={-1} mr={2} />
           <Flex w="full" direction="column">
             <HStack justify="space-between">
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
@@ -134,9 +141,16 @@ function ConsultantCard({
                   variant="ghost"
                   aria-label="edit consultant"
                   icon={<FiDollarSign />}
-                  isDisabled={isUpdateEarningDisabled}
+                  isDisabled={isUpdateDisabled}
                 />
-                <IconButton isDisabled={isConsultantDeletable} onClick={onOpenUpdateConsultant} size="xs" variant="ghost" aria-label="edit consultant" icon={<FiEdit2 />} />
+                <IconButton
+                  isDisabled={isUpdateDisabled}
+                  onClick={onOpenUpdateConsultant}
+                  size="xs"
+                  variant="ghost"
+                  aria-label="edit consultant"
+                  icon={<FiEdit2 />}
+                />
                 <IconButton
                   isDisabled={isConsultantDeletable}
                   size="xs"
@@ -188,7 +202,7 @@ function ConsultantCard({
         onClose={onCloseAdjustEarning}
         isOpen={isAdjustEarningOpen}
       />
-      <UpdateModal isOpen={isUpdateConsultantOpen} consultant={consultant} onClose={onCloseUpdateConsultant}  />
+      <UpdateModal isOpen={isUpdateConsultantOpen} consultant={consultant} onClose={onCloseUpdateConsultant} />
     </Card>
   );
 }
@@ -262,7 +276,15 @@ function AdjustEarningModal({
           </InputGroup>
         </ModalBody>
         <ModalFooter>
-          <Button autoFocus type="submit" isDisabled={!isDirty} onClick={updateEarning} isLoading={isUpdating} w="full" colorScheme="primary">
+          <Button
+            autoFocus
+            type="submit"
+            isDisabled={!isDirty}
+            onClick={updateEarning}
+            isLoading={isUpdating}
+            w="full"
+            colorScheme="primary"
+          >
             Speichern
           </Button>
         </ModalFooter>
@@ -271,34 +293,44 @@ function AdjustEarningModal({
   );
 }
 
-function UpdateModal({ isOpen, onClose, consultant }: { isOpen: boolean; onClose: () => void; consultant: ConsultantWithCurrentEarning }) {
+function UpdateModal({
+  isOpen,
+  onClose,
+  consultant,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  consultant: ConsultantWithCurrentEarning;
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm({ mode: 'onBlur' });
+
   const [isUpdating, setIsUpdating] = useState(false);
   const [hasUpdatingError, setHasUpdatingError] = useState(false);
   const toast = useToast();
+  const { id } = consultant;
 
-  async function onUpdate() {
-    setHasUpdatingError(false);
+  const onSubmit = handleSubmit(async formData => {
     setIsUpdating(true);
+    const results = await Promise.all([
+      updateUserName(id, formData.name),
+      updateConsultantPercent(id, Number(formData.percent)),
+    ]);
 
-    try {
-      // await deleteData({
-      //   url: '/api/delete-user',
-      //   data: {
-      //     id,
-      //   },
-      // });
-    } catch (error) {
-      console.log(error);
+    if (results.some(result => result.error !== null)) {
       setHasUpdatingError(true);
       setIsUpdating(false);
       return;
     }
 
     toast(createToastSettings({ title: 'Berater erfolgreich geupdatet.', status: 'success' }));
-
     setIsUpdating(false);
     onClose();
-  }
+  });
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -313,14 +345,43 @@ function UpdateModal({ isOpen, onClose, consultant }: { isOpen: boolean; onClose
           </Alert>
         )}
         <ModalBody>
-          
+          <Flex gap={4} direction="column">
+            <FormControl id="name">
+              <FormLabel>Name</FormLabel>
+              <Input
+                {...register('name')}
+                defaultValue={consultant.name ?? ''}
+                id="name"
+                placeholder="John Doe"
+                _placeholder={{ color: 'gray.500' }}
+                type="text"
+              />
+            </FormControl>
+
+            <FormControl id="percent">
+              <FormLabel>Umsatzbeteiligung</FormLabel>
+              <InputGroup>
+                <NumberInput
+                  width="full"
+                  keepWithinRange
+                  defaultValue={consultant.percent}
+                  max={100}
+                  min={0}
+                  precision={2}
+                >
+                  <NumberInputField {...register('percent')} />
+                </NumberInput>
+                <InputRightAddon>%</InputRightAddon>
+              </InputGroup>
+            </FormControl>
+          </Flex>
         </ModalBody>
 
         <ModalFooter>
           <Button isLoading={isUpdating} mr={3} variant="ghost" onClick={onClose}>
             Abbruch
           </Button>
-          <Button isLoading={isUpdating} onClick={onUpdate}>
+          <Button isLoading={isUpdating} onClick={onSubmit} isDisabled={!isDirty}>
             Speichern
           </Button>
         </ModalFooter>
@@ -474,15 +535,21 @@ function hasConsultantUpline(consultant: ConsultantWithCurrentEarning) {
   return !isNull(consultant.upline);
 }
 
-function getOverheads({user, otherConsultants}:{user: UserWithEmail, otherConsultants: Array<ConsultantWithCurrentEarning>}) {
-  if(user.role.id === 0 || user.role.id === 1) {
+function getOverheads({
+  user,
+  otherConsultants,
+}: {
+  user: UserWithEmail;
+  otherConsultants: Array<ConsultantWithCurrentEarning>;
+}) {
+  if (user.role.id === 0 || user.role.id === 1) {
     return otherConsultants.filter(consultant => consultant.role.id === 1);
-  } 
-  const consultant = otherConsultants.find((otherConsultant) => otherConsultant.id === user.id);
+  }
+  const consultant = otherConsultants.find(otherConsultant => otherConsultant.id === user.id);
 
-  if(!consultant) {
+  if (!consultant) {
     return [];
   }
 
-  return [findOverhead({consultant, otherConsultants})];
+  return [findOverhead({ consultant, otherConsultants })];
 }

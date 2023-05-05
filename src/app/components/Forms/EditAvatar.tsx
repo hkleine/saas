@@ -9,7 +9,7 @@ interface AvatarProps {
   user: UserWithEmail;
 }
 
-export default function Avatar({ user }: AvatarProps) {
+export default function EditAvatar({ user }: AvatarProps) {
   const [signedAvatarUrl, setSignedAvatarUrl] = useState<string | undefined>();
 
   useEffect(() => {

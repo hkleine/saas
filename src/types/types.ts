@@ -87,7 +87,7 @@ export type Role = Database['public']['Tables']['roles']['Row'];
 export type BaseConsultant = Omit<DatabaseConsultant, 'role'> & {
   role: Role;
   name: string;
-  avatar_url: string | null;
+  avatar_url?: string | null;
 };
 
 export type ConsultantWithCurrentEarning = BaseConsultant & {

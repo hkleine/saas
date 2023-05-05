@@ -51,13 +51,22 @@ export const getPaymentMethod = async (user: User) => {
   return data as any;
 };
 
-export const updateUserName = async (user: User | UserWithEmail, name: string) => {
+export const updateUserName = async (id: string, name: string) => {
   return supabase
     .from('users')
     .update({
       name,
     })
-    .eq('id', user.id);
+    .eq('id', id);
+};
+
+export const updateConsultantPercent = async (id: string, percent: number) => {
+  return supabase
+    .from('consultants')
+    .update({
+      percent,
+    })
+    .eq('id', id);
 };
 
 export const updateUserEmail = async (user: User | UserWithEmail, email: string) => {
@@ -155,7 +164,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
 
   const { data, error } = await supabase
     .from('consultants')
-    .select('*, earnings(*), users!consultants_id_fkey(name, role:role(*))')
+    .select('*, earnings(*), users!consultants_id_fkey(name, avatar_url, role:role(*))')
     .eq('company_id', companyId);
 
   if (error) {

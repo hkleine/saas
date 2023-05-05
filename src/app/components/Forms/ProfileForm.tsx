@@ -6,7 +6,7 @@ import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { LoadingSpinner } from '../LoadingSpinner/LoadingSpinner';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
-import Avatar from './Avatar';
+import EditAvatar from './EditAvatar';
 import FileUpload from './FileUpload';
 import FormError from './FormError';
 
@@ -31,7 +31,7 @@ export default function Profile() {
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
-    const { error, status } = await updateUserName(user, formData.name);
+    const { error, status } = await updateUserName(user.id, formData.name);
     console.log(error, status);
     if (error) {
       toast(
@@ -53,7 +53,7 @@ export default function Profile() {
       <FormControl id="userName">
         <Stack direction={['column', 'row']} spacing={6}>
           <Center>
-            <Avatar user={user} />
+            <EditAvatar user={user} />
           </Center>
           <Center w="full">
             <FileUpload avatarUrl={user.avatar_url} uid={user.id} onUpload={onUpload}>
