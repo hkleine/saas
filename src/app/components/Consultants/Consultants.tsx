@@ -1,36 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
-import { createToastSettings } from '@/utils/createToastSettings';
 import { findOverhead } from '@/utils/findOverhead';
-import { deleteData } from '@/utils/helpers';
-import { updateConsultantPercent, updateCurrentEarning, updateUserName } from '@/utils/supabase-client';
+import { useConsultantActionRights } from '@/utils/hooks';
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Button,
   Card,
   Flex,
-  FormControl,
-  FormLabel,
   Grid,
   Heading,
   HStack,
   IconButton,
-  Input,
-  InputGroup,
-  InputRightAddon,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  NumberInput,
-  NumberInputField,
   Stack,
   Stat,
   StatArrow,
@@ -41,25 +20,23 @@ import {
   TagLabel,
   Text,
   useDisclosure,
-  useToast,
   VStack,
 } from '@chakra-ui/react';
-import { isNull } from 'lodash';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { FiDollarSign, FiEdit2, FiPercent, FiTrash } from 'react-icons/fi';
+import { useContext, useMemo } from 'react';
+import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
 import { Avatar } from '../AppShell/Avatar';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { AdjustEarningModal } from './AdjustEarningModal';
+import { DeletionModal } from './DeletionModal';
+import { UpdateConsultantModal } from './UpdateConsultantModal';
 
-export default function Consultants() {
-  const user = useContext(RealTimeUserContext);
-  const consultants = useContext(RealTimeCompanyConsultantsContext);
-
-  if (!consultants || !user) {
-    return null;
-  }
-
+export default function Consultants({
+  consultants,
+  user,
+}: {
+  consultants: Array<ConsultantWithCurrentEarning>;
+  user: UserWithEmail;
+}) {
   const overheads = getOverheads({ user, otherConsultants: consultants });
 
   return (
@@ -97,8 +74,7 @@ function ConsultantCard({
   consultant: ConsultantWithCurrentEarning;
 }) {
   const user = useContext(RealTimeUserContext);
-
-  const { onOpen, isOpen, onClose } = useDisclosure();
+  const { onOpen: onDeletionOpen, isOpen: isDeletionOpen, onClose: onDeleteionClose } = useDisclosure();
   const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
   const {
     onOpen: onOpenUpdateConsultant,
@@ -112,20 +88,28 @@ function ConsultantCard({
 
   const uplineLevy = calculateUplineLevy({ consultant });
 
+  const { isConsultantDeletable, isUpdateDisabled } = useConsultantActionRights({
+    consultant,
+    otherConsultants,
+    user,
+  });
+
   if (!user) {
     return null;
   }
 
-  const isConsultantDeletable =
-    otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id) ||
-    checkIfActionAllowedForCurrentUser({ user, otherConsultants, currentConsultant: consultant });
-  const isUpdateDisabled = checkIfActionAllowedForCurrentUser({
-    user,
-    currentConsultant: consultant,
-    otherConsultants,
-  });
+  const isConsultantCardFromCurrentUser = user.id === consultant.id;
+
   return (
-    <Card position="relative" width={400} p={6} boxShadow={'lg'} rounded={'lg'}>
+    <Card
+      border={isConsultantCardFromCurrentUser ? '1px' : undefined}
+      borderColor="purple.500"
+      position="relative"
+      width={400}
+      p={6}
+      boxShadow={isConsultantCardFromCurrentUser ? 'xl' : 'lg'}
+      rounded={'lg'}
+    >
       <Stack spacing={0} mb={5}>
         <HStack>
           <Avatar avatarUrl={consultant.avatar_url} name={consultant.name} size="md" ml={-1} mr={2} />
@@ -157,7 +141,7 @@ function ConsultantCard({
                   variant="ghost"
                   aria-label="delete consultant"
                   icon={<FiTrash />}
-                  onClick={onOpen}
+                  onClick={onDeletionOpen}
                 />
               </Flex>
             </HStack>
@@ -176,273 +160,46 @@ function ConsultantCard({
       <HStack>
         <Stat>
           <StatLabel>Eigene Einnahmen</StatLabel>
-          <HStack>
-            <StatNumber>{consultant.currentEarning.value.toFixed(2)}€</StatNumber>
-            {uplineLevy > 0 ? (
-              <StatHelpText>
-                <StatArrow type="decrease" />
-                {((consultant.currentEarning.value / 100) * (100 - consultant.percent)).toFixed(2)}
-              </StatHelpText>
-            ) : null}
-          </HStack>
+          {consultant.currentEarning.concealed ? (
+            <FiEyeOff />
+          ) : (
+            <HStack>
+              <StatNumber>{consultant.currentEarning.value.toFixed(2)}€</StatNumber>
+              {uplineLevy > 0 ? (
+                <StatHelpText>
+                  <StatArrow type="decrease" />
+                  {((consultant.currentEarning.value / 100) * (100 - consultant.percent)).toFixed(2)}
+                </StatHelpText>
+              ) : null}
+            </HStack>
+          )}
         </Stat>
         {downlineEarnings > 0 ? (
           <Stat>
             <StatLabel>Downline Einnahmen</StatLabel>
-            <HStack>
-              <StatNumber>{downlineEarnings.toFixed(2)}€</StatNumber>
-            </HStack>
+            {consultant.currentEarning.concealed ? (
+              <FiEyeOff />
+            ) : (
+              <HStack>
+                <StatNumber>{downlineEarnings.toFixed(2)}€</StatNumber>
+              </HStack>
+            )}
           </Stat>
         ) : null}
       </HStack>
-      <DeletionModal id={consultant.id} onClose={onClose} isOpen={isOpen} />
+      <DeletionModal id={consultant.id} onClose={onDeleteionClose} isOpen={isDeletionOpen} />
       <AdjustEarningModal
         id={consultant.id}
         earning={consultant.currentEarning}
         onClose={onCloseAdjustEarning}
         isOpen={isAdjustEarningOpen}
       />
-      <UpdateModal isOpen={isUpdateConsultantOpen} consultant={consultant} onClose={onCloseUpdateConsultant} />
+      <UpdateConsultantModal
+        isOpen={isUpdateConsultantOpen}
+        consultant={consultant}
+        onClose={onCloseUpdateConsultant}
+      />
     </Card>
-  );
-}
-
-function AdjustEarningModal({
-  isOpen,
-  onClose,
-  earning,
-  id,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  earning: { id: string; value: number };
-  id: string;
-}) {
-  const fixedInputEarning = earning.value.toFixed(2);
-  const [isDirty, setIsDirty] = useState(false);
-  const [earningValue, setEarningValue] = useState(fixedInputEarning);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const toast = useToast();
-
-  useEffect(() => {
-    setIsDirty(fixedInputEarning !== earningValue);
-  }, [earningValue, fixedInputEarning]);
-
-  async function updateEarning() {
-    setIsUpdating(true);
-
-    try {
-      await updateCurrentEarning({ id, newValue: earningValue });
-    } catch (error) {
-      console.log(error);
-      setHasError(true);
-      setIsUpdating(false);
-      return;
-    }
-
-    setIsUpdating(false);
-    onClose();
-    toast(createToastSettings({ title: 'Einnahmen erfolgreich bearbeiter', status: 'success' }));
-  }
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Einnahmen bearbeiten</ModalHeader>
-        <ModalCloseButton />
-        {hasError && (
-          <Alert mb="2" rounded={'lg'} status="error">
-            <AlertIcon />
-            <AlertTitle>Fehler beim bearbeiten!</AlertTitle>
-            <AlertDescription>Versuche es später erneut.</AlertDescription>
-          </Alert>
-        )}
-        <ModalBody>
-          <InputGroup>
-            <NumberInput
-              clampValueOnBlur={true}
-              precision={2}
-              min={0}
-              max={10000000}
-              w="full"
-              value={earningValue}
-              onChange={newValue => setEarningValue(newValue)}
-            >
-              <NumberInputField />
-            </NumberInput>
-            <InputRightAddon>€</InputRightAddon>
-          </InputGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            autoFocus
-            type="submit"
-            isDisabled={!isDirty}
-            onClick={updateEarning}
-            isLoading={isUpdating}
-            w="full"
-            colorScheme="primary"
-          >
-            Speichern
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-}
-
-function UpdateModal({
-  isOpen,
-  onClose,
-  consultant,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  consultant: ConsultantWithCurrentEarning;
-}) {
-  const {
-    register,
-    handleSubmit,
-    formState: { isDirty },
-  } = useForm({ mode: 'onBlur' });
-
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [hasUpdatingError, setHasUpdatingError] = useState(false);
-  const toast = useToast();
-  const { id } = consultant;
-
-  const onSubmit = handleSubmit(async formData => {
-    setIsUpdating(true);
-    const results = await Promise.all([
-      updateUserName(id, formData.name),
-      updateConsultantPercent(id, Number(formData.percent)),
-    ]);
-
-    if (results.some(result => result.error !== null)) {
-      setHasUpdatingError(true);
-      setIsUpdating(false);
-      return;
-    }
-
-    toast(createToastSettings({ title: 'Berater erfolgreich geupdatet.', status: 'success' }));
-    setIsUpdating(false);
-    onClose();
-  });
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Berater anpassen</ModalHeader>
-        <ModalCloseButton />
-        {hasUpdatingError && (
-          <Alert mb="2" rounded={'lg'} status="error">
-            <AlertIcon />
-            <AlertTitle>Fehler beim Updaten!</AlertTitle>
-            <AlertDescription>Versuche es später erneut.</AlertDescription>
-          </Alert>
-        )}
-        <ModalBody>
-          <Flex gap={4} direction="column">
-            <FormControl id="name">
-              <FormLabel>Name</FormLabel>
-              <Input
-                {...register('name')}
-                defaultValue={consultant.name ?? ''}
-                id="name"
-                placeholder="John Doe"
-                _placeholder={{ color: 'gray.500' }}
-                type="text"
-              />
-            </FormControl>
-
-            <FormControl id="percent">
-              <FormLabel>Umsatzbeteiligung</FormLabel>
-              <InputGroup>
-                <NumberInput
-                  width="full"
-                  keepWithinRange
-                  defaultValue={consultant.percent}
-                  max={100}
-                  min={0}
-                  precision={2}
-                >
-                  <NumberInputField {...register('percent')} />
-                </NumberInput>
-                <InputRightAddon>%</InputRightAddon>
-              </InputGroup>
-            </FormControl>
-          </Flex>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button isLoading={isUpdating} mr={3} variant="ghost" onClick={onClose}>
-            Abbruch
-          </Button>
-          <Button isLoading={isUpdating} onClick={onSubmit} isDisabled={!isDirty}>
-            Speichern
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-}
-
-function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClose: () => void; id: string }) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [hasDeletionError, setHasDeletionError] = useState(false);
-  const toast = useToast();
-
-  async function onDelete() {
-    setHasDeletionError(false);
-    setIsDeleting(true);
-
-    try {
-      await deleteData({
-        url: '/api/delete-user',
-        data: {
-          id,
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      setHasDeletionError(true);
-      setIsDeleting(false);
-      return;
-    }
-
-    toast(createToastSettings({ title: 'Berater erfolgreich gelöscht.', status: 'success' }));
-
-    setIsDeleting(false);
-    onClose();
-  }
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Berater unwideruflich löschen?</ModalHeader>
-        <ModalCloseButton />
-        {hasDeletionError && (
-          <Alert mb="2" rounded={'lg'} status="error">
-            <AlertIcon />
-            <AlertTitle>Fehler beim Löschen!</AlertTitle>
-            <AlertDescription>Versuche es später erneut.</AlertDescription>
-          </Alert>
-        )}
-        <ModalBody>Diese Aktion ist unwirderuflich und löscht den Account des Beraters.</ModalBody>
-
-        <ModalFooter>
-          <Button isLoading={isDeleting} mr={3} variant="ghost" onClick={onClose}>
-            Abbruch
-          </Button>
-          <Button isLoading={isDeleting} onClick={onDelete} colorScheme="red">
-            Löschen
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
   );
 }
 
@@ -498,43 +255,6 @@ function getConsultantDownlines({
   return otherConsultants.filter(otherConsultants => consultant.id === otherConsultants.upline);
 }
 
-function checkIfActionAllowedForCurrentUser({
-  user,
-  currentConsultant,
-  otherConsultants,
-}: {
-  user: UserWithEmail;
-  currentConsultant: ConsultantWithCurrentEarning;
-  otherConsultants: Array<ConsultantWithCurrentEarning>;
-}) {
-  if (user.role.id === 0) {
-    return false;
-  }
-
-  if (user.id === currentConsultant.id) {
-    return false;
-  }
-
-  if (currentConsultant.upline === user.id) {
-    return false;
-  }
-
-  let uplineConsultant = currentConsultant;
-  while (hasConsultantUpline(uplineConsultant)) {
-    uplineConsultant = otherConsultants.find(otherConsultant => otherConsultant.id === uplineConsultant.upline!)!;
-
-    if (uplineConsultant.id === user.id) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function hasConsultantUpline(consultant: ConsultantWithCurrentEarning) {
-  return !isNull(consultant.upline);
-}
-
 function getOverheads({
   user,
   otherConsultants,
@@ -542,7 +262,7 @@ function getOverheads({
   user: UserWithEmail;
   otherConsultants: Array<ConsultantWithCurrentEarning>;
 }) {
-  if (user.role.id === 0 || user.role.id === 1) {
+  if (user.role.id === 0) {
     return otherConsultants.filter(consultant => consultant.role.id === 1);
   }
   const consultant = otherConsultants.find(otherConsultant => otherConsultant.id === user.id);

@@ -9,11 +9,9 @@ import {
   Badge,
   Box,
   Button,
-  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
-  Center,
   Flex,
   Grid,
   Heading,
@@ -25,9 +23,10 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { FiCheckCircle } from 'react-icons/fi';
 import Stripe from 'stripe';
+import { Switch } from '../Atoms/Switch';
 
 type BillingInterval = 'year' | 'month';
 
@@ -44,7 +43,7 @@ export function Pricing({ products, subscription, paymentMethod }: Props) {
     <>
       {!subscription ? (
         <Flex direction="column" gap={4}>
-          <BillingIntervalSwitch billingInterval={billingInterval} setBillingInterval={setBillingInterval} />
+          <Switch option1="month" option2="year" value={billingInterval} setValue={setBillingInterval} />
           <Grid templateColumns="repeat(5, 200px)" gap={6}>
             {products.map(product => {
               return <PlanCard key={product.id} product={product} billingInterval={billingInterval} />;
@@ -210,42 +209,5 @@ function PriceWrapper({ children }: { children: ReactNode }) {
     >
       {children}
     </Box>
-  );
-}
-
-function BillingIntervalSwitch({
-  billingInterval,
-  setBillingInterval,
-}: {
-  billingInterval: BillingInterval;
-  setBillingInterval: Dispatch<SetStateAction<BillingInterval>>;
-}) {
-  return (
-    <Center>
-      <ButtonGroup
-        borderRadius="lg"
-        padding="1"
-        bg="white"
-        boxShadow={{ base: 'none', sm: 'md' }}
-        size="sm"
-        spacing={2}
-      >
-        <Button
-          px={4}
-          onClick={() => setBillingInterval('month')}
-          variant={billingInterval === 'month' ? 'outline' : 'ghost'}
-          borderRadius="lg"
-        >
-          Monthly
-        </Button>
-        <Button
-          onClick={() => setBillingInterval('year')}
-          variant={billingInterval === 'year' ? 'outline' : 'ghost'}
-          borderRadius="lg"
-        >
-          Yearly
-        </Button>
-      </ButtonGroup>
-    </Center>
   );
 }

@@ -1,7 +1,7 @@
 import { Price } from '@/types/types';
 
 export function formatPrice(price: Price) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: price.currency,
     minimumFractionDigits: 0,

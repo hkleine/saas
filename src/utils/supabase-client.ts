@@ -164,7 +164,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
 
   const { data, error } = await supabase
     .from('consultants')
-    .select('*, earnings(*), users!consultants_id_fkey(name, avatar_url, role:role(*))')
+    .select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
     .eq('company_id', companyId);
 
   if (error) {
@@ -172,7 +172,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
     return null;
   }
 
-  const consultant = convertConsultant(data);
+  const consultant = convertConsultant({ consultantData: data, user });
 
   return consultant;
 }

@@ -18,7 +18,7 @@ import {
   NumberInput,
   NumberInputField,
   Select,
-  useToast
+  useToast,
 } from '@chakra-ui/react';
 import { isNull } from 'lodash';
 import { useContext, useEffect, useState } from 'react';
@@ -27,18 +27,12 @@ import FormError from '../Forms/FormError';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
-export default function ConsultantForm({
-  roles,
-  onClose,
-}: {
-  roles: Roles;
-  onClose: () => void;
-}) {
+export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClose: () => void }) {
   const consultants = useContext(RealTimeCompanyConsultantsContext);
   const DEFAULT_ROLE = 3;
-  const DEFAULT_POTENTIAL_UPLINE = DEFAULT_ROLE - 1;
+
   const [potentialUplines, setPotentialUplines] = useState(
-    consultants?.filter(consultant => consultant.role.id === DEFAULT_POTENTIAL_UPLINE) ?? []
+    consultants?.filter(consultant => consultant.role.id < DEFAULT_ROLE) ?? []
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUplineSelectionDisabled, setIsUplineSelectionDisabled] = useState(false);
@@ -56,7 +50,7 @@ export default function ConsultantForm({
   const user = useContext(RealTimeUserContext);
 
   useEffect(() => {
-    setPotentialUplines(consultants?.filter(consultant => consultant.role.id === roleWatch - 1) ?? []);
+    setPotentialUplines(consultants?.filter(consultant => consultant.role.id < roleWatch) ?? []);
     setIsUplineSelectionDisabled(Number(roleWatch) === 1);
   }, [roleWatch, consultants]);
 
@@ -92,7 +86,13 @@ export default function ConsultantForm({
       return;
     }
     onClose();
-    toast(createToastSettings({title: 'Berater erfolgreich erstellt.', status: 'success', description: 'Die E-Mail Adresse des Beraters muss noch bestätigt werden.'}));
+    toast(
+      createToastSettings({
+        title: 'Berater erfolgreich erstellt.',
+        status: 'success',
+        description: 'Die E-Mail Adresse des Beraters muss noch bestätigt werden.',
+      })
+    );
 
     setIsSubmitting(false);
   });
