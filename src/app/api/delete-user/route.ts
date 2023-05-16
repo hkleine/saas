@@ -14,9 +14,9 @@ export async function DELETE(req: NextRequest) {
       status: 401,
     });
   }
-
   try {
     const { id } = await req.json();
+
     const { error } = await deleteUser(id);
     if (error) throw error;
 

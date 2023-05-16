@@ -25,6 +25,7 @@
     "@types/react-dom": "18.0.10",
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "classnames": "^2.3.2",
+    "dagre": "^0.8.5",
     "eslint": "8.33.0",
     "eslint-config-next": "^13.2.3",
     "framer-motion": "^8.5.4",
@@ -34,6 +35,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.7",
     "react-icons": "^4.7.1",
+    "reactflow": "^11.7.1",
     "server-only": "^0.0.1",
     "stripe": "^11.13.0",
     "typescript": "4.9.4",
@@ -42,6 +44,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
+    "@types/dagre": "^0.7.48",
     "@types/jest": "^29.5.1",
     "@types/uuid": "^9.0.1",
     "eslint-config-prettier": "^8.6.0",

@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
-import { findOverhead } from '@/utils/findOverhead';
 import { useConsultantActionRights } from '@/utils/hooks';
 import {
   Card,
   Flex,
-  Grid,
   Heading,
   HStack,
   IconButton,
@@ -20,15 +18,23 @@ import {
   TagLabel,
   Text,
   useDisclosure,
-  VStack,
 } from '@chakra-ui/react';
+import dagre from 'dagre';
 import { useContext, useMemo } from 'react';
 import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
+import ReactFlow, { Background, Controls, Edge, Handle, Node, Position, useEdgesState, useNodesState } from 'reactflow';
 import { Avatar } from '../AppShell/Avatar';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import { AdjustEarningModal } from './AdjustEarningModal';
 import { DeletionModal } from './DeletionModal';
 import { UpdateConsultantModal } from './UpdateConsultantModal';
+
+const nodeTypes = { consultant: ConsultantCard };
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+const nodeWidth = 400;
+const nodeHeight = 181;
 
 export default function Consultants({
   consultants,
@@ -37,41 +43,32 @@ export default function Consultants({
   consultants: Array<ConsultantWithCurrentEarning>;
   user: UserWithEmail;
 }) {
-  const overheads = getOverheads({ user, otherConsultants: consultants });
+  const { nodes: layoutedNodes, edges: layoutedEdges } = useConsultantNodes(consultants);
+  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
 
   return (
     <Flex gap={20} flex="1 1 auto" overflowX="auto">
-      {overheads.map(overhead => (
-        <VStack key={overhead.id}>
-          <ConsultantCard consultant={overhead} otherConsultants={consultants} />
-          <Flex gap={2}>
-            {consultants
-              .filter(a => a.upline === overhead.id)
-              .map(au => (
-                <VStack key={au.id}>
-                  <ConsultantCard consultant={au} otherConsultants={consultants} />
-                  <Grid templateColumns="auto auto" gap={2}>
-                    {consultants
-                      .filter(a => a.upline === au.id)
-                      .map(az => (
-                        <ConsultantCard key={az.id} consultant={az} otherConsultants={consultants} />
-                      ))}
-                  </Grid>
-                </VStack>
-              ))}
-          </Flex>
-        </VStack>
-      ))}
+      <ReactFlow
+        fitView
+        nodes={nodes}
+        edges={edges}
+        // onNodesChange={onNodesChange}
+        // onEdgesChange={onEdgesChange}
+        // onConnect={onConnect}
+        nodeTypes={nodeTypes}
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
     </Flex>
   );
 }
 
 function ConsultantCard({
-  consultant,
-  otherConsultants,
+  data: { consultant, otherConsultants },
 }: {
-  otherConsultants: Array<ConsultantWithCurrentEarning>;
-  consultant: ConsultantWithCurrentEarning;
+  data: { otherConsultants: Array<ConsultantWithCurrentEarning>; consultant: ConsultantWithCurrentEarning };
 }) {
   const user = useContext(RealTimeUserContext);
   const { onOpen: onDeletionOpen, isOpen: isDeletionOpen, onClose: onDeleteionClose } = useDisclosure();
@@ -111,6 +108,8 @@ function ConsultantCard({
       rounded={'lg'}
     >
       <Stack spacing={0} mb={5}>
+        <Handle type="source" position={Position.Bottom} />
+        {consultant.upline && <Handle type="target" position={Position.Top} />}
         <HStack>
           <Avatar avatarUrl={consultant.avatar_url} name={consultant.name} size="md" ml={-1} mr={2} />
           <Flex w="full" direction="column">
@@ -255,21 +254,58 @@ function getConsultantDownlines({
   return otherConsultants.filter(otherConsultants => consultant.id === otherConsultants.upline);
 }
 
-function getOverheads({
-  user,
-  otherConsultants,
-}: {
-  user: UserWithEmail;
-  otherConsultants: Array<ConsultantWithCurrentEarning>;
-}) {
-  if (user.role.id === 0) {
-    return otherConsultants.filter(consultant => consultant.role.id === 1);
-  }
-  const consultant = otherConsultants.find(otherConsultant => otherConsultant.id === user.id);
+function useConsultantNodes(consultants: Array<ConsultantWithCurrentEarning>) {
+  const nodes = consultants.map(consultant => {
+    return {
+      id: consultant.id,
+      type: 'consultant',
+      position: { x: 0, y: 0 },
+      data: { consultant, otherConsultants: consultants },
+      draggable: false,
+    };
+  });
 
-  if (!consultant) {
-    return [];
-  }
+  const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithCurrentEarning) => {
+    if (currentConsultant.upline) {
+      return [
+        ...prevEdges,
+        { id: currentConsultant.id, type: 'step', target: currentConsultant.id, source: currentConsultant.upline },
+      ];
+    }
+    return prevEdges;
+  }, [] as Array<Edge>);
 
-  return [findOverhead({ consultant, otherConsultants })];
+  return getLayoutedElements({
+    nodes,
+    edges,
+  });
+}
+
+function getLayoutedElements({ nodes, edges }: { nodes: Array<Node>; edges: Array<Edge> }) {
+  dagreGraph.setGraph({ rankdir: 'TB' });
+
+  nodes.forEach(node => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach(edge => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  nodes.forEach(node => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    node.targetPosition = Position.Top;
+    node.sourcePosition = Position.Bottom;
+
+    node.position = {
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
+    };
+
+    return node;
+  });
+
+  return { nodes, edges };
 }

@@ -22,8 +22,6 @@ export function convertConsultant({
 }): Array<ConsultantWithCurrentEarning> {
   return consultantData.map((consultant: Consultant) => {
     const { name, role, avatar_url } = consultant.users;
-    console.log(user.role, role);
-    console.log(user.id, consultant.id);
 
     const currentMonthsEarning = consultant.earnings.find(earning => {
       const earningDate = new Date(earning.date);

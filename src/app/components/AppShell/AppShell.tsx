@@ -15,7 +15,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchUser = async () => {
       const fetchedUser = await getUser();
-      console.log(fetchedUser);
       setUser(fetchedUser);
     };
 
