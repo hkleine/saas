@@ -28,10 +28,7 @@ export function DeletionModal({ isOpen, onClose, id }: { isOpen: boolean; onClos
 
     try {
       await deleteData({
-        url: '/api/delete-user',
-        data: {
-          id,
-        },
+        url: `/api/delete-user/${id}`,
       });
     } catch (error) {
       console.log(error);
