@@ -2,7 +2,14 @@ import { deleteUser } from '@/utils/supabase-admin';
 import { createClient } from '@/utils/supabase-server';
 import { NextRequest } from 'next/server';
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+  _req: NextRequest,
+  {
+    params: { id },
+  }: {
+    params: { id: string };
+  }
+) {
   const supabase = createClient();
 
   const {
@@ -15,8 +22,6 @@ export async function DELETE(req: NextRequest) {
     });
   }
   try {
-    const { id } = await req.json();
-
     const { error } = await deleteUser(id);
     if (error) throw error;
 
