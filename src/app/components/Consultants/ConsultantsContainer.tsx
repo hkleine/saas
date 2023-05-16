@@ -5,7 +5,6 @@ import { useContext, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { Roles } from '../../../types/types';
 import { Switch } from '../Atoms/Switch';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import { AddConsultantModal } from './AddConsultantModal';
 import Consultants from './Consultants';
@@ -16,9 +15,8 @@ export default function ConsultantsContainer({ roles }: { roles: Roles }) {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const user = useContext(RealTimeUserContext);
-  const consultants = useContext(RealTimeCompanyConsultantsContext);
 
-  if (!consultants || !user) {
+  if (!user) {
     return null;
   }
 
@@ -34,11 +32,7 @@ export default function ConsultantsContainer({ roles }: { roles: Roles }) {
         )}
       </Flex>
 
-      {viewType === 'diagram' ? (
-        <Consultants consultants={consultants} user={user} />
-      ) : (
-        <ConsultantsTable consultants={consultants} />
-      )}
+      {viewType === 'diagram' ? <Consultants roles={roles} /> : <ConsultantsTable />}
 
       <AddConsultantModal isOpen={isOpen} onClose={onClose} roles={roles} />
     </>

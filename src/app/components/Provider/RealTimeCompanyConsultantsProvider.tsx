@@ -22,6 +22,7 @@ export function RealTimeCompanyConsultantsProvider({
   useEffect(() => {
     const channel = subscribeToCompanyUsers(companyId, async () => {
       const consultants = await getConsultants();
+      console.log('consultants changed', consultants);
       setRealtimeConsultants(consultants);
     });
 

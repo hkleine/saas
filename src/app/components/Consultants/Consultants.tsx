@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
-import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
+import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
 import { useConsultantActionRights } from '@/utils/hooks';
+import { updateConsultantUpline } from '@/utils/supabase-client';
 import {
   Card,
   Flex,
@@ -20,10 +21,11 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import dagre from 'dagre';
-import { useContext, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
 import ReactFlow, { Background, Controls, Edge, Handle, Node, Position, useEdgesState, useNodesState } from 'reactflow';
 import { Avatar } from '../AppShell/Avatar';
+import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import { AdjustEarningModal } from './AdjustEarningModal';
 import { DeletionModal } from './DeletionModal';
@@ -36,16 +38,23 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 const nodeWidth = 400;
 const nodeHeight = 181;
 
-export default function Consultants({
-  consultants,
-  user,
-}: {
-  consultants: Array<ConsultantWithCurrentEarning>;
-  user: UserWithEmail;
-}) {
-  const { nodes: layoutedNodes, edges: layoutedEdges } = useConsultantNodes(consultants);
+export default function Consultants({ roles }: { roles: Roles }) {
+  const consultants = useContext(RealTimeCompanyConsultantsContext);
+
+  const { nodes: layoutedNodes, edges: layoutedEdges } = getConsultantNodes(consultants, roles);
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+
+  useEffect(() => {
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getConsultantNodes(consultants, roles);
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
+  }, [consultants]);
+
+  const onConnect = useCallback(async ({ source, target }: { source: string | null; target: string | null }) => {
+    if (!source || !target) return;
+    await updateConsultantUpline(target, source);
+  }, []);
 
   return (
     <Flex gap={20} flex="1 1 auto" overflowX="auto">
@@ -53,9 +62,9 @@ export default function Consultants({
         fitView
         nodes={nodes}
         edges={edges}
-        // onNodesChange={onNodesChange}
-        // onEdgesChange={onEdgesChange}
-        // onConnect={onConnect}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
         nodeTypes={nodeTypes}
       >
         <Background />
@@ -66,10 +75,16 @@ export default function Consultants({
 }
 
 function ConsultantCard({
-  data: { consultant, otherConsultants },
+  data: { consultant, otherConsultants, roles },
 }: {
-  data: { otherConsultants: Array<ConsultantWithCurrentEarning>; consultant: ConsultantWithCurrentEarning };
+  data: {
+    otherConsultants: Array<ConsultantWithCurrentEarning>;
+    consultant: ConsultantWithCurrentEarning;
+    roles: Roles;
+  };
 }) {
+  const highestRole = Math.max(...roles.map(o => o.id));
+  const isHighestRole = highestRole === consultant.role.id;
   const user = useContext(RealTimeUserContext);
   const { onOpen: onDeletionOpen, isOpen: isDeletionOpen, onClose: onDeleteionClose } = useDisclosure();
   const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
@@ -108,8 +123,8 @@ function ConsultantCard({
       rounded={'lg'}
     >
       <Stack spacing={0} mb={5}>
-        <Handle type="source" position={Position.Bottom} />
-        {consultant.upline && <Handle type="target" position={Position.Top} />}
+        {!isHighestRole && <Handle style={{ width: '8px', height: '8px' }} type="source" position={Position.Bottom} />}
+        {consultant.upline && <Handle style={{ width: '8px', height: '8px' }} type="target" position={Position.Top} />}
         <HStack>
           <Avatar avatarUrl={consultant.avatar_url} name={consultant.name} size="md" ml={-1} mr={2} />
           <Flex w="full" direction="column">
@@ -254,14 +269,23 @@ function getConsultantDownlines({
   return otherConsultants.filter(otherConsultants => consultant.id === otherConsultants.upline);
 }
 
-function useConsultantNodes(consultants: Array<ConsultantWithCurrentEarning>) {
+function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | null, roles: Roles) {
+  if (!consultants) return { nodes: [], edges: [] };
+
   const nodes = consultants.map(consultant => {
+    // TODO add groups for every overhead
+    // const overHead = findOverhead({
+    //   consultant,
+    //   otherConsultants: consultants,
+    // });
+
     return {
       id: consultant.id,
       type: 'consultant',
       position: { x: 0, y: 0 },
-      data: { consultant, otherConsultants: consultants },
-      draggable: false,
+      data: { consultant, otherConsultants: consultants, roles },
+      draggable: true,
+      // parentNode: overHead.id,
     };
   });
 

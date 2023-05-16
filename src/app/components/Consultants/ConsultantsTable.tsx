@@ -17,12 +17,19 @@ import {
 } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
+import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import { AdjustEarningModal } from './AdjustEarningModal';
 import { DeletionModal } from './DeletionModal';
 import { UpdateConsultantModal } from './UpdateConsultantModal';
 
-export default function ConsultantsTable({ consultants }: { consultants: Array<ConsultantWithCurrentEarning> }) {
+export default function ConsultantsTable() {
+  const consultants = useContext(RealTimeCompanyConsultantsContext);
+
+  if (!consultants) {
+    return null;
+  }
+
   const sortedConsultants = consultants.sort((a, b) => {
     if (a.role.id < b.role.id) return -1;
     if (a.role.id > b.role.id) return 1;

@@ -69,6 +69,15 @@ export const updateConsultantPercent = async (id: string, percent: number) => {
     .eq('id', id);
 };
 
+export const updateConsultantUpline = async (id: string, newUpline: string) => {
+  return supabase
+    .from('consultants')
+    .update({
+      upline: newUpline,
+    })
+    .eq('id', id);
+};
+
 export const updateUserEmail = async (user: User | UserWithEmail, email: string) => {
   return supabase.auth.updateUser({
     email,
