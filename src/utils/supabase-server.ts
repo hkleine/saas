@@ -3,7 +3,7 @@ import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-next
 import { isNil } from 'lodash';
 import { cookies, headers } from 'next/headers';
 import Stripe from 'stripe';
-import { convertConsultant } from './convertConsultant';
+import { convertConsultants } from './convertConsultant';
 
 export const createClient = () =>
   createServerComponentSupabaseClient({
@@ -74,7 +74,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
     return null;
   }
 
-  const consultant = convertConsultant({ consultantData: data, user });
+  const consultant = convertConsultants({ consultantData: data, user });
 
   return consultant;
 }

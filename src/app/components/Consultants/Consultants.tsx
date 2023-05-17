@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { findOverhead } from '@/utils/findOverhead';
 import { useConsultantActionRights } from '@/utils/hooks';
 import { updateConsultantUpline } from '@/utils/supabase-client';
 import {
@@ -18,7 +19,7 @@ import {
   Tag,
   TagLabel,
   Text,
-  useDisclosure,
+  useDisclosure
 } from '@chakra-ui/react';
 import dagre from 'dagre';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
@@ -49,7 +50,7 @@ export default function Consultants({ roles }: { roles: Roles }) {
     const { nodes: layoutedNodes, edges: layoutedEdges } = getConsultantNodes(consultants, roles);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-  }, [consultants]);
+  }, [consultants, roles, setEdges, setNodes]);
 
   const onConnect = useCallback(async ({ source, target }: { source: string | null; target: string | null }) => {
     if (!source || !target) return;
@@ -73,6 +74,7 @@ export default function Consultants({ roles }: { roles: Roles }) {
     </Flex>
   );
 }
+
 
 function ConsultantCard({
   data: { consultant, otherConsultants, roles },
@@ -274,10 +276,10 @@ function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | n
 
   const nodes = consultants.map(consultant => {
     // TODO add groups for every overhead
-    // const overHead = findOverhead({
-    //   consultant,
-    //   otherConsultants: consultants,
-    // });
+    const overHead = findOverhead({
+      consultant,
+      otherConsultants: consultants,
+    });
 
     return {
       id: consultant.id,
@@ -285,9 +287,20 @@ function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | n
       position: { x: 0, y: 0 },
       data: { consultant, otherConsultants: consultants, roles },
       draggable: true,
-      // parentNode: overHead.id,
+      parentNode: `group-${overHead.id}`,
     };
   });
+
+  consultants.forEach(consultant => {
+    if(consultant.role.id === 1) {
+      nodes.push({
+        id: `group-${consultant.id}`,
+        data: { label: `Group ${consultant.name}` },
+        position: { x: 0, y: 0 },
+        style: { backgroundColor: 'rgba(255, 0, 0, 0.2)' },
+      })
+    }
+  })
 
   const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithCurrentEarning) => {
     if (currentConsultant.upline) {

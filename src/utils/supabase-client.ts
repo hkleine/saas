@@ -6,9 +6,9 @@ import {
   ProductWithPrice,
   Roles,
   SubscriptionWithPriceAndProduct,
-  UserWithEmail,
+  UserWithEmail
 } from '../types/types';
-import { convertConsultant } from './convertConsultant';
+import { convertConsultants } from './convertConsultant';
 
 export const supabase = createBrowserSupabaseClient<Database>({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -181,7 +181,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
     return null;
   }
 
-  const consultant = convertConsultant({ consultantData: data, user });
+  const consultant = convertConsultants({ consultantData: data, user });
 
   return consultant;
 }
