@@ -9,6 +9,7 @@ Features (more to come!):
 
 Tech Stack:
 - Next Js (v13)
+- Chakra UI 
 - Supabase
 - Stripe
 
