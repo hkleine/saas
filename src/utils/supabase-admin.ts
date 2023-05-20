@@ -111,7 +111,7 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
   const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ['default_payment_method'],
   });
-  console.log(subscription);
+
   // Upsert the latest status of the subscription object.
   const subscriptionData: Database['public']['Tables']['subscriptions']['Insert'] = {
     id: subscription.id,
@@ -147,7 +147,7 @@ const manageSubscriptionStatusChange = async (subscriptionId: string, customerId
 };
 
 async function createUser(attributes: { email: string; password: string; user_metadata: { [key: string]: any } }) {
-  return supabaseAdmin.auth.admin.createUser({...attributes, email_confirm: true});
+  return supabaseAdmin.auth.admin.createUser({ ...attributes, email_confirm: true });
 }
 
 export async function deleteUser(id: string) {
@@ -162,4 +162,3 @@ export {
   manageSubscriptionStatusChange,
   removeSubscription,
 };
-

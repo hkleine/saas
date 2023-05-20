@@ -21,7 +21,6 @@ export async function DELETE(
       status: 401,
     });
   }
-
   try {
     const { error } = await deleteUser(id);
     if (error) throw error;

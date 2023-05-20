@@ -1,6 +1,5 @@
 import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
-import { isNil } from 'lodash';
 import {
   ConsultantWithCurrentEarning,
   ProductWithPrice,
@@ -8,7 +7,8 @@ import {
   SubscriptionWithPriceAndProduct,
   UserWithEmail,
 } from '../types/types';
-import { convertConsultant } from './convertConsultant';
+import { convertConsultants } from './convertConsultant';
+import { getCompanyId } from './getCompanyId';
 
 export const supabase = createBrowserSupabaseClient<Database>({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -65,6 +65,15 @@ export const updateConsultantPercent = async (id: string, percent: number) => {
     .from('consultants')
     .update({
       percent,
+    })
+    .eq('id', id);
+};
+
+export const updateConsultantUpline = async (id: string, newUpline: string) => {
+  return supabase
+    .from('consultants')
+    .update({
+      upline: newUpline,
     })
     .eq('id', id);
 };
@@ -160,19 +169,20 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
   if (!user) {
     return null;
   }
-  const companyId = isNil(user.consultants) ? user.id : user.consultants.company_id;
+  const companyId = getCompanyId(user);
 
   const { data, error } = await supabase
     .from('consultants')
     .select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
-    .eq('company_id', companyId);
+    .or(`company_id.eq.${companyId},id.eq.${companyId}`);
+  // .eq('company_id', companyId);
 
   if (error) {
     console.log(error.message);
     return null;
   }
 
-  const consultant = convertConsultant({ consultantData: data, user });
+  const consultant = convertConsultants({ consultantData: data, user });
 
   return consultant;
 }

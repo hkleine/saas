@@ -1,4 +1,5 @@
-import { Poppins } from "next/font/google";
+import { Poppins } from 'next/font/google';
+import 'reactflow/dist/style.css';
 import Provider from './components/Provider/Provider';
 import './globals.css';
 

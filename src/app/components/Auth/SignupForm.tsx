@@ -15,7 +15,7 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  useToast
+  useToast,
 } from '@chakra-ui/react';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import Link from 'next/link';
@@ -47,6 +47,8 @@ export default function SimpleCard() {
         data: {
           name: formData.name,
           role: 0,
+          percent: 100,
+          upline: null,
         },
       },
     });
@@ -59,7 +61,7 @@ export default function SimpleCard() {
     }
 
     router.push('/login');
-    toast(createToastSettings({title: 'Company Account erfolgreich erstellt.', status: 'success'}));
+    toast(createToastSettings({ title: 'Company Account erfolgreich erstellt.', status: 'success' }));
 
     setIsSubmitting(false);
   });

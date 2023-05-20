@@ -1,6 +1,7 @@
 'use client';
 import { Roles } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
+import { getCompanyId } from '@/utils/getCompanyId';
 import { postData } from '@/utils/helpers';
 import {
   Alert,
@@ -20,7 +21,6 @@ import {
   Select,
   useToast,
 } from '@chakra-ui/react';
-import { isNull } from 'lodash';
 import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
@@ -35,7 +35,7 @@ export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClo
     consultants?.filter(consultant => consultant.role.id < DEFAULT_ROLE) ?? []
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUplineSelectionDisabled, setIsUplineSelectionDisabled] = useState(false);
+  // const [isUplineSelectionDisabled, setIsUplineSelectionDisabled] = useState(false);
 
   const [signupError, setSignupError] = useState(false);
   const {
@@ -51,14 +51,14 @@ export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClo
 
   useEffect(() => {
     setPotentialUplines(consultants?.filter(consultant => consultant.role.id < roleWatch) ?? []);
-    setIsUplineSelectionDisabled(Number(roleWatch) === 1);
+    // setIsUplineSelectionDisabled(Number(roleWatch) === 1);
   }, [roleWatch, consultants]);
 
   if (!user) {
     return null;
   }
 
-  const companyId = isNull(user.consultants) ? user.id : user.consultants.company_id;
+  const companyId = getCompanyId(user);
 
   const onSubmit = handleSubmit(async formData => {
     setIsSubmitting(true);
@@ -178,7 +178,7 @@ export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClo
                   ))}
               </Select>
             </FormControl>
-            <FormControl isDisabled={isUplineSelectionDisabled} id="upline" isRequired={isUplineRequired}>
+            <FormControl id="upline" isRequired={isUplineRequired}>
               <FormLabel>Upline</FormLabel>
               <Select
                 placeholder="Wähle eine Upline aus"

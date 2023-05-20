@@ -4,7 +4,7 @@ import {
   DatabaseEarnings,
   DatabaseUser,
   Role,
-  UserWithEmail,
+  UserWithEmail
 } from '@/types/types';
 import { omit } from 'lodash';
 
@@ -13,23 +13,22 @@ type Consultant = DatabaseConsultant & {
   earnings: Array<DatabaseEarnings>;
 };
 
-export function convertConsultant({
+export function convertConsultants({
   consultantData,
   user,
 }: {
   consultantData: any;
   user: UserWithEmail;
 }): Array<ConsultantWithCurrentEarning> {
-  return consultantData.map((consultant: Consultant) => {
+  const converted = consultantData.map((consultant: Consultant) => {
     const { name, role, avatar_url } = consultant.users;
-    console.log(user.role, role);
-    console.log(user.id, consultant.id);
 
     const currentMonthsEarning = consultant.earnings.find(earning => {
       const earningDate = new Date(earning.date);
       const now = new Date();
       return earningDate.getMonth() === now.getMonth();
     })!;
+
     return {
       ...omit(consultant, ['users', 'earnings']),
       // email: consultant
@@ -43,4 +42,12 @@ export function convertConsultant({
       },
     };
   });
+
+  // Need function to find whole tree of overhead
+  // const userConsultant: ConsultantWithCurrentEarning = converted.find((convertedConsultant: ConsultantWithCurrentEarning) => convertedConsultant.id === user.id);
+  // const overHead = findOverhead({
+  //   consultant: userConsultant,
+  //   otherConsultants: converted
+  // });
+  return converted;
 }

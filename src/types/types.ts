@@ -41,7 +41,7 @@ export interface UserDetails {
 }
 
 export type UserWithEmail = DatabaseUser & { email: string } & {
-  consultants: DatabaseConsultant | null;
+  consultants: DatabaseConsultant;
   role: Role;
 };
 
