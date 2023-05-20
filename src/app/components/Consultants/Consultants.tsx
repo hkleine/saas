@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
-import { findOverhead } from '@/utils/findOverhead';
 import { useConsultantActionRights } from '@/utils/hooks';
 import { updateConsultantUpline } from '@/utils/supabase-client';
 import {
@@ -274,32 +273,14 @@ function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | n
   if (!consultants) return { nodes: [], edges: [] };
 
   const nodes = consultants.map(consultant => {
-    // TODO add groups for every overhead
-    const overHead = findOverhead({
-      consultant,
-      otherConsultants: consultants,
-    });
-
     return {
       id: consultant.id,
       type: 'consultant',
       position: { x: 0, y: 0 },
       data: { consultant, otherConsultants: consultants, roles },
       draggable: true,
-      // parentNode: `group-${overHead.id}`,
     };
   });
-
-  // consultants.forEach(consultant => {
-  //   if(consultant.role.id === 1) {
-  //     nodes.push({
-  //       id: `group-${consultant.id}`,
-  //       // data: { label: `Group ${consultant.name}` },
-  //       position: { x: 0, y: 0 },
-  //       style: { backgroundColor: 'rgba(255, 0, 0, 0.2)' },
-  //     })
-  //   }
-  // })
 
   const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithCurrentEarning) => {
     if (currentConsultant.upline) {
