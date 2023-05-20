@@ -2,7 +2,7 @@ Platform for consultants to visualize companies organizational chart and revenue
 
 ![1](https://github.com/hkleine/saas/assets/20728673/a00a6453-9d8b-4323-a2b2-56a384b6f8fa)
 
-Features:
+Features (more to come!):
 - User Management
 - Organizational chart
 - Subscription
