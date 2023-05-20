@@ -19,7 +19,7 @@ import {
   Tag,
   TagLabel,
   Text,
-  useDisclosure
+  useDisclosure,
 } from '@chakra-ui/react';
 import dagre from 'dagre';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
@@ -74,7 +74,6 @@ export default function Consultants({ roles }: { roles: Roles }) {
     </Flex>
   );
 }
-
 
 function ConsultantCard({
   data: { consultant, otherConsultants, roles },
@@ -287,20 +286,20 @@ function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | n
       position: { x: 0, y: 0 },
       data: { consultant, otherConsultants: consultants, roles },
       draggable: true,
-      parentNode: `group-${overHead.id}`,
+      // parentNode: `group-${overHead.id}`,
     };
   });
 
-  consultants.forEach(consultant => {
-    if(consultant.role.id === 1) {
-      nodes.push({
-        id: `group-${consultant.id}`,
-        data: { label: `Group ${consultant.name}` },
-        position: { x: 0, y: 0 },
-        style: { backgroundColor: 'rgba(255, 0, 0, 0.2)' },
-      })
-    }
-  })
+  // consultants.forEach(consultant => {
+  //   if(consultant.role.id === 1) {
+  //     nodes.push({
+  //       id: `group-${consultant.id}`,
+  //       // data: { label: `Group ${consultant.name}` },
+  //       position: { x: 0, y: 0 },
+  //       style: { backgroundColor: 'rgba(255, 0, 0, 0.2)' },
+  //     })
+  //   }
+  // })
 
   const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithCurrentEarning) => {
     if (currentConsultant.upline) {

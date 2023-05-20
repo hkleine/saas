@@ -32,6 +32,7 @@ export function RealTimeCompanyConsultantsProvider({
   }, [companyId]);
 
   useEffect(() => {
+    console.log(realtimeConsultants);
     const consultantIds = realtimeConsultants!.map(consultant => consultant.id);
 
     const earningsChannel = subscribeToCompanyEarnings(consultantIds, async payload => {

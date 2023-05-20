@@ -1,9 +1,9 @@
 import { ConsultantWithCurrentEarning, Roles, SubscriptionWithPriceAndProduct, UserWithEmail } from '@/types/types';
 import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs';
-import { isNil } from 'lodash';
 import { cookies, headers } from 'next/headers';
 import Stripe from 'stripe';
 import { convertConsultants } from './convertConsultant';
+import { getCompanyId } from './getCompanyId';
 
 export const createClient = () =>
   createServerComponentSupabaseClient({
@@ -62,12 +62,12 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
   if (!user) {
     return null;
   }
-  const companyId = isNil(user.consultants) ? user.id : user.consultants.company_id;
+  const companyId = getCompanyId(user);
 
   const { data, error } = await supabase
     .from('consultants')
     .select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
-    .eq('company_id', companyId);
+    .or(`company_id.eq.${companyId},id.eq.${companyId}`);
 
   if (error) {
     console.log(error.message);
