@@ -12,6 +12,7 @@ Tech Stack:
 - Chakra UI 
 - Supabase
 - Stripe
+- Vercel
 
 a running version can be found under https://saas-hkleine.vercel.app/login
 
