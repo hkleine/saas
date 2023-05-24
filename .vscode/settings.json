@@ -8,5 +8,6 @@
     "source.sortMembers": true
   },
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.configPath": "C:/Users/hendrikk/Documents/Notizen/saas/.prettierrc"
 }
