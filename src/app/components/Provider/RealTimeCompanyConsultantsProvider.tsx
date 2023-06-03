@@ -8,51 +8,51 @@ import { RealTimeUserContext } from './RealTimeUserProvider';
 export const RealTimeCompanyConsultantsContext = createContext<Array<ConsultantWithCurrentEarning> | null>(null);
 
 export function RealTimeCompanyConsultantsProvider({
-  children,
-  consultants,
+	children,
+	consultants,
 }: {
-  children?: ReactNode;
-  consultants: Array<ConsultantWithCurrentEarning> | null;
+	children?: ReactNode;
+	consultants: Array<ConsultantWithCurrentEarning> | null;
 }) {
-  const [realtimeConsultants, setRealtimeConsultants] = useState<Array<ConsultantWithCurrentEarning> | null>(
-    consultants
-  );
-  const user = useContext(RealTimeUserContext);
-  const companyId = getCompanyId(user!);
-  useEffect(() => {
-    const channel = subscribeToCompanyUsers(companyId, async () => {
-      const consultants = await getConsultants();
-      console.log('consultants changed', consultants);
-      setRealtimeConsultants(consultants);
-    });
+	const [realtimeConsultants, setRealtimeConsultants] = useState<Array<ConsultantWithCurrentEarning> | null>(
+		consultants,
+	);
+	const user = useContext(RealTimeUserContext);
+	const companyId = getCompanyId(user!);
+	useEffect(() => {
+		const channel = subscribeToCompanyUsers(companyId, async () => {
+			console.log('consultants changed');
+			const consultants = await getConsultants();
+			setRealtimeConsultants(consultants);
+		});
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [companyId]);
+		return () => {
+			supabase.removeChannel(channel);
+		};
+	}, [companyId]);
 
-  useEffect(() => {
-    const consultantIds = realtimeConsultants!.map(consultant => consultant.id);
+	useEffect(() => {
+		const consultantIds = realtimeConsultants!.map((consultant) => consultant.id);
 
-    const earningsChannel = subscribeToCompanyEarnings(consultantIds, async payload => {
-      const newConsultants = realtimeConsultants!.map(consultant => {
-        if (consultant.id === payload.new.consultant_id) {
-          return { ...consultant, currentEarning: { ...consultant.currentEarning, value: payload.new.value } };
-        }
+		const earningsChannel = subscribeToCompanyEarnings(consultantIds, async (payload) => {
+			const newConsultants = realtimeConsultants!.map((consultant) => {
+				if (consultant.id === payload.new.consultant_id) {
+					return { ...consultant, currentEarning: { ...consultant.currentEarning, value: payload.new.value } };
+				}
 
-        return consultant;
-      });
-      setRealtimeConsultants(newConsultants);
-    });
+				return consultant;
+			});
+			setRealtimeConsultants(newConsultants);
+		});
 
-    return () => {
-      supabase.removeChannel(earningsChannel);
-    };
-  }, [realtimeConsultants]);
+		return () => {
+			supabase.removeChannel(earningsChannel);
+		};
+	}, [realtimeConsultants]);
 
-  return (
-    <RealTimeCompanyConsultantsContext.Provider value={realtimeConsultants}>
-      {children}
-    </RealTimeCompanyConsultantsContext.Provider>
-  );
+	return (
+		<RealTimeCompanyConsultantsContext.Provider value={realtimeConsultants}>
+			{children}
+		</RealTimeCompanyConsultantsContext.Provider>
+	);
 }

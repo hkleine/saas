@@ -95,3 +95,5 @@ export type ConsultantWithCurrentEarning = BaseConsultant & {
 };
 
 export type Roles = Array<Database['public']['Tables']['roles']['Row']>;
+
+export type ConsultantView = 'diagram' | 'table';

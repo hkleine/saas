@@ -7,47 +7,47 @@ import { useState } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 
 const colors = {
-  primary: baseTheme.colors.purple,
-  brand: baseTheme.colors.purple,
+	primary: baseTheme.colors.purple,
+	brand: baseTheme.colors.purple,
 };
 
 const fonts = {
-  heading: `'Poppins', sans-serif`,
-  body: `'Poppins', sans-serif`,
+	heading: `'Poppins', sans-serif`,
+	body: `'Poppins', sans-serif`,
 };
 
 const theme = extendTheme(
-  {
-    colors,
-    fonts,
-    components: {
-      Button: {
-        baseStyle: {
-          fontWeight: 'normal',
-        },
-      },
-      Menu: {
-        baseStyle: {
-          item: {
-            borderRadius: 'md',
-          },
-        },
-      },
-    },
-  },
-  withDefaultColorScheme({
-    colorScheme: 'primary',
-  })
+	{
+		colors,
+		fonts,
+		components: {
+			Button: {
+				baseStyle: {
+					fontWeight: 'normal',
+				},
+			},
+			Menu: {
+				baseStyle: {
+					item: {
+						borderRadius: 'md',
+					},
+				},
+			},
+		},
+	},
+	withDefaultColorScheme({
+		colorScheme: 'primary',
+	}),
 );
 
 export default function Provider({ children }: { children: React.ReactNode }) {
-  const [supabaseClient] = useState(() => createBrowserSupabaseClient());
+	const [supabaseClient] = useState(() => createBrowserSupabaseClient());
 
-  return (
-    <SessionContextProvider supabaseClient={supabaseClient}>
-      <ReactFlowProvider>
-        <ChakraProvider theme={theme}>{children}</ChakraProvider>
-      </ReactFlowProvider>
-    </SessionContextProvider>
-  );
+	return (
+		<SessionContextProvider supabaseClient={supabaseClient}>
+			<ReactFlowProvider>
+				<ChakraProvider theme={theme}>{children}</ChakraProvider>
+			</ReactFlowProvider>
+		</SessionContextProvider>
+	);
 }
