@@ -4,6 +4,7 @@ import '@fontsource/poppins/400.css';
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 import { useState } from 'react';
+import { ReactFlowProvider } from 'reactflow';
 
 const colors = {
   primary: baseTheme.colors.purple,
@@ -44,7 +45,9 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionContextProvider supabaseClient={supabaseClient}>
-      <ChakraProvider theme={theme}>{children}</ChakraProvider>
+      <ReactFlowProvider>
+        <ChakraProvider theme={theme}>{children}</ChakraProvider>
+      </ReactFlowProvider>
     </SessionContextProvider>
   );
 }

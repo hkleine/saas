@@ -29,18 +29,17 @@ export const postData = async ({ url, data }: { url: string; data?: any }) => {
   return res.json();
 };
 
-export const deleteData = async ({ url, data }: { url: string; data?: any }) => {
-  console.log('deleting,', url, data);
+export const deleteData = async ({ url }: { url: string }) => {
+  console.log('deleting,', url);
 
   const res: Response = await fetch(url, {
     method: 'DELETE',
     headers: new Headers({ 'Content-Type': 'application/json' }),
     credentials: 'same-origin',
-    body: JSON.stringify(data),
   });
 
   if (!res.ok) {
-    console.log('Error in postData', { url, data, res });
+    console.log('Error in postData', { url, res });
 
     throw Error(res.statusText);
   }

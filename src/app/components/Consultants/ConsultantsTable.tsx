@@ -37,7 +37,7 @@ export default function ConsultantsTable() {
   });
 
   return (
-    <Card position="relative" boxShadow={'lg'} rounded={'lg'}>
+    <Card mx={4} position="relative" boxShadow={'lg'} rounded={'lg'}>
       <Table variant="simple" colorScheme="primary">
         <Thead bg="purple.50">
           <Tr>

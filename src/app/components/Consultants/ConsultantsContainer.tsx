@@ -23,7 +23,13 @@ export default function ConsultantsContainer({ roles }: { roles: Roles }) {
   const isUserAllowedToAddConsultant = isUserAllowed({ user, minimalRoleRequired: 2 });
   return (
     <>
-      <Flex justify="space-between" mb={2}>
+      <Flex
+        zIndex={1}
+        justify="space-between"
+        position={viewType === 'diagram' ? 'absolute' : 'relative'}
+        width="87vw"
+        p="4"
+      >
         <Switch option1="diagram" option2="table" value={viewType} setValue={setViewType} />
         {isUserAllowedToAddConsultant && (
           <Button leftIcon={<FiUserPlus />} onClick={onOpen}>

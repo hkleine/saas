@@ -1,5 +1,6 @@
 import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
 import { checkIfActionAllowedForCurrentUser } from './checkIfActionAllowedForCurrentUser';
+import { isUserAllowed } from './isUserAllowed';
 
 export function useConsultantActionRights({
   consultant,
@@ -15,12 +16,14 @@ export function useConsultantActionRights({
   }
   const isConsultantDeletable =
     otherConsultants.some(otherConsultant => otherConsultant.upline === consultant.id) ||
+    consultant.role.id === 0 ||
     checkIfActionAllowedForCurrentUser({ user, otherConsultants, currentConsultant: consultant });
   const isUpdateDisabled = checkIfActionAllowedForCurrentUser({
     user,
     currentConsultant: consultant,
     otherConsultants,
   });
+  const isUserAllowedToAddConsultant = isUserAllowed({ user, minimalRoleRequired: 2 });
 
-  return { isUpdateDisabled, isConsultantDeletable };
+  return { isUpdateDisabled, isConsultantDeletable, isUserAllowedToAddConsultant };
 }

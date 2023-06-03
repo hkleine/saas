@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
+import useLayout from '@/hooks/useLayout';
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
 import { useConsultantActionRights } from '@/utils/hooks';
 import { updateConsultantUpline } from '@/utils/supabase-client';
@@ -8,7 +9,10 @@ import {
   Flex,
   Heading,
   HStack,
-  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Stack,
   Stat,
   StatArrow,
@@ -20,36 +24,47 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import dagre from 'dagre';
+import { noop } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
-import ReactFlow, { Background, Controls, Edge, Handle, Node, Position, useEdgesState, useNodesState } from 'reactflow';
+import { FiDollarSign, FiEdit2, FiEyeOff, FiMenu, FiPercent, FiPlus, FiTrash, FiX } from 'react-icons/fi';
+import ReactFlow, {
+  Background,
+  Controls,
+  Edge,
+  Handle,
+  Node,
+  Position,
+  ProOptions,
+  useEdgesState,
+  useNodesState,
+} from 'reactflow';
 import { Avatar } from '../AppShell/Avatar';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import { AdjustEarningModal } from './AdjustEarningModal';
 import { DeletionModal } from './DeletionModal';
+import PlaceholderEdge from './PlaceholderEdge';
 import { UpdateConsultantModal } from './UpdateConsultantModal';
 
 const nodeTypes = { consultant: ConsultantCard };
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
-
-const nodeWidth = 400;
-const nodeHeight = 181;
+const edgeTypes = {
+  placeholder: PlaceholderEdge,
+};
+const proOptions: ProOptions = { account: 'paid-pro', hideAttribution: true };
 
 export default function Consultants({ roles }: { roles: Roles }) {
   const consultants = useContext(RealTimeCompanyConsultantsContext);
-
-  const { nodes: layoutedNodes, edges: layoutedEdges } = getConsultantNodes(consultants, roles);
-  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
+  useLayout();
 
   useEffect(() => {
     const { nodes: layoutedNodes, edges: layoutedEdges } = getConsultantNodes(consultants, roles);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-  }, [consultants, roles, setEdges, setNodes]);
+  }, [consultants, roles]);
+
+  const { nodes: layoutedNodes, edges: layoutedEdges } = getConsultantNodes(consultants, roles);
+  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
 
   const onConnect = useCallback(async ({ source, target }: { source: string | null; target: string | null }) => {
     if (!source || !target) return;
@@ -57,20 +72,26 @@ export default function Consultants({ roles }: { roles: Roles }) {
   }, []);
 
   return (
-    <Flex gap={20} flex="1 1 auto" overflowX="auto">
-      <ReactFlow
-        fitView
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
-    </Flex>
+    <ReactFlow
+      onConnect={onConnect}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      nodes={nodes}
+      edges={edges}
+      proOptions={proOptions}
+      fitView
+      nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
+      maxZoom={1}
+      nodesDraggable={true}
+      zoomOnDoubleClick={false}
+      // we are setting deleteKeyCode to null to prevent the deletion of nodes in order to keep the example simple.
+      // If you want to enable deletion of nodes, you need to make sure that you only have one root node in your graph.
+      deleteKeyCode={null}
+    >
+      <Background />
+      <Controls />
+    </ReactFlow>
   );
 }
 
@@ -83,8 +104,6 @@ function ConsultantCard({
     roles: Roles;
   };
 }) {
-  const highestRole = Math.max(...roles.map(o => o.id));
-  const isHighestRole = highestRole === consultant.role.id;
   const user = useContext(RealTimeUserContext);
   const { onOpen: onDeletionOpen, isOpen: isDeletionOpen, onClose: onDeleteionClose } = useDisclosure();
   const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
@@ -93,6 +112,7 @@ function ConsultantCard({
     isOpen: isUpdateConsultantOpen,
     onClose: onCloseUpdateConsultant,
   } = useDisclosure();
+
   const downlineEarnings = useMemo(
     () => calculateDownlineEarnings({ otherConsultants, consultant }),
     [otherConsultants, consultant]
@@ -100,7 +120,7 @@ function ConsultantCard({
 
   const uplineLevy = calculateUplineLevy({ consultant });
 
-  const { isConsultantDeletable, isUpdateDisabled } = useConsultantActionRights({
+  const { isConsultantDeletable, isUpdateDisabled, isUserAllowedToAddConsultant } = useConsultantActionRights({
     consultant,
     otherConsultants,
     user,
@@ -123,8 +143,29 @@ function ConsultantCard({
       rounded={'lg'}
     >
       <Stack spacing={0} mb={5}>
-        {!isHighestRole && <Handle style={{ width: '8px', height: '8px' }} type="source" position={Position.Bottom} />}
-        {consultant.upline && <Handle style={{ width: '8px', height: '8px' }} type="target" position={Position.Top} />}
+        <Handle
+          isConnectableStart={false}
+          style={{
+            background: 'var(--chakra-colors-gray-500)',
+            width: '14px',
+            height: '14px',
+            border: '3px solid white',
+          }}
+          type="source"
+          position={Position.Bottom}
+        />
+        {consultant.upline && (
+          <Handle
+            style={{
+              background: 'var(--chakra-colors-gray-500)',
+              width: '14px',
+              height: '14px',
+              border: '3px solid white',
+            }}
+            type="target"
+            position={Position.Top}
+          />
+        )}
         <HStack>
           <Avatar avatarUrl={consultant.avatar_url} name={consultant.name} size="md" ml={-1} mr={2} />
           <Flex w="full" direction="column">
@@ -132,32 +173,30 @@ function ConsultantCard({
               <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
                 {consultant.name}
               </Heading>
-              <Flex direction="row">
-                <IconButton
-                  onClick={onOpenAdjustEarning}
-                  size="xs"
-                  variant="ghost"
-                  aria-label="edit consultant"
-                  icon={<FiDollarSign />}
-                  isDisabled={isUpdateDisabled}
-                />
-                <IconButton
-                  isDisabled={isUpdateDisabled}
-                  onClick={onOpenUpdateConsultant}
-                  size="xs"
-                  variant="ghost"
-                  aria-label="edit consultant"
-                  icon={<FiEdit2 />}
-                />
-                <IconButton
-                  isDisabled={isConsultantDeletable}
-                  size="xs"
-                  variant="ghost"
-                  aria-label="delete consultant"
-                  icon={<FiTrash />}
-                  onClick={onDeletionOpen}
-                />
-              </Flex>
+
+              <Menu isLazy>
+                {({ isOpen }) => (
+                  <>
+                    <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
+                      {isOpen ? <FiX /> : <FiMenu />}
+                    </MenuButton>
+                    <MenuList paddingX={4} bg="white" borderColor="gray.100" boxShadow="lg">
+                      <MenuItem onClick={noop} isDisabled={!isUserAllowedToAddConsultant} icon={<FiPlus />}>
+                        Downline hinzufügen
+                      </MenuItem>
+                      <MenuItem onClick={onOpenAdjustEarning} isDisabled={isUpdateDisabled} icon={<FiDollarSign />}>
+                        Einnahmen bearbeiten
+                      </MenuItem>
+                      <MenuItem onClick={onOpenUpdateConsultant} isDisabled={isUpdateDisabled} icon={<FiEdit2 />}>
+                        Berater bearbeiten
+                      </MenuItem>
+                      <MenuItem onClick={onDeletionOpen} isDisabled={isConsultantDeletable} icon={<FiTrash />}>
+                        Berater löschen
+                      </MenuItem>
+                    </MenuList>
+                  </>
+                )}
+              </Menu>
             </HStack>
             <Flex direction="row" gap="2">
               <Text mt="unset" color={'gray.500'}>
@@ -272,57 +311,62 @@ function getConsultantDownlines({
 function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | null, roles: Roles) {
   if (!consultants) return { nodes: [], edges: [] };
 
-  const nodes = consultants.map(consultant => {
-    return {
-      id: consultant.id,
-      type: 'consultant',
-      position: { x: 0, y: 0 },
-      data: { consultant, otherConsultants: consultants, roles },
-      draggable: true,
-    };
-  });
+  const nodes = consultants.reduce((prevNodes: Array<Node>, currentConsultant: ConsultantWithCurrentEarning) => {
+    const hasConsultantDownline = consultants.some(consultant => consultant.upline === currentConsultant.id);
+
+    const nodesWithoutPlaceholder = [
+      ...prevNodes,
+      {
+        id: currentConsultant.id,
+        type: 'consultant',
+        position: { x: 0, y: 0 },
+        data: { consultant: currentConsultant, otherConsultants: consultants, roles },
+        draggable: true,
+      },
+    ];
+
+    // if (!hasConsultantDownline) {
+    //   return [
+    //     ...nodesWithoutPlaceholder,
+    //     {
+    //       id: `placeholder-node-${currentConsultant.id}`,
+    //       data: { label: '+' },
+    //       position: { x: 0, y: 150 },
+    //       type: 'placeholder',
+    //     },
+    //   ];
+    // }
+
+    return nodesWithoutPlaceholder;
+  }, [] as Array<Node>);
 
   const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithCurrentEarning) => {
+    const edges = prevEdges;
+
+    // const hasConsultantDownline = consultants.some(consultant => consultant.upline === currentConsultant.id);
+    // if (!hasConsultantDownline) {
+    //   edges.push({
+    //     id: `placeholder-edge-${currentConsultant.id}`,
+    //     type: 'placeholder',
+    //     target: `placeholder-node-${currentConsultant.id}`,
+    //     source: currentConsultant.id,
+    //   });
+    // }
+
     if (currentConsultant.upline) {
-      return [
-        ...prevEdges,
-        { id: currentConsultant.id, type: 'step', target: currentConsultant.id, source: currentConsultant.upline },
-      ];
+      edges.push({
+        id: currentConsultant.id,
+        type: 'placeholder',
+        target: currentConsultant.id,
+        source: currentConsultant.upline,
+      });
     }
-    return prevEdges;
+
+    return edges;
   }, [] as Array<Edge>);
 
-  return getLayoutedElements({
+  return {
     nodes,
     edges,
-  });
-}
-
-function getLayoutedElements({ nodes, edges }: { nodes: Array<Node>; edges: Array<Edge> }) {
-  dagreGraph.setGraph({ rankdir: 'TB' });
-
-  nodes.forEach(node => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach(edge => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach(node => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = Position.Top;
-    node.sourcePosition = Position.Bottom;
-
-    node.position = {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
-    };
-
-    return node;
-  });
-
-  return { nodes, edges };
+  };
 }

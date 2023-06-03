@@ -19,7 +19,7 @@ interface LinkItemProps {
   minimalRoleRequired?: number;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Home', icon: FiHome, href: '/dashboard'},
+  { name: 'Home', icon: FiHome, href: '/dashboard' },
   { name: 'Berater', icon: FiUsers, href: '/dashboard/consultants' },
   { name: 'Abonnement', icon: FiCreditCard, href: '/dashboard/billing', minimalRoleRequired: 0 },
 ];
@@ -27,16 +27,16 @@ const LinkItems: Array<LinkItemProps> = [
 export function Sidebar({ onClose, ...rest }: SidebarProps) {
   const user = useContext(RealTimeUserContext);
 
-  if(!user) {
+  if (!user) {
     return null;
   }
 
   return (
     <Box
       transition="3s ease"
-      bg='white'
+      bg="white"
       borderRight="1px"
-      borderRightColor='gray.200'
+      borderRightColor="gray.200"
       w={{ base: 'full', md: 60 }}
       pos="fixed"
       h="full"
@@ -47,12 +47,18 @@ export function Sidebar({ onClose, ...rest }: SidebarProps) {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       <Box my="12">
-        {LinkItems.map(link => 
-         {return  (<> {isUndefined(link.minimalRoleRequired) || isUserAllowed({user, minimalRoleRequired: link.minimalRoleRequired}) ? (<NavItem key={link.name} icon={link.icon} href={link.href}>
-          {link.name}
-        </NavItem>) : null } </>)}
-
-        )}
+        {LinkItems.map(link => {
+          return (
+            <span key={link.name}>
+              {isUndefined(link.minimalRoleRequired) ||
+              isUserAllowed({ user, minimalRoleRequired: link.minimalRoleRequired }) ? (
+                <NavItem icon={link.icon} href={link.href}>
+                  {link.name}
+                </NavItem>
+              ) : null}
+            </span>
+          );
+        })}
       </Box>
     </Box>
   );

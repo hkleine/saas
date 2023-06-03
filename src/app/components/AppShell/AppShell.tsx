@@ -43,7 +43,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           </DrawerContent>
         </Drawer>
         <MobileNav onOpen={onOpen} />
-        <Flex direction="column" ml={{ base: 0, md: 60 }} height="calc(100vh - 80px)" p="4">
+        <Flex direction="column" ml={{ base: 0, md: 60 }} height="calc(100vh - 80px)">
           {children}
         </Flex>
       </Box>

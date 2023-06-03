@@ -9,5 +9,5 @@
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.configPath": "C:/Users/hendrikk/Documents/Notizen/saas/.prettierrc"
+  "prettier.configPath": "C:/Users/hendr/Documents/GitHub/saas/.prettierrc"
 }

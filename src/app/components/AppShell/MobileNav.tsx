@@ -73,7 +73,7 @@ export function MobileNav({ onOpen, ...rest }: MobileProps) {
                 </Box>
               </HStack>
             </MenuButton>
-            <MenuList paddingX={4} bg="white" borderColor="gray.100" boxShadow="lg">
+            <MenuList zIndex={10} paddingX={4} bg="white" borderColor="gray.100" boxShadow="lg">
               <MenuItem as={Link} href={'/dashboard/profile'}>
                 Profile
               </MenuItem>

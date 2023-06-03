@@ -35,7 +35,6 @@ export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClo
     consultants?.filter(consultant => consultant.role.id < DEFAULT_ROLE) ?? []
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const [isUplineSelectionDisabled, setIsUplineSelectionDisabled] = useState(false);
 
   const [signupError, setSignupError] = useState(false);
   const {
@@ -51,7 +50,6 @@ export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClo
 
   useEffect(() => {
     setPotentialUplines(consultants?.filter(consultant => consultant.role.id < roleWatch) ?? []);
-    // setIsUplineSelectionDisabled(Number(roleWatch) === 1);
   }, [roleWatch, consultants]);
 
   if (!user) {
@@ -74,7 +72,7 @@ export default function ConsultantForm({ roles, onClose }: { roles: Roles; onClo
             name: formData.name,
             role: formData.role,
             percent: formData.percent,
-            upline: formData.upline || null,
+            upline: formData.upline || companyId,
             company_id: companyId,
           },
         },

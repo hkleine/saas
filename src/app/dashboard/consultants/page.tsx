@@ -5,6 +5,7 @@ export const revalidate = 0;
 export default async function Berater() {
   const roles = await getRoles();
   const consultants = await getConsultants();
+  console.log(consultants);
   if (!roles) {
     return null;
   }
