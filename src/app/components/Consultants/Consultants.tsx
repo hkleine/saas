@@ -2,13 +2,13 @@
 'use client';
 import useLayout from '@/hooks/useLayout';
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
-import { updateConsultantUpline } from '@/utils/supabase-client';
-import { useCallback, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import ReactFlow, { Background, Controls, Edge, Node, ProOptions, useEdgesState, useNodesState } from 'reactflow';
 import { ConsultantMenuContext } from '../Provider/ConsultantMenuProvider';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { ConsultantCard } from './ConsultantCard/ConsultantCard';
 import PlaceholderEdge from './PlaceholderEdge';
+import { useConsultantCallbacks } from './useConsultantCallbacks';
 
 const nodeTypes = { consultant: ConsultantCard };
 const edgeTypes = {
@@ -18,8 +18,8 @@ const proOptions: ProOptions = { account: 'paid-pro', hideAttribution: true };
 
 export default function Consultants({ roles }: { roles: Roles }) {
 	const consultants = useContext(RealTimeCompanyConsultantsContext);
-	console.log(consultants);
 	useLayout();
+	const callbacks = useConsultantCallbacks({ consultants });
 	const { closeMenuCallback } = useContext(ConsultantMenuContext);
 
 	useEffect(() => {
@@ -32,15 +32,10 @@ export default function Consultants({ roles }: { roles: Roles }) {
 	const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
 	const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
 
-	const onConnect = useCallback(async ({ source, target }: { source: string | null; target: string | null }) => {
-		if (!source || !target) return;
-		await updateConsultantUpline(target, source);
-	}, []);
-
 	return (
 		<ReactFlow
 			onPaneClick={closeMenuCallback}
-			onConnect={onConnect}
+			onConnect={callbacks.onConnect}
 			onNodesChange={onNodesChange}
 			onEdgesChange={onEdgesChange}
 			nodes={nodes}

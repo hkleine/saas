@@ -111,10 +111,10 @@ export function UpdateConsultantModal({
 				</ModalBody>
 
 				<ModalFooter>
-					<Button colorScheme="blue.300" isLoading={isUpdating} mr={3} variant="ghost" onClick={onClose}>
+					<Button isLoading={isUpdating} mr={3} variant="ghost" onClick={onClose}>
 						Abbruch
 					</Button>
-					<Button colorScheme="blue.300" isLoading={isUpdating} onClick={onSubmit} isDisabled={!isDirty}>
+					<Button isLoading={isUpdating} onClick={onSubmit} isDisabled={!isDirty}>
 						Speichern
 					</Button>
 				</ModalFooter>

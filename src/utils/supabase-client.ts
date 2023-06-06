@@ -70,6 +70,7 @@ export const updateConsultantPercent = async (id: string, percent: number) => {
 };
 
 export const updateConsultantUpline = async (id: string, newUpline: string) => {
+	console.log(id, newUpline);
 	return supabase
 		.from('consultants')
 		.update({

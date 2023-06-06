@@ -21,7 +21,7 @@ import {
 	Select,
 	useToast,
 } from '@chakra-ui/react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
@@ -53,14 +53,9 @@ export default function ConsultantForm({
 	} = useForm({
 		mode: 'onBlur',
 	});
-	const roleWatch = watch('role', DEFAULT_ROLE);
-	const isUplineRequired = roleWatch < 2 ? false : true;
+
 	const toast = useToast();
 	const user = useContext(RealTimeUserContext);
-
-	useEffect(() => {
-		setPotentialUplines(consultants?.filter((consultant) => consultant.role.id < roleWatch) ?? []);
-	}, [roleWatch, consultants]);
 
 	if (!user) {
 		return null;
@@ -187,14 +182,14 @@ export default function ConsultantForm({
 									))}
 							</Select>
 						</FormControl>
-						<FormControl id="upline" isRequired={isUplineRequired}>
+						<FormControl id="upline" isRequired>
 							<FormLabel>Upline</FormLabel>
 							<Select
 								defaultValue={uplineId}
-								disabled={!!uplineId}
+								// disabled={!!uplineId}
 								placeholder="Wähle eine Upline aus"
 								{...register('upline', {
-									required: { value: isUplineRequired, message: 'Diese Rolle braucht eine Upline' },
+									required: { value: true, message: 'Diese Rolle braucht eine Upline' },
 								})}>
 								{potentialUplines.map((upline) => (
 									<option key={`upline-key-${upline.id}`} value={upline.id}>
