@@ -6,7 +6,7 @@ export const ConsultantMenuContext = createContext<{
 	setCloseMenuCallback: React.Dispatch<React.SetStateAction<(event: any) => void>>;
 }>({
 	closeMenuCallback: noop,
-	setCloseMenuCallback: () => {},
+	setCloseMenuCallback: noop,
 });
 
 export const ConsultantMenuProvider = ({ children }: { children: ReactNode }) => {

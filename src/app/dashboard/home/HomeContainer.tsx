@@ -8,7 +8,7 @@ export function HomeContainer({ consultantEarnings }: HomeContainerInterface) {
 	return (
 		<>
 			{consultantEarnings.map((earning) => (
-				<span>{earning.value}</span>
+				<span key={earning.id}>{earning.value}</span>
 			))}
 		</>
 	);
