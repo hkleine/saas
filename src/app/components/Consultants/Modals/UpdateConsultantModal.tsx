@@ -1,6 +1,6 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
-import { updateConsultantPercent, updateUserName } from '@/utils/supabase-client';
+import { updateConsultantPercent, updateUserName, updateUserRole } from '@/utils/supabase-client';
 import {
 	Alert,
 	AlertDescription,
@@ -22,7 +22,8 @@ import {
 	ModalOverlay,
 	NumberInput,
 	NumberInputField,
-	useToast,
+	Select,
+	useToast
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -31,10 +32,12 @@ export function UpdateConsultantModal({
 	isOpen,
 	onClose,
 	consultant,
+	roles
 }: {
 	isOpen: boolean;
 	onClose: () => void;
 	consultant: ConsultantWithCurrentEarning;
+	roles: Roles;
 }) {
 	const {
 		register,
@@ -51,6 +54,7 @@ export function UpdateConsultantModal({
 		setIsUpdating(true);
 		const results = await Promise.all([
 			updateUserName(id, formData.name),
+			updateUserRole(id, formData.role),
 			updateConsultantPercent(id, Number(formData.percent)),
 		]);
 
@@ -90,6 +94,19 @@ export function UpdateConsultantModal({
 								_placeholder={{ color: 'gray.500' }}
 								type="text"
 							/>
+						</FormControl>
+
+						<FormControl id="role" >
+							<FormLabel>Rolle</FormLabel>
+							<Select isDisabled={consultant.role.id === 0} defaultValue={consultant.role.id} {...register('role')}>
+								{consultant.role.id === 0 ? <option key={`role-key-0`} value={0}>Company</option> : null}
+								{roles &&
+									roles.map((role) => (
+										<option key={`role-key-${role.id}`} value={role.id}>
+											{role.name}
+										</option>
+									))}
+							</Select>
 						</FormControl>
 
 						<FormControl id="percent">

@@ -3,7 +3,7 @@ import { Box, BoxProps, CloseButton, Flex } from '@chakra-ui/react';
 import { isUndefined } from 'lodash';
 import { useContext } from 'react';
 import { IconType } from 'react-icons';
-import { FiCreditCard, FiHome, FiUsers } from 'react-icons/fi';
+import { FiCreditCard, FiFile, FiHome, FiUsers } from 'react-icons/fi';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import { Logo } from './Logo';
 import { NavItem } from './NavItem';
@@ -21,6 +21,7 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', icon: FiHome, href: '/dashboard' },
   { name: 'Berater', icon: FiUsers, href: '/dashboard/consultants' },
+  { name: 'Produkte', icon: FiFile, href: '/dashboard/products', minimalRoleRequired: 1},
   { name: 'Abonnement', icon: FiCreditCard, href: '/dashboard/billing', minimalRoleRequired: 0 },
 ];
 

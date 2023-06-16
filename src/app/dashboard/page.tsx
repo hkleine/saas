@@ -1,5 +1,5 @@
 import { getConsultantEarnings } from '@/utils/supabase-server';
-import { HomeContainer } from './home/HomeContainer';
+import { HomeContainer } from './HomeContainer';
 
 export default async function Home() {
 	const consultantEarnings = await getConsultantEarnings();

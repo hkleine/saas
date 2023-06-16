@@ -1,4 +1,4 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
 import { useConsultantActionRights } from '@/utils/hooks';
 import {
 	Card,
@@ -13,7 +13,7 @@ import {
 	Th,
 	Thead,
 	Tr,
-	useDisclosure,
+	useDisclosure
 } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
@@ -23,7 +23,7 @@ import { AdjustEarningModal } from './Modals/AdjustEarningModal';
 import { DeletionModal } from './Modals/DeletionModal';
 import { UpdateConsultantModal } from './Modals/UpdateConsultantModal';
 
-export default function ConsultantsTable() {
+export default function ConsultantsTable({roles}:{roles: Roles}) {
 	const consultants = useContext(RealTimeCompanyConsultantsContext);
 
 	if (!consultants) {
@@ -51,7 +51,7 @@ export default function ConsultantsTable() {
 				</Thead>
 				<Tbody>
 					{sortedConsultants.map((consultant) => {
-						return <ConsultantRow key={consultant.id} consultant={consultant} otherConsultants={sortedConsultants} />;
+						return <ConsultantRow key={consultant.id} roles={roles} consultant={consultant} otherConsultants={sortedConsultants} />;
 					})}
 				</Tbody>
 			</Table>
@@ -62,9 +62,11 @@ export default function ConsultantsTable() {
 function ConsultantRow({
 	otherConsultants,
 	consultant,
+	roles
 }: {
 	consultant: ConsultantWithCurrentEarning;
 	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	roles: Roles
 }) {
 	const user = useContext(RealTimeUserContext);
 
@@ -152,6 +154,8 @@ function ConsultantRow({
 				isOpen={isUpdateConsultantOpen}
 				consultant={consultant}
 				onClose={onCloseUpdateConsultant}
+				roles={roles}
+
 			/>
 		</Tr>
 	);

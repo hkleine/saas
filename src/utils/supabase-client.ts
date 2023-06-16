@@ -5,7 +5,7 @@ import {
 	ProductWithPrice,
 	Roles,
 	SubscriptionWithPriceAndProduct,
-	UserWithEmail,
+	UserWithEmail
 } from '../types/types';
 import { convertConsultants } from './convertConsultant';
 import { getCompanyId } from './getCompanyId';
@@ -65,6 +65,15 @@ export const updateConsultantPercent = async (id: string, percent: number) => {
 		.from('consultants')
 		.update({
 			percent,
+		})
+		.eq('id', id);
+};
+
+export const updateUserRole = async (id: string, role: number) => {
+	return supabase
+		.from('users')
+		.update({
+			role,
 		})
 		.eq('id', id);
 };

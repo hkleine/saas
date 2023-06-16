@@ -43,7 +43,7 @@ export default function ConsultantsContainer({ roles }: { roles: Roles }) {
 					<Consultants roles={roles} />
 				</ConsultantMenuProvider>
 			) : (
-				<ConsultantsTable />
+				<ConsultantsTable roles={roles}/>
 			)}
 
 			<AddConsultantModal isOpen={isOpen} onClose={onClose} roles={roles} />

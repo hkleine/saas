@@ -78,6 +78,7 @@ export function ConsultantCardMenu({ consultant, otherConsultants, roles }: Cons
 				isOpen={isUpdateConsultantOpen}
 				consultant={consultant}
 				onClose={onCloseUpdateConsultant}
+				roles={roles}
 			/>
 			<AddConsultantModal
 				uplineId={consultant.id}
