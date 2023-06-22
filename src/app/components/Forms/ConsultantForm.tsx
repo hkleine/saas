@@ -19,7 +19,7 @@ import {
 	NumberInput,
 	NumberInputField,
 	Select,
-	useToast
+	useToast,
 } from '@chakra-ui/react';
 import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -38,7 +38,7 @@ export default function ConsultantForm({
 }) {
 	const consultants = useContext(RealTimeCompanyConsultantsContext);
 	const DEFAULT_ROLE = 3;
-	const potentialUplines = consultants?.filter((consultant) => consultant.role.id < DEFAULT_ROLE) ?? []
+	const potentialUplines = consultants?.filter((consultant) => consultant.role.id < DEFAULT_ROLE) ?? [];
 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -184,7 +184,6 @@ export default function ConsultantForm({
 							<FormLabel>Upline</FormLabel>
 							<Select
 								defaultValue={uplineId}
-								// disabled={!!uplineId}
 								placeholder="Wähle eine Upline aus"
 								{...register('upline', {
 									required: { value: true, message: 'Diese Rolle braucht eine Upline' },

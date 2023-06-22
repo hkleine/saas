@@ -23,16 +23,17 @@ import {
 	NumberInput,
 	NumberInputField,
 	Select,
-	useToast
+	useToast,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
 export function UpdateConsultantModal({
 	isOpen,
 	onClose,
 	consultant,
-	roles
+	roles,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
@@ -49,6 +50,14 @@ export function UpdateConsultantModal({
 	const [hasUpdatingError, setHasUpdatingError] = useState(false);
 	const toast = useToast();
 	const { id } = consultant;
+
+	const user = useContext(RealTimeUserContext);
+
+	if (!user) {
+		return null;
+	}
+
+	const isRoleUpdateDisabled = consultant.role.id === 0 || user.role.id > 1;
 
 	const onSubmit = handleSubmit(async (formData) => {
 		setIsUpdating(true);
@@ -96,10 +105,14 @@ export function UpdateConsultantModal({
 							/>
 						</FormControl>
 
-						<FormControl id="role" >
+						<FormControl id="role">
 							<FormLabel>Rolle</FormLabel>
-							<Select isDisabled={consultant.role.id === 0} defaultValue={consultant.role.id} {...register('role')}>
-								{consultant.role.id === 0 ? <option key={`role-key-0`} value={0}>Company</option> : null}
+							<Select isDisabled={isRoleUpdateDisabled} defaultValue={consultant.role.id} {...register('role')}>
+								{consultant.role.id === 0 ? (
+									<option key={`role-key-0`} value={0}>
+										Company
+									</option>
+								) : null}
 								{roles &&
 									roles.map((role) => (
 										<option key={`role-key-${role.id}`} value={role.id}>

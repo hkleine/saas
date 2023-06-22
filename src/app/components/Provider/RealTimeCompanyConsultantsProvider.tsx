@@ -18,7 +18,8 @@ export function RealTimeCompanyConsultantsProvider({
 		consultants,
 	);
 	const user = useContext(RealTimeUserContext);
-	const companyId = getCompanyId(user!);
+	const companyId = getCompanyId(user!)!;
+
 	useEffect(() => {
 		const channel = subscribeToCompanyUsers(companyId, async () => {
 			console.log('consultants changed');

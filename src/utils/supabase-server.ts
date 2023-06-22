@@ -1,6 +1,7 @@
 import {
 	ConsultantWithCurrentEarning,
 	DatabaseEarnings,
+	Item,
 	Roles,
 	SubscriptionWithPriceAndProduct,
 	UserWithEmail,
@@ -111,4 +112,24 @@ export async function getConsultantEarnings(): Promise<Array<DatabaseEarnings> |
 	console.log(data);
 
 	return data as Array<DatabaseEarnings>;
+}
+
+export async function getCompanyItems(): Promise<Array<Item> | null> {
+	const supabase = createClient();
+
+	const user = await getUser();
+	if (!user) {
+		return null;
+	}
+
+	const companyId = getCompanyId(user);
+
+	const { data, error } = await supabase.from('items').select('*').eq('company_id', companyId);
+
+	if (error) {
+		console.log(error.message);
+		return null;
+	}
+
+	return data as Array<Item>;
 }

@@ -1,4 +1,5 @@
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { deleteData } from '@/utils/helpers';
 import { useConsultantActionRights } from '@/utils/hooks';
 import {
 	Card,
@@ -13,17 +14,15 @@ import {
 	Th,
 	Thead,
 	Tr,
-	useDisclosure
+	useDisclosure,
 } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
+import { AdjustEarningModal, DeletionModal, UpdateConsultantModal } from '../Modals';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
-import { AdjustEarningModal } from './Modals/AdjustEarningModal';
-import { DeletionModal } from './Modals/DeletionModal';
-import { UpdateConsultantModal } from './Modals/UpdateConsultantModal';
 
-export default function ConsultantsTable({roles}:{roles: Roles}) {
+export default function ConsultantsTable({ roles }: { roles: Roles }) {
 	const consultants = useContext(RealTimeCompanyConsultantsContext);
 
 	if (!consultants) {
@@ -51,7 +50,14 @@ export default function ConsultantsTable({roles}:{roles: Roles}) {
 				</Thead>
 				<Tbody>
 					{sortedConsultants.map((consultant) => {
-						return <ConsultantRow key={consultant.id} roles={roles} consultant={consultant} otherConsultants={sortedConsultants} />;
+						return (
+							<ConsultantRow
+								key={consultant.id}
+								roles={roles}
+								consultant={consultant}
+								otherConsultants={sortedConsultants}
+							/>
+						);
 					})}
 				</Tbody>
 			</Table>
@@ -62,11 +68,11 @@ export default function ConsultantsTable({roles}:{roles: Roles}) {
 function ConsultantRow({
 	otherConsultants,
 	consultant,
-	roles
+	roles,
 }: {
 	consultant: ConsultantWithCurrentEarning;
 	otherConsultants: Array<ConsultantWithCurrentEarning>;
-	roles: Roles
+	roles: Roles;
 }) {
 	const user = useContext(RealTimeUserContext);
 
@@ -143,7 +149,18 @@ function ConsultantRow({
 					/>
 				</Flex>
 			</Td>
-			<DeletionModal id={consultant.id} onClose={onDeleteionClose} isOpen={isDeletionOpen} />
+			<DeletionModal
+				onClose={onDeleteionClose}
+				isOpen={isDeletionOpen}
+				deleteCallback={async () => {
+					await deleteData({
+						url: `/api/delete-user/${consultant.id}`,
+					});
+				}}
+				title="Berater unwideruflich löschen?"
+				successMessage="Berater erfolgreich gelöscht."
+				description="Diese Aktion ist unwirderuflich und löscht den Account des Beraters."
+			/>
 			<AdjustEarningModal
 				id={consultant.id}
 				earning={consultant.currentEarning}
@@ -155,7 +172,6 @@ function ConsultantRow({
 				consultant={consultant}
 				onClose={onCloseUpdateConsultant}
 				roles={roles}
-
 			/>
 		</Tr>
 	);

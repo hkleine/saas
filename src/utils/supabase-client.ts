@@ -2,10 +2,11 @@ import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
 import {
 	ConsultantWithCurrentEarning,
+	Item,
 	ProductWithPrice,
 	Roles,
 	SubscriptionWithPriceAndProduct,
-	UserWithEmail
+	UserWithEmail,
 } from '../types/types';
 import { convertConsultants } from './convertConsultant';
 import { getCompanyId } from './getCompanyId';
@@ -122,6 +123,17 @@ export function subscribeToUser(userId: string, callback: (paylod: { [key: strin
 		.subscribe();
 }
 
+export function subscribeToItems(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
+	return supabase
+		.channel('item-changes')
+		.on(
+			'postgres_changes',
+			{ event: '*', schema: 'public', table: 'items', filter: `company_id=eq.${companyId}` },
+			callback,
+		)
+		.subscribe();
+}
+
 export function subscribeToCompanyUsers(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
 	return supabase
 		.channel('consultant-changes')
@@ -216,4 +228,54 @@ export async function getRoles(): Promise<Roles | null> {
 	}
 
 	return data as any;
+}
+
+export async function createNewItem(item: Item) {
+	const { data, error } = await supabase.from('items').insert(item);
+	if (error) {
+		console.log(error.message);
+		return null;
+	}
+
+	return item;
+}
+
+export async function updateItem({ equation, name, variables, id }: Partial<Item>) {
+	return supabase
+		.from('items')
+		.update({
+			equation,
+			name,
+			variables,
+		})
+		.eq('id', id);
+}
+
+export async function getCompanyItems(): Promise<Array<Item> | null> {
+	const user = await getUser();
+	if (!user) {
+		return null;
+	}
+
+	const companyId = getCompanyId(user);
+
+	const { data, error } = await supabase.from('items').select('*').eq('company_id', companyId);
+
+	if (error) {
+		console.log(error.message);
+		return null;
+	}
+
+	return data as Array<Item>;
+}
+
+export async function deleteItem(id: string) {
+	const { data, error } = await supabase.from('items').delete().eq('id', id);
+
+	if (error) {
+		console.log(error.message);
+		throw error;
+	}
+
+	return id;
 }

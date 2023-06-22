@@ -1,15 +1,13 @@
 'use client';
 import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { deleteData } from '@/utils/helpers';
 import { useConsultantActionRights } from '@/utils/hooks';
 import { Menu, MenuButton, MenuItem, MenuList, useDisclosure } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { FiDollarSign, FiEdit2, FiMenu, FiPlus, FiTrash, FiX } from 'react-icons/fi';
+import { AddConsultantModal, AdjustEarningModal, DeletionModal, UpdateConsultantModal } from '../../Modals';
 import { ConsultantMenuContext } from '../../Provider/ConsultantMenuProvider';
 import { RealTimeUserContext } from '../../Provider/RealTimeUserProvider';
-import { AddConsultantModal } from '../Modals/AddConsultantModal';
-import { AdjustEarningModal } from '../Modals/AdjustEarningModal';
-import { DeletionModal } from '../Modals/DeletionModal';
-import { UpdateConsultantModal } from '../Modals/UpdateConsultantModal';
 
 interface ConsultantCardMenuProps {
 	consultant: ConsultantWithCurrentEarning;
@@ -67,7 +65,18 @@ export function ConsultantCardMenu({ consultant, otherConsultants, roles }: Cons
 					Berater löschen
 				</MenuItem>
 			</MenuList>
-			<DeletionModal id={consultant.id} onClose={onDeleteionClose} isOpen={isDeletionOpen} />
+			<DeletionModal
+				onClose={onDeleteionClose}
+				isOpen={isDeletionOpen}
+				deleteCallback={async () => {
+					await deleteData({
+						url: `/api/delete-user/${consultant.id}`,
+					});
+				}}
+				title="Berater unwideruflich löschen?"
+				successMessage="Berater erfolgreich gelöscht."
+				description="Diese Aktion ist unwirderuflich und löscht den Account des Beraters."
+			/>
 			<AdjustEarningModal
 				id={consultant.id}
 				earning={consultant.currentEarning}

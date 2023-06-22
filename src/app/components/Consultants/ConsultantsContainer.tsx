@@ -5,11 +5,11 @@ import { useContext, useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { ConsultantView, Roles } from '../../../types/types';
 import { Switch } from '../Atoms/Switch';
+import { AddConsultantModal } from '../Modals/AddConsultantModal';
 import { ConsultantMenuProvider } from '../Provider/ConsultantMenuProvider';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import Consultants from './Consultants';
 import ConsultantsTable from './ConsultantsTable';
-import { AddConsultantModal } from './Modals/AddConsultantModal';
 
 export default function ConsultantsContainer({ roles }: { roles: Roles }) {
 	const [viewType, setViewType] = useState<ConsultantView>('diagram');
@@ -43,7 +43,7 @@ export default function ConsultantsContainer({ roles }: { roles: Roles }) {
 					<Consultants roles={roles} />
 				</ConsultantMenuProvider>
 			) : (
-				<ConsultantsTable roles={roles}/>
+				<ConsultantsTable roles={roles} />
 			)}
 
 			<AddConsultantModal isOpen={isOpen} onClose={onClose} roles={roles} />

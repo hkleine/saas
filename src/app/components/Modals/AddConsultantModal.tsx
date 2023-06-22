@@ -1,6 +1,6 @@
 import { Roles } from '@/types/types';
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from '@chakra-ui/react';
-import ConsultantForm from '../../Forms/ConsultantForm';
+import ConsultantForm from '../Forms/ConsultantForm';
 
 export function AddConsultantModal({
 	isOpen,
