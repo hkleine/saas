@@ -1,3 +1,4 @@
+import { EquationVariable, Item } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
@@ -6,6 +7,7 @@ import {
   AlertIcon,
   AlertTitle,
   Button,
+  FormLabel,
   InputGroup,
   InputRightAddon,
   Modal,
@@ -17,9 +19,12 @@ import {
   ModalOverlay,
   NumberInput,
   NumberInputField,
-  useToast,
+  Select,
+  useToast
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { noop } from 'lodash';
+import { useContext, useEffect, useState } from 'react';
+import { RealTimeItemsContext } from '../Provider/RealTimeItemsProvider';
 
 export function AdjustEarningModal({
   isOpen,
@@ -88,6 +93,7 @@ export function AdjustEarningModal({
             </NumberInput>
             <InputRightAddon>€</InputRightAddon>
           </InputGroup>
+          <ItemSelection />
         </ModalBody>
         <ModalFooter>
           <Button
@@ -105,4 +111,69 @@ export function AdjustEarningModal({
       </ModalContent>
     </Modal>
   );
+}
+
+function ItemSelection() {
+  const items = useContext(RealTimeItemsContext);
+  const [selectedItem, setSelectedItem] = useState<Item | undefined>();
+  
+  const variables = useVariables(selectedItem);
+
+  if(!items) {
+    return null;
+  }
+    return (
+      <>
+      <FormLabel>Produkt</FormLabel>
+      <Select onChange={(event) => {
+        const selecetedItem = items.find(item => item.id === event.target.value);
+        setSelectedItem(selecetedItem);
+      }} defaultValue="no-item" value={selectedItem?.id}>
+        <option key={`default-value`} value="no-item">
+          Kein Produkt ausgewählt
+        </option>
+        {items &&
+          items.map((item) => (
+            <option key={`role-key-${item.id}`} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+      </Select>
+
+      <FormLabel>Produkt Parameter</FormLabel>
+            {
+              Object.entries(variables).map(([key, values]) => {
+                return (
+                  <InputGroup key={key}>
+                    <FormLabel>{values.name}</FormLabel>
+                    <NumberInput
+                      clampValueOnBlur={true}
+                      precision={2}
+                      min={0}
+                      max={10000000}
+                      w="full"
+                      value={values.value}
+                      onChange={noop}
+                    />
+                  </InputGroup>
+                )
+            }
+            )
+            }
+        
+      </>
+
+    )
+
+}
+
+
+function useVariables(selectedItem?: Item): Record<string, EquationVariable & {value: number}> {
+  if(!selectedItem) {
+    return {}
+  }
+
+  return Object.entries(selectedItem.variables).reduce((currentVariables, [key, values]) => {
+    return {...currentVariables, [key]: {...values, value: 0}}
+  }, {})
 }
