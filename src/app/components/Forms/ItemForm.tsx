@@ -47,7 +47,7 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isDirty },
 		getValues,
 		setValue,
 		watch,
@@ -154,7 +154,7 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 									Abbruch
 								</Button>
 							)}
-							<Button type="submit" isLoading={isSubmitting}>
+							<Button type="submit" isLoading={isSubmitting} isDisabled={!isDirty}>
 								{item ? 'Speichern' : 'Hinzufügen'}
 							</Button>
 						</ModalFooter>

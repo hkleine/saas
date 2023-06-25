@@ -33,10 +33,11 @@ export function RealTimeCompanyConsultantsProvider({
 	}, [companyId]);
 
 	useEffect(() => {
-		const consultantIds = realtimeConsultants!.map((consultant) => consultant.id);
+		const consultants = realtimeConsultants ?? [];
+		const consultantIds = consultants.map((consultant) => consultant.id);
 
 		const earningsChannel = subscribeToCompanyEarnings(consultantIds, async (payload) => {
-			const newConsultants = realtimeConsultants!.map((consultant) => {
+			const newConsultants = consultants.map((consultant) => {
 				if (consultant.id === payload.new.consultant_id) {
 					return { ...consultant, currentEarning: { ...consultant.currentEarning, value: payload.new.value } };
 				}

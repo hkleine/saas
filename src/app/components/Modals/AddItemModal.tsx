@@ -7,7 +7,7 @@ export function AddItemModal({ isOpen, onClose, item }: { onClose: () => void; i
 		<Modal size="2xl" isOpen={isOpen} onClose={onClose}>
 			<ModalOverlay />
 			<ModalContent p={4} borderRadius="xl">
-				<ModalHeader>Produkt hinzufügen</ModalHeader>
+				<ModalHeader>{item ? 'Produkt bearbeiten' : 'Produkt hinzufügen'}</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
 					<ItemForm onClose={onClose} item={item} />
