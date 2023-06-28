@@ -1,4 +1,5 @@
 import { EquationVariable, Item } from '@/types/types';
+import { calculateSumForEquation } from '@/utils/calculateSumForEquation';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
@@ -31,11 +32,7 @@ import {
 	useToast,
 	VStack,
 } from '@chakra-ui/react';
-import 'nerdamer/Algebra.js';
-import 'nerdamer/Calculus.js';
-import nerdamer from 'nerdamer/nerdamer.core.js';
-import 'nerdamer/Solve.js';
-import { useContext, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
 import { FiPlus } from 'react-icons/fi';
 import { RealTimeItemsContext } from '../Provider/RealTimeItemsProvider';
 
@@ -139,7 +136,7 @@ function ItemSelection({
 	addProductSum,
 }: {
 	variables: VariablesWithValue;
-	setVariables: Function;
+	setVariables: Dispatch<SetStateAction<VariablesWithValue>>;
 	addProductSum: (event: any) => void;
 }) {
 	const items = useContext(RealTimeItemsContext);
@@ -154,6 +151,7 @@ function ItemSelection({
 	if (!items) {
 		return null;
 	}
+
 	return (
 		<Container border="1px dashed" borderColor="gray.200" py={2} borderRadius={10}>
 			<Flex direction="column" gap={4}>
@@ -210,7 +208,7 @@ function ItemSelection({
 													value={values.value}
 													onChange={(_, value) => {
 														const newVariables = { ...variables, [key]: { ...variables[key], value } };
-														const sum = calculateSum({
+														const sum = calculateSumForEquation({
 															variables: newVariables,
 															equation: selectedItem?.equation,
 														});
@@ -233,28 +231,6 @@ function ItemSelection({
 			</Flex>
 		</Container>
 	);
-}
-
-function calculateSum({
-	variables,
-	equation,
-}: {
-	variables: Record<string, EquationVariable & { value: number }>;
-	equation?: string | null;
-}) {
-	if (!equation) {
-		return 0;
-	}
-
-	const knownVariables = Object.entries(variables).reduce((currentVariables, [key, values]) => {
-		if (key === SUM_SYMBOL) {
-			return currentVariables;
-		}
-		return { ...currentVariables, [key]: `${values.value}` };
-	}, {});
-	const eq = nerdamer(equation).evaluate(knownVariables);
-	const result = eq.solveFor(SUM_SYMBOL);
-	return eval(result.toString());
 }
 
 function createVariables(selectedItem: Item): Record<string, EquationVariable & { value: number }> {

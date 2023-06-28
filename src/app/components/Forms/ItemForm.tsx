@@ -1,5 +1,7 @@
 'use client';
-import { Item } from '@/types/types';
+import { useEquationRegex } from '@/hooks/useEquationRegex';
+import { preferences } from '@/preferences';
+import { EquationVariable, Item } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { generateNewRandomLetter } from '@/utils/generateNewRandomLetter';
 import { getCompanyId } from '@/utils/getCompanyId';
@@ -22,7 +24,7 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent, useContext, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from 'react';
 import { useForm, UseFormGetValues, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { v4 } from 'uuid';
@@ -30,17 +32,10 @@ import FormError from '../Forms/FormError';
 import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 import styles from './itemForm.module.css';
 
-const INITIAL_VARIABLES = {
-	y: {
-		name: 'Summe',
-	},
-	x: {
-		name: 'Menge',
-	},
-};
+const { defaultEquation, initialVariables, sumSymbol } = preferences.items;
 
 export default function ItemForm({ onClose, item }: { onClose: () => void; item?: Item }) {
-	const [variables, setVariables] = useState<Item['variables']>(item?.variables ?? INITIAL_VARIABLES);
+	const [variables, setVariables] = useState<Item['variables']>(item?.variables ?? initialVariables);
 	const equationRegex = useEquationRegex(variables);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [signupError, setSignupError] = useState(false);
@@ -53,7 +48,7 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 		watch,
 	} = useForm({
 		defaultValues: {
-			equation: item?.equation ?? 'y=x',
+			equation: item?.equation ?? defaultEquation,
 			name: item?.name ?? '',
 		},
 		mode: 'onChange',
@@ -173,7 +168,7 @@ function VariableEditor({
 	setValue,
 }: {
 	variables: Item['variables'];
-	setVariables: Function;
+	setVariables: Dispatch<SetStateAction<Record<string, EquationVariable>>>;
 	watch: UseFormWatch<{
 		equation: string;
 		name: string;
@@ -188,7 +183,8 @@ function VariableEditor({
 	}>;
 }) {
 	const removeVariable = (symbol: string) => {
-		const { [symbol]: removedProperty, ...variableRest } = variables;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { [symbol]: _removedProperty, ...variableRest } = variables;
 		setVariables(variableRest);
 	};
 
@@ -204,9 +200,7 @@ function VariableEditor({
 	};
 
 	const updateVariableName = (event: ChangeEvent<HTMLInputElement>, symbol: string) => {
-		console.log(event.target.value, symbol, variables);
 		const newVariables = { ...variables, [symbol]: { ...variables[symbol], name: event.target.value } };
-		console.log(newVariables);
 		setVariables(newVariables);
 	};
 
@@ -216,12 +210,12 @@ function VariableEditor({
 				Variablen <span style={{ color: 'red' }}>*</span>
 			</Text>
 			{Object.entries(variables).map(([symbol, object]) => {
-				const isNotDeletable = symbol === 'y' || watch('equation').includes(symbol);
+				const isNotDeletable = symbol === sumSymbol || watch('equation').includes(symbol);
 				return (
 					<Flex key={symbol} direction="row">
 						<Editable
 							className={styles['symbol-editable']}
-							isDisabled={symbol === 'y'}
+							isDisabled={symbol === sumSymbol}
 							defaultValue={symbol}
 							onSubmit={(val) => {
 								if (val === symbol || val === '') return;
@@ -233,7 +227,7 @@ function VariableEditor({
 							}}>
 							<EditablePreview className={styles['editable-preview']} />
 							<Input
-								isDisabled={symbol === 'y'}
+								isDisabled={symbol === sumSymbol}
 								pattern="[a-z]"
 								maxLength={1}
 								placeholder="Variablen Symbol"
@@ -274,11 +268,4 @@ function VariableEditor({
 			</Button>
 		</>
 	);
-}
-
-function useEquationRegex(variables: Item['variables']) {
-	const symbols = Object.keys(variables).join('');
-	const regex = `^([${symbols}0-9./*()-]*)=([${symbols}0-9.*/()-]*)+$`;
-	const equationRegex = new RegExp(regex);
-	return equationRegex;
 }

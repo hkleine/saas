@@ -231,7 +231,7 @@ export async function getRoles(): Promise<Roles | null> {
 }
 
 export async function createNewItem(item: Item) {
-	const { data, error } = await supabase.from('items').insert(item);
+	const { error } = await supabase.from('items').insert(item);
 	if (error) {
 		console.log(error.message);
 		return null;
@@ -270,7 +270,7 @@ export async function getCompanyItems(): Promise<Array<Item> | null> {
 }
 
 export async function deleteItem(id: string) {
-	const { data, error } = await supabase.from('items').delete().eq('id', id);
+	const { error } = await supabase.from('items').delete().eq('id', id);
 
 	if (error) {
 		console.log(error.message);
