@@ -1,5 +1,4 @@
-import { EquationVariable, Item } from '@/types/types';
-import { calculateSumForEquation } from '@/utils/calculateSumForEquation';
+import { EquationVariable } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
@@ -7,38 +6,20 @@ import {
 	AlertDescription,
 	AlertIcon,
 	AlertTitle,
-	Button,
-	Container,
-	Divider,
-	Flex,
-	FormLabel,
-	Grid,
-	GridItem,
-	InputGroup,
-	InputRightAddon,
-	Modal,
+	Button, Modal,
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
 	ModalFooter,
 	ModalHeader,
-	ModalOverlay,
-	NumberInput,
-	NumberInputField,
-	Select,
-	Stat,
-	StatLabel,
-	StatNumber,
-	useToast,
-	VStack,
+	ModalOverlay, useToast
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
-import { FiPlus } from 'react-icons/fi';
-import { RealTimeItemsContext } from '../Provider/RealTimeItemsProvider';
+import { useEffect, useState } from 'react';
+import { AdjustEarningForm } from '../Forms/AdjustEarningForm';
 
-const SUM_SYMBOL = 'y';
+export const SUM_SYMBOL = 'y';
 
-type VariablesWithValue = Record<string, EquationVariable & { value: number }>;
+export type VariablesWithValue = Record<string, EquationVariable & { value: number | string }>;
 
 export function AdjustEarningModal({
 	isOpen,
@@ -53,7 +34,6 @@ export function AdjustEarningModal({
 }) {
 	const fixedInputEarning = earning.value.toFixed(2);
 	const [isDirty, setIsDirty] = useState(false);
-	const [variables, setVariables] = useState<VariablesWithValue>({});
 	const [earningValue, setEarningValue] = useState(fixedInputEarning);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [hasError, setHasError] = useState(false);
@@ -94,24 +74,7 @@ export function AdjustEarningModal({
 					</Alert>
 				)}
 				<ModalBody display="flex" flexDirection="column" gap={8}>
-					<InputGroup>
-						<NumberInput
-							clampValueOnBlur={true}
-							precision={2}
-							min={0}
-							max={10000000}
-							w="full"
-							value={earningValue}
-							onChange={(newValue) => setEarningValue(newValue)}>
-							<NumberInputField />
-						</NumberInput>
-						<InputRightAddon>€</InputRightAddon>
-					</InputGroup>
-					<ItemSelection
-						variables={variables}
-						setVariables={setVariables}
-						addProductSum={() => setEarningValue(`${Number(earningValue) + variables[SUM_SYMBOL].value}`)}
-					/>
+				<AdjustEarningForm earningValue={earningValue}  setEarningValue={setEarningValue}/>
 				</ModalBody>
 				<ModalFooter>
 					<Button
@@ -128,113 +91,4 @@ export function AdjustEarningModal({
 			</ModalContent>
 		</Modal>
 	);
-}
-
-function ItemSelection({
-	variables,
-	setVariables,
-	addProductSum,
-}: {
-	variables: VariablesWithValue;
-	setVariables: Dispatch<SetStateAction<VariablesWithValue>>;
-	addProductSum: (event: any) => void;
-}) {
-	const items = useContext(RealTimeItemsContext);
-	const [selectedItem, setSelectedItem] = useState<Item | undefined>();
-
-	useEffect(() => {
-		if (selectedItem) {
-			setVariables(createVariables(selectedItem));
-		}
-	}, [selectedItem]);
-
-	if (!items) {
-		return null;
-	}
-
-	return (
-		<Container border="1px dashed" borderColor="gray.200" py={2} borderRadius={10}>
-			<Flex direction="column" gap={4}>
-				<div>
-					<FormLabel>Produkt</FormLabel>
-					<Select
-						onChange={(event) => {
-							const selecetedItem = items.find((item) => item.id === event.target.value);
-							setSelectedItem(selecetedItem);
-						}}
-						defaultValue="no-item"
-						value={selectedItem?.id}>
-						<option disabled={true} key={`default-value`} value="no-item">
-							Kein Produkt ausgewählt
-						</option>
-						{items &&
-							items.map((item) => (
-								<option key={`role-key-${item.id}`} value={item.id}>
-									{item.name}
-								</option>
-							))}
-					</Select>
-				</div>
-				{Object.keys(variables).length !== 0 && (
-					<div>
-						{Object.entries(variables).map(([key, values]) => {
-							return (
-								<InputGroup key={key}>
-									{key === SUM_SYMBOL ? (
-										<VStack w="full">
-											<Divider marginTop={4} />
-											<Flex justifyContent="space-between" alignItems="center" w="full" gap={10}>
-												<Stat flex="unset">
-													<StatLabel>{values.name}</StatLabel>
-													<StatNumber>{values.value}€</StatNumber>
-												</Stat>
-												<Button onClick={addProductSum} isDisabled={values.value === 0} leftIcon={<FiPlus />}>
-													Addieren
-												</Button>
-											</Flex>
-										</VStack>
-									) : (
-										<Grid templateColumns="repeat(2, 1fr)" gap={2}>
-											<GridItem>
-												<FormLabel>{values.name}</FormLabel>
-											</GridItem>
-											<GridItem>
-												<NumberInput
-													clampValueOnBlur={true}
-													precision={2}
-													min={0}
-													max={10000000}
-													w="full"
-													value={values.value}
-													onChange={(_, value) => {
-														const newVariables = { ...variables, [key]: { ...variables[key], value } };
-														const sum = calculateSumForEquation({
-															variables: newVariables,
-															equation: selectedItem?.equation,
-														});
-														const newVariablesWithSum = {
-															...newVariables,
-															y: { ...newVariables[SUM_SYMBOL], value: sum },
-														};
-														setVariables(newVariablesWithSum);
-													}}>
-													<NumberInputField />
-												</NumberInput>
-											</GridItem>
-										</Grid>
-									)}
-								</InputGroup>
-							);
-						})}
-					</div>
-				)}
-			</Flex>
-		</Container>
-	);
-}
-
-function createVariables(selectedItem: Item): Record<string, EquationVariable & { value: number }> {
-	return Object.entries(selectedItem.variables).reduce((currentVariables, [key, values]) => {
-		return { ...currentVariables, [key]: { ...values, value: 0 } };
-	}, {});
 }

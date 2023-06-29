@@ -10,7 +10,7 @@ export function calculateSumForEquation({
 	variables,
 	equation,
 }: {
-	variables: Record<string, EquationVariable & { value: number }>;
+	variables: Record<string, EquationVariable & { value: number | string }>;
 	equation?: string | null;
 }) {
 	if (!equation) {
