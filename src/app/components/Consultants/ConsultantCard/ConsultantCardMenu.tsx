@@ -56,7 +56,7 @@ export function ConsultantCardMenu({ consultant, otherConsultants, roles }: Cons
 					Downline hinzufügen
 				</MenuItem>
 				<MenuItem onClick={onOpenAdjustEarning} isDisabled={isUpdateDisabled} icon={<FiDollarSign />}>
-					Einnahmen bearbeiten
+					Umsatz bearbeiten
 				</MenuItem>
 				<MenuItem onClick={onOpenUpdateConsultant} isDisabled={isUpdateDisabled} icon={<FiEdit2 />}>
 					Berater bearbeiten

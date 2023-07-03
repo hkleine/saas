@@ -61,6 +61,32 @@ export async function getUser(): Promise<UserWithEmail | null> {
 	return { ...data, email: authData.user.email } as any;
 }
 
+export async function getConsultant(): Promise<ConsultantWithCurrentEarning | null> {
+	const supabase = createClient();
+
+	const user = await getUser();
+
+	if (!user) {
+		return null;
+	}
+	console.log(user);
+	const { data, error } = await supabase
+		.from('consultants')
+		.select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
+		.eq('id', user.id)
+		.limit(1)
+		.single();
+
+	if (error) {
+		console.log(error.message);
+		return null;
+	}
+
+	const consultant = convertConsultants({ consultantData: [data], user });
+
+	return consultant[0];
+}
+
 export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarning> | null> {
 	const supabase = createClient();
 
@@ -104,7 +130,12 @@ export async function getConsultantEarnings(): Promise<Array<DatabaseEarnings> |
 	if (!user) {
 		return null;
 	}
-	const { data, error } = await supabase.from('earnings').select('*').eq('consultant_id', user.id);
+	const { data, error } = await supabase
+		.from('earnings')
+		.select('*')
+		.eq('consultant_id', user.id)
+		.order('date', { ascending: true });
+
 	if (error) {
 		console.log(error.message);
 		return null;

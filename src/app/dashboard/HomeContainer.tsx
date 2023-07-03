@@ -1,15 +1,17 @@
-import { DatabaseEarnings } from '@/types/types';
+'use client';
+import { Grid, GridItem } from '@chakra-ui/react';
+import { CurrentRevenue } from './CurrentRevenue';
+import { RevenueGraph } from './RevenueGraph';
 
-interface HomeContainerInterface {
-	consultantEarnings: Array<DatabaseEarnings>;
-}
-
-export function HomeContainer({ consultantEarnings }: HomeContainerInterface) {
+export function HomeContainer() {
 	return (
-		<>
-			{consultantEarnings.map((earning) => (
-				<span key={earning.id}>{earning.value}</span>
-			))}
-		</>
+		<Grid templateColumns=" repeat(auto-fill, minmax(25rem, 1fr))" p={4} gap={4}>
+			<GridItem colSpan={2}>
+				<CurrentRevenue />
+			</GridItem>
+			<GridItem colSpan={2}>
+				<RevenueGraph />
+			</GridItem>
+		</Grid>
 	);
 }

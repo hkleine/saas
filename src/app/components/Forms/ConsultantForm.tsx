@@ -62,7 +62,6 @@ export default function ConsultantForm({
 	const companyId = getCompanyId(user);
 
 	const onSubmit = handleSubmit(async (formData) => {
-		console.log('submit');
 		setIsSubmitting(true);
 		setSignupError(false);
 

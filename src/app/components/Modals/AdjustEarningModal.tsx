@@ -6,13 +6,15 @@ import {
 	AlertDescription,
 	AlertIcon,
 	AlertTitle,
-	Button, Modal,
+	Button,
+	Modal,
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
 	ModalFooter,
 	ModalHeader,
-	ModalOverlay, useToast
+	ModalOverlay,
+	useToast,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { AdjustEarningForm } from '../Forms/AdjustEarningForm';
@@ -57,14 +59,14 @@ export function AdjustEarningModal({
 
 		setIsUpdating(false);
 		onClose();
-		toast(createToastSettings({ title: 'Einnahmen erfolgreich bearbeitet', status: 'success' }));
+		toast(createToastSettings({ title: 'Umsatz erfolgreich bearbeitet', status: 'success' }));
 	}
 
 	return (
 		<Modal size="xl" isOpen={isOpen} onClose={onClose}>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Einnahmen bearbeiten</ModalHeader>
+				<ModalHeader>Umsatz bearbeiten</ModalHeader>
 				<ModalCloseButton />
 				{hasError && (
 					<Alert mb="2" rounded={'lg'} status="error">
@@ -74,7 +76,7 @@ export function AdjustEarningModal({
 					</Alert>
 				)}
 				<ModalBody display="flex" flexDirection="column" gap={8}>
-				<AdjustEarningForm earningValue={earningValue}  setEarningValue={setEarningValue}/>
+					<AdjustEarningForm earningValue={earningValue} setEarningValue={setEarningValue} />
 				</ModalBody>
 				<ModalFooter>
 					<Button

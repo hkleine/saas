@@ -64,7 +64,6 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 	const companyId = getCompanyId(user);
 
 	const onSubmit = handleSubmit(async (formData) => {
-		console.log('submit');
 		setIsSubmitting(true);
 		setSignupError(false);
 		try {

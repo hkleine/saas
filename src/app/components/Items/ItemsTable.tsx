@@ -42,7 +42,9 @@ function ItemsRow({ item, user, ...otherProps }: { item: Item; user: UserWithEma
 	const { onOpen: openUpdateModal, isOpen: isUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure();
 	return (
 		<Tr bg={'white'} {...otherProps}>
-			<Td width="20%">{item.name}</Td>
+			<Td width="20%" fontWeight={600}>
+				{item.name}
+			</Td>
 			<Td width="20%">{item.equation}</Td>
 			<Td>
 				<Flex direction="row" width="50%" flexFlow="wrap" gap={2}>

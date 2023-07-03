@@ -2,6 +2,7 @@ import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
 import {
 	ConsultantWithCurrentEarning,
+	DatabaseEarnings,
 	Item,
 	ProductWithPrice,
 	Roles,
@@ -123,6 +124,17 @@ export function subscribeToUser(userId: string, callback: (paylod: { [key: strin
 		.subscribe();
 }
 
+// export function subscribeToConsultantEarnings(userId: string, callback: (paylod: { [key: string]: any }) => void) {
+// 	return supabase
+// 		.channel('earning-changes')
+// 		.on(
+// 			'postgres_changes',
+// 			{ event: '*', schema: 'public', table: 'users', filter: `consultant_id=eq.${userId}` },
+// 			callback,
+// 		)
+// 		.subscribe();
+// }
+
 export function subscribeToItems(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
 	return supabase
 		.channel('item-changes')
@@ -162,6 +174,25 @@ export function subscribeToCompanyEarnings(
 			callback,
 		)
 		.subscribe();
+}
+
+export async function getConsultantEarnings(): Promise<Array<DatabaseEarnings> | null> {
+	const user = await getUser();
+	if (!user) {
+		return null;
+	}
+	const { data, error } = await supabase
+		.from('earnings')
+		.select('*')
+		.eq('consultant_id', user.id)
+		.order('date', { ascending: true });
+	if (error) {
+		console.log(error.message);
+		return null;
+	}
+	console.log(data);
+
+	return data as Array<DatabaseEarnings>;
 }
 
 export async function getUser(): Promise<UserWithEmail | null> {

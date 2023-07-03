@@ -44,7 +44,7 @@ export default function ConsultantsTable({ roles }: { roles: Roles }) {
 						<Th>Email</Th>
 						<Th>Rolle</Th>
 						<Th width="50px">Umsatzbeteiligung</Th>
-						<Th isNumeric>Einnahmen</Th>
+						<Th isNumeric>Umsatz</Th>
 						<Th></Th>
 					</Tr>
 				</Thead>
