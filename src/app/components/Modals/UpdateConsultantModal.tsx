@@ -23,7 +23,7 @@ import {
 	NumberInput,
 	NumberInputField,
 	Select,
-	useToast,
+	useToast
 } from '@chakra-ui/react';
 import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -58,6 +58,7 @@ export function UpdateConsultantModal({
 	}
 
 	const isRoleUpdateDisabled = consultant.role.id === 0 || user.role.id > 1;
+	const isRevenueShareUpdateDisabled = user.role.id > 1;
 
 	const onSubmit = handleSubmit(async (formData) => {
 		setIsUpdating(true);
@@ -126,6 +127,7 @@ export function UpdateConsultantModal({
 							<FormLabel>Umsatzbeteiligung</FormLabel>
 							<InputGroup>
 								<NumberInput
+									isDisabled={isRevenueShareUpdateDisabled}
 									width="full"
 									keepWithinRange
 									defaultValue={consultant.percent}

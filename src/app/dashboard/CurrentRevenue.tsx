@@ -14,14 +14,19 @@ import {
 	StatLabel,
 	StatNumber,
 	Text,
+	useDisclosure
 } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { FiArrowDownRight, FiArrowRight, FiArrowUpRight, FiBarChart2 } from 'react-icons/fi';
+import { AdjustEarningModal } from '../components/Modals';
 import { RealTimeConsultantEarningsContext } from '../components/Provider/RealTimeConsultantEarningsProvider';
 import { RealTimeUserContext } from '../components/Provider/RealTimeUserProvider';
 
 export function CurrentRevenue() {
 	const consultantEarnings = useContext(RealTimeConsultantEarningsContext);
+	const user = useContext(RealTimeUserContext);
+	const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
+
 	if (!consultantEarnings || consultantEarnings.length === 0) {
 		return null;
 	}
@@ -31,9 +36,8 @@ export function CurrentRevenue() {
 	const percentDifference = getPercentVsLastMonth(consultantEarnings);
 	const percentDifferenceColor = percentDifference < 0 ? 'red' : 'green';
 	const percentDifferenceIcon = percentDifference < 0 ? FiArrowDownRight : FiArrowUpRight;
-	const user = useContext(RealTimeUserContext);
 
-	if (!user) {
+	if (!user || !currentMonthEarning) {
 		return null;
 	}
 
@@ -63,7 +67,7 @@ export function CurrentRevenue() {
 						</HStack>
 					</StatHelpText>
 				</Stat>
-				<Button rightIcon={<FiArrowRight />}>Umsatz gemacht</Button>
+				<Button rightIcon={<FiArrowRight />} onClick={onOpenAdjustEarning}>Umsatz gemacht</Button>
 			</Flex>
 
 			<Image
@@ -72,6 +76,12 @@ export function CurrentRevenue() {
 				maxW={{ base: '100%', sm: '250px', lg: '300px', xl: '320px' }}
 				src="/assets/makeItRain.svg"
 				alt="make it rain"
+			/>
+			<AdjustEarningModal
+				id={user.id}
+				earning={{id: currentMonthEarning?.id, value: currentMonthEarning?.value}}
+				onClose={onCloseAdjustEarning}
+				isOpen={isAdjustEarningOpen}
 			/>
 		</Card>
 	);

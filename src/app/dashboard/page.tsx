@@ -1,18 +1,21 @@
-import { getConsultant, getConsultantEarnings } from '@/utils/supabase-server';
+import { getCompanyItems, getConsultantEarnings } from '@/utils/supabase-server';
 import { RealTimeConsultantEarningsProvider } from '../components/Provider/RealTimeConsultantEarningsProvider';
+import { RealTimeItemsProvider } from '../components/Provider/RealTimeItemsProvider';
 import { HomeContainer } from './HomeContainer';
 
 export default async function Home() {
 	const consultantEarnings = await getConsultantEarnings();
-	const consultant = await getConsultant();
+	const items = await getCompanyItems();
 
-	if (!consultantEarnings || !consultant) {
+	if (!consultantEarnings) {
 		return null;
 	}
 
 	return (
-		<RealTimeConsultantEarningsProvider consultantEarnings={consultantEarnings}>
-			<HomeContainer consultant={consultant} />
-		</RealTimeConsultantEarningsProvider>
+		<RealTimeItemsProvider items={items}>
+			<RealTimeConsultantEarningsProvider consultantEarnings={consultantEarnings}>
+				<HomeContainer />
+			</RealTimeConsultantEarningsProvider>
+		</RealTimeItemsProvider>
 	);
 }
