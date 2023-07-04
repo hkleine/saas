@@ -61,7 +61,7 @@ export function RevenueGraph() {
 	};
 
 	return (
-		<Card p={8} boxShadow={'lg'} rounded={'lg'}>
+		<Card p={8} boxShadow={'xl'} rounded={'lg'}>
 			<HStack justifyContent="space-between">
 				<Heading size="md">Umsatz</Heading>
 				<Select

@@ -69,7 +69,7 @@ export async function getConsultant(): Promise<ConsultantWithCurrentEarning | nu
 	if (!user) {
 		return null;
 	}
-	console.log(user);
+
 	const { data, error } = await supabase
 		.from('consultants')
 		.select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
@@ -106,7 +106,8 @@ export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarni
 		console.log(error.message);
 		return null;
 	}
-
+	console.log('moin', data[0].earnings);
+	// Man muss aufhören die earning raus zu filtern! dann kann man auf alle aus der vergangenheit zugreifen fpr die graphen
 	const consultant = convertConsultants({ consultantData: data, user });
 
 	return consultant;
@@ -140,7 +141,6 @@ export async function getConsultantEarnings(): Promise<Array<DatabaseEarnings> |
 		console.log(error.message);
 		return null;
 	}
-	console.log(data);
 
 	return data as Array<DatabaseEarnings>;
 }
