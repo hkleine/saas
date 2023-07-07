@@ -1,4 +1,4 @@
-import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
+import { ConsultantWithEarnings, UserWithEmail } from '@/types/types';
 import { checkIfActionAllowedForCurrentUser } from './checkIfActionAllowedForCurrentUser';
 import { isUserAllowed } from './isUserAllowed';
 
@@ -7,8 +7,8 @@ export function useConsultantActionRights({
 	otherConsultants,
 	user,
 }: {
-	consultant: ConsultantWithCurrentEarning;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 	user: UserWithEmail | null;
 }) {
 	if (!user) {

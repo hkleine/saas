@@ -1,5 +1,5 @@
 import {
-	ConsultantWithCurrentEarning,
+	ConsultantWithEarnings,
 	DatabaseEarnings,
 	Item,
 	Roles,
@@ -61,7 +61,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
 	return { ...data, email: authData.user.email } as any;
 }
 
-export async function getConsultant(): Promise<ConsultantWithCurrentEarning | null> {
+export async function getConsultant(): Promise<ConsultantWithEarnings | null> {
 	const supabase = createClient();
 
 	const user = await getUser();
@@ -87,7 +87,7 @@ export async function getConsultant(): Promise<ConsultantWithCurrentEarning | nu
 	return consultant[0];
 }
 
-export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarning> | null> {
+export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | null> {
 	const supabase = createClient();
 
 	const user = await getUser();

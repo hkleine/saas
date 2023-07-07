@@ -1,4 +1,4 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
 
 export function isTargetADownline({
 	target,
@@ -7,7 +7,7 @@ export function isTargetADownline({
 }: {
 	target: string;
 	source: string;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	otherConsultants: Array<ConsultantWithEarnings>;
 }): boolean {
 	const sourceConsultant = otherConsultants.find((otherConsultant) => otherConsultant.id === source)!;
 	const companyId = sourceConsultant.company_id;

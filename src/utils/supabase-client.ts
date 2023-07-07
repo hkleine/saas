@@ -1,7 +1,7 @@
 import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
 import {
-	ConsultantWithCurrentEarning,
+	ConsultantWithEarnings,
 	DatabaseEarnings,
 	Item,
 	ProductWithPrice,
@@ -216,7 +216,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
 	return { ...data, email: authData.user.email } as any;
 }
 
-export async function getConsultants(): Promise<Array<ConsultantWithCurrentEarning> | null> {
+export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | null> {
 	const user = await getUser();
 
 	if (!user) {

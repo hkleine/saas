@@ -1,4 +1,4 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
 
 export function hasTargetLowerReveneuShare({
 	target,
@@ -7,7 +7,7 @@ export function hasTargetLowerReveneuShare({
 }: {
 	target: string;
 	source: string;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	otherConsultants: Array<ConsultantWithEarnings>;
 }) {
 	const sourceConsultant = otherConsultants.find((otherConsultant) => otherConsultant.id === source)!;
 	const targetConsultant = otherConsultants.find((otherConsultant) => otherConsultant.id === target)!;

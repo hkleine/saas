@@ -1,5 +1,5 @@
-import { ConsultantWithCurrentEarning, UserWithEmail } from '@/types/types';
-import { hasConsultantUpline } from './hasConsuktantUpline';
+import { ConsultantWithEarnings, UserWithEmail } from '@/types/types';
+import { hasConsultantUpline } from './hasConsultantUpline';
 
 export function checkIfActionAllowedForCurrentUser({
 	user,
@@ -7,8 +7,8 @@ export function checkIfActionAllowedForCurrentUser({
 	otherConsultants,
 }: {
 	user: UserWithEmail;
-	currentConsultant: ConsultantWithCurrentEarning;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	currentConsultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 }) {
 	if (user.role.id === 0) {
 		return false;

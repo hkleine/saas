@@ -1,5 +1,6 @@
-import { EquationVariable } from '@/types/types';
+import { ConsultantWithEarnings, EquationVariable } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
+import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
 import { updateCurrentEarning } from '@/utils/supabase-client';
 import {
 	Alert,
@@ -26,15 +27,14 @@ export type VariablesWithValue = Record<string, EquationVariable & { value: numb
 export function AdjustEarningModal({
 	isOpen,
 	onClose,
-	earning,
-	id,
+	consultant,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
-	earning: { id: string; value: number };
-	id: string;
+	consultant: ConsultantWithEarnings;
 }) {
-	const fixedInputEarning = earning.value.toFixed(2);
+	const currentEarning = getCurrentEarningFromConsultant(consultant);
+	const fixedInputEarning = currentEarning.value.toFixed(2);
 	const [isDirty, setIsDirty] = useState(false);
 	const [earningValue, setEarningValue] = useState(fixedInputEarning);
 	const [isUpdating, setIsUpdating] = useState(false);
@@ -49,7 +49,7 @@ export function AdjustEarningModal({
 		setIsUpdating(true);
 
 		try {
-			await updateCurrentEarning({ id, newValue: earningValue });
+			await updateCurrentEarning({ id: consultant.id, newValue: earningValue });
 		} catch (error) {
 			console.log(error);
 			setHasError(true);

@@ -1,5 +1,8 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
+import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
 
-export function calculateUplineLevy({ consultant }: { consultant: ConsultantWithCurrentEarning }) {
-	return (consultant.currentEarning.value / 100) * consultant.percent;
+export function calculateUplineLevy({ consultant }: { consultant: ConsultantWithEarnings }) {
+	const currentEarning = getCurrentEarningFromConsultant(consultant);
+
+	return (currentEarning.value / 100) * consultant.percent;
 }

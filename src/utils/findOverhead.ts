@@ -1,21 +1,21 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
 
 const OVERHEAD_ROLE = 1;
 
 export function findOverhead({
-  consultant,
-  otherConsultants,
+	consultant,
+	otherConsultants,
 }: {
-  consultant: ConsultantWithCurrentEarning;
-  otherConsultants: Array<ConsultantWithCurrentEarning>;
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 }) {
-  const { role } = consultant;
-  let currentConsultant: ConsultantWithCurrentEarning = consultant;
-  for (let roleIndex = role.id; roleIndex > OVERHEAD_ROLE; roleIndex--) {
-    const uplineId = currentConsultant.upline;
-    const upline = otherConsultants.find(otherConsultants => otherConsultants.id === uplineId)!;
-    currentConsultant = upline;
-  }
+	const { role } = consultant;
+	let currentConsultant: ConsultantWithEarnings = consultant;
+	for (let roleIndex = role.id; roleIndex > OVERHEAD_ROLE; roleIndex--) {
+		const uplineId = currentConsultant.upline;
+		const upline = otherConsultants.find((otherConsultants) => otherConsultants.id === uplineId)!;
+		currentConsultant = upline;
+	}
 
-  return currentConsultant;
+	return currentConsultant;
 }

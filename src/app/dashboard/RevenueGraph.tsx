@@ -1,10 +1,13 @@
 'use client';
-import { DatabaseEarnings } from '@/types/types';
+import { useApexChartOptions } from '@/hooks/useApexChartOptions';
+import { ConsultantWithEarnings } from '@/types/types';
+import { isSameMonthOfTheYear } from '@/utils/isSameMonthOfTheYear';
 import { Card, Heading, HStack, Select } from '@chakra-ui/react';
-import { ApexOptions } from 'apexcharts';
 import { useContext, useState } from 'react';
 import Chart from 'react-apexcharts';
-import { RealTimeConsultantEarningsContext } from '../components/Provider/RealTimeConsultantEarningsProvider';
+import { calculateDownlineEarnings } from '../components/Consultants/ConsultantCard/calculateDownlineEarnings';
+import { RealTimeCompanyConsultantsContext } from '../components/Provider/RealTimeCompanyConsultantsProvider';
+import { RealTimeUserContext } from '../components/Provider/RealTimeUserProvider';
 
 const REVENUE_GRAPH_OPTIONS = {
 	lastSix: 6,
@@ -12,53 +15,25 @@ const REVENUE_GRAPH_OPTIONS = {
 };
 
 export function RevenueGraph() {
-	const consultantEarnings = useContext(RealTimeConsultantEarningsContext);
+	const user = useContext(RealTimeUserContext);
+	const consultants = useContext(RealTimeCompanyConsultantsContext)!;
+	const consultant = consultants.find((con) => con.id === user?.id)!;
 	const [graphTimeFrame, setGraphTimeFrame] = useState<keyof typeof REVENUE_GRAPH_OPTIONS>('lastSix');
+	const options = useApexChartOptions({ id: 'consultant-revenue-chart' });
 
-	if (!consultantEarnings || consultantEarnings.length === 0) {
+	if (consultant.earnings.length === 0) {
 		return null;
 	}
 
-	const series = convertEarningsToTimeSeries(consultantEarnings.slice(-REVENUE_GRAPH_OPTIONS[graphTimeFrame]));
-
-	const options: ApexOptions = {
-		chart: {
-			toolbar: {
-				show: false,
-			},
-			id: 'apexchart-example',
-		},
-		colors: ['#805AD5'],
-		dataLabels: {
-			enabled: false,
-		},
-		stroke: {
-			curve: 'smooth',
-		},
-		markers: {
-			size: 3,
-			colors: ['#fff'],
-			strokeColors: ['#805AD5'],
-			strokeWidth: 3,
-		},
-		yaxis: {
-			labels: {
-				formatter: function (value) {
-					return value + '€';
-				},
-			},
-		},
-
-		grid: {
-			borderColor: '#EDF2F7',
-		},
-		fill: {
-			gradient: {
-				opacityFrom: 0.85,
-				opacityTo: 0.25,
-			},
-		},
-	};
+	const revenueTimeSeries = getConsultantEarningsTimeSeries({
+		graphTimeFrame,
+		earnings: consultant.earnings,
+	});
+	const downlineEarningsTimeSeries = getDownlineEarningsTimeSeries({
+		consultant,
+		otherConsultants: consultants,
+		graphTimeFrame,
+	});
 
 	return (
 		<Card p={8} boxShadow={'xl'} rounded={'lg'}>
@@ -79,22 +54,66 @@ export function RevenueGraph() {
 					})}
 				</Select>
 			</HStack>
-
-			<Chart options={options} series={series} type="area" height={250} />
+			<Chart options={options} series={[revenueTimeSeries, downlineEarningsTimeSeries]} type="area" height={250} />
 		</Card>
 	);
 }
 
-function convertEarningsToTimeSeries(earnings: Array<DatabaseEarnings>): ApexAxisChartSeries {
-	return [
-		{
-			name: 'Dein Umsatz',
-			data: earnings.map((earning) => {
-				return {
-					x: new Date(earning.date).toLocaleString('default', { month: 'long', year: '2-digit' }),
-					y: earning.value,
-				};
-			}),
-		},
-	];
+function getConsultantEarningsTimeSeries({
+	earnings,
+	graphTimeFrame,
+}: {
+	earnings: ConsultantWithEarnings['earnings'];
+	graphTimeFrame: keyof typeof REVENUE_GRAPH_OPTIONS;
+}) {
+	const timeframe = REVENUE_GRAPH_OPTIONS[graphTimeFrame];
+	const date = new Date();
+	const series = [];
+	for (let i = 0; i < timeframe; i++) {
+		series.push({
+			x: new Date(date).toLocaleString('default', { month: 'long', year: '2-digit' }),
+			y: earnings.find((earning) => isSameMonthOfTheYear(new Date(earning.date), date))?.value ?? 0,
+		});
+		date.setMonth(date.getMonth() - 1);
+	}
+
+	return {
+		name: 'Dein Umsatz',
+		data: isZeroSeries(series) ? [] : series.reverse(),
+	};
+}
+
+function getDownlineEarningsTimeSeries({
+	otherConsultants,
+	consultant,
+	graphTimeFrame,
+}: {
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
+	graphTimeFrame: keyof typeof REVENUE_GRAPH_OPTIONS;
+}) {
+	const timeframe = REVENUE_GRAPH_OPTIONS[graphTimeFrame];
+	const date = new Date();
+	const series = [];
+	for (let i = 0; i < timeframe; i++) {
+		const earning = calculateDownlineEarnings({
+			otherConsultants,
+			consultant,
+			forCertainMonth: date,
+		});
+		series.push({
+			x: new Date(date).toLocaleString('default', { month: 'long', year: '2-digit' }),
+			y: earning,
+		});
+		date.setMonth(date.getMonth() - 1);
+	}
+
+	return {
+		name: 'Dein Downline Umsatz',
+		data: isZeroSeries(series) ? [] : series.reverse(),
+	};
+}
+
+function isZeroSeries(series: Array<{ x: string; y: number }>) {
+	return !series.some((data) => data.y !== 0);
 }

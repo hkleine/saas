@@ -1,11 +1,11 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
 
 export function getConsultantDownlines({
 	consultant,
 	otherConsultants,
 }: {
-	consultant: ConsultantWithCurrentEarning;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 }) {
 	return otherConsultants.filter((otherConsultants) => consultant.id === otherConsultants.upline);
 }

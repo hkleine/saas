@@ -1,4 +1,4 @@
-import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { updateConsultantPercent, updateUserName, updateUserRole } from '@/utils/supabase-client';
 import {
@@ -23,7 +23,7 @@ import {
 	NumberInput,
 	NumberInputField,
 	Select,
-	useToast
+	useToast,
 } from '@chakra-ui/react';
 import { useContext, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -37,7 +37,7 @@ export function UpdateConsultantModal({
 }: {
 	isOpen: boolean;
 	onClose: () => void;
-	consultant: ConsultantWithCurrentEarning;
+	consultant: ConsultantWithEarnings;
 	roles: Roles;
 }) {
 	const {

@@ -1,12 +1,12 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
 import { HStack, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { FiEyeOff } from 'react-icons/fi';
 import { calculateDownlineEarnings } from './calculateDownlineEarnings';
 
 interface DownlineEarningsProps {
-	consultant: ConsultantWithCurrentEarning;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 }
 
 export function DownlineEarnings({ consultant, otherConsultants }: DownlineEarningsProps) {
@@ -22,7 +22,7 @@ export function DownlineEarnings({ consultant, otherConsultants }: DownlineEarni
 	return (
 		<Stat maxW="50%">
 			<StatLabel>Downline Einnahmen</StatLabel>
-			{consultant.currentEarning.concealed ? (
+			{consultant.concealed ? (
 				<FiEyeOff />
 			) : (
 				<HStack>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 'use client';
 import useLayout from '@/hooks/useLayout';
-import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { useContext, useEffect } from 'react';
 import ReactFlow, { Background, Controls, Edge, Node, ProOptions, useEdgesState, useNodesState } from 'reactflow';
 import { ConsultantMenuContext } from '../Provider/ConsultantMenuProvider';
@@ -56,10 +56,10 @@ export default function Consultants({ roles }: { roles: Roles }) {
 	);
 }
 
-function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | null, roles: Roles) {
+function getConsultantNodes(consultants: Array<ConsultantWithEarnings> | null, roles: Roles) {
 	if (!consultants) return { nodes: [], edges: [] };
 
-	const nodes = consultants.reduce((prevNodes: Array<Node>, currentConsultant: ConsultantWithCurrentEarning) => {
+	const nodes = consultants.reduce((prevNodes: Array<Node>, currentConsultant: ConsultantWithEarnings) => {
 		const nodesWithoutPlaceholder = [
 			...prevNodes,
 			{
@@ -73,7 +73,7 @@ function getConsultantNodes(consultants: Array<ConsultantWithCurrentEarning> | n
 		return nodesWithoutPlaceholder;
 	}, [] as Array<Node>);
 
-	const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithCurrentEarning) => {
+	const edges = consultants.reduce((prevEdges: Array<Edge>, currentConsultant: ConsultantWithEarnings) => {
 		const edges = prevEdges;
 
 		if (currentConsultant.upline) {

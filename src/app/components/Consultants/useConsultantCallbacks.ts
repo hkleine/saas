@@ -1,4 +1,4 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
 import { hasTargetLowerReveneuShare } from '@/utils/hasTargetLowerReveneuShare';
 import { isTargetADownline } from '@/utils/isTargetADownline';
@@ -6,7 +6,7 @@ import { updateConsultantUpline } from '@/utils/supabase-client';
 import { useToast } from '@chakra-ui/react';
 import { useCallback } from 'react';
 
-export function useConsultantCallbacks({ consultants }: { consultants: Array<ConsultantWithCurrentEarning> | null }) {
+export function useConsultantCallbacks({ consultants }: { consultants: Array<ConsultantWithEarnings> | null }) {
 	const toast = useToast();
 
 	return {

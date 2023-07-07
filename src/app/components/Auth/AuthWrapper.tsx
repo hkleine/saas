@@ -9,6 +9,7 @@ export default function AuthWrapper({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		supabaseClient.auth.onAuthStateChange((event, session) => {
 			if (event === 'SIGNED_OUT' && !session) {
+				console.log('signed ot');
 				deleteAllCookies();
 				router.push('/login');
 			}

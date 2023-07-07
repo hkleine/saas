@@ -1,4 +1,5 @@
-import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { ConsultantWithEarnings, Roles } from '@/types/types';
+import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
 import { deleteData } from '@/utils/helpers';
 import { useConsultantActionRights } from '@/utils/hooks';
 import {
@@ -70,8 +71,8 @@ function ConsultantRow({
 	consultant,
 	roles,
 }: {
-	consultant: ConsultantWithCurrentEarning;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 	roles: Roles;
 }) {
 	const user = useContext(RealTimeUserContext);
@@ -95,7 +96,7 @@ function ConsultantRow({
 	}
 
 	const isConsultantCardFromCurrentUser = user.id === consultant.id;
-
+	const currentEarning = getCurrentEarningFromConsultant(consultant);
 	return (
 		<Tr
 			bg={isConsultantCardFromCurrentUser ? 'purple.50' : 'white'}
@@ -112,14 +113,14 @@ function ConsultantRow({
 					</Tag>
 				</Center>
 			</Td>
-			{consultant.currentEarning.concealed ? (
+			{consultant.concealed ? (
 				<Td>
 					<Center>
 						<FiEyeOff />
 					</Center>
 				</Td>
 			) : (
-				<Td isNumeric>{consultant.currentEarning.value.toFixed(2)}€</Td>
+				<Td isNumeric>{currentEarning.value.toFixed(2)}€</Td>
 			)}
 			<Td>
 				<Flex direction="row" justifyContent="center">
@@ -161,12 +162,7 @@ function ConsultantRow({
 				successMessage="Berater erfolgreich gelöscht."
 				description="Diese Aktion ist unwirderuflich und löscht den Account des Beraters."
 			/>
-			<AdjustEarningModal
-				id={consultant.id}
-				earning={consultant.currentEarning}
-				onClose={onCloseAdjustEarning}
-				isOpen={isAdjustEarningOpen}
-			/>
+			<AdjustEarningModal consultant={consultant} onClose={onCloseAdjustEarning} isOpen={isAdjustEarningOpen} />
 			<UpdateConsultantModal
 				isOpen={isUpdateConsultantOpen}
 				consultant={consultant}

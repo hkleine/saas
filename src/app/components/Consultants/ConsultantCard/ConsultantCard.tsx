@@ -1,5 +1,5 @@
 'use client';
-import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { Card, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
 import { useContext } from 'react';
 import { Handle, Position } from 'reactflow';
@@ -14,8 +14,8 @@ export function ConsultantCard({
 	data: { consultant, otherConsultants, roles },
 }: {
 	data: {
-		otherConsultants: Array<ConsultantWithCurrentEarning>;
-		consultant: ConsultantWithCurrentEarning;
+		otherConsultants: Array<ConsultantWithEarnings>;
+		consultant: ConsultantWithEarnings;
 		roles: Roles;
 	};
 }) {

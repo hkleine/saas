@@ -91,8 +91,9 @@ export type BaseConsultant = Omit<DatabaseConsultant, 'role'> & {
 	avatar_url?: string | null;
 };
 
-export type ConsultantWithCurrentEarning = BaseConsultant & {
-	currentEarning: { value: number; id: string; concealed?: true };
+export type ConsultantWithEarnings = BaseConsultant & {
+	earnings: Array<Omit<DatabaseEarnings, 'consultant_id'>>;
+	concealed?: true;
 };
 
 export type Roles = Array<Database['public']['Tables']['roles']['Row']>;

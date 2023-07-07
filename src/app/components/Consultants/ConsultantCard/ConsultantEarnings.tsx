@@ -1,27 +1,28 @@
-import { ConsultantWithCurrentEarning } from '@/types/types';
+import { ConsultantWithEarnings } from '@/types/types';
+import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
 import { HStack, Stat, StatArrow, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react';
 import { FiEyeOff } from 'react-icons/fi';
-import { calculateUplineLevy } from './calculateUplineLevy';
 
 interface ConsultantEarningsProps {
-	consultant: ConsultantWithCurrentEarning;
+	consultant: ConsultantWithEarnings;
 }
 
 export function ConsultantEarnings({ consultant }: ConsultantEarningsProps) {
-	const uplineLevy = calculateUplineLevy({ consultant });
+	const currentEarning = getCurrentEarningFromConsultant(consultant);
+	const uplineLevy = (currentEarning.value / 100) * (100 - consultant.percent);
 
 	return (
 		<Stat maxW="50%">
 			<StatLabel>Eigene Einnahmen</StatLabel>
-			{consultant.currentEarning.concealed ? (
+			{consultant.concealed ? (
 				<FiEyeOff />
 			) : (
 				<HStack>
-					<StatNumber>{consultant.currentEarning.value.toFixed(2)}€</StatNumber>
+					<StatNumber>{currentEarning.value.toFixed(2)}€</StatNumber>
 					{uplineLevy > 0 ? (
-						<StatHelpText>
+						<StatHelpText whiteSpace="nowrap">
 							<StatArrow type="decrease" />
-							{((consultant.currentEarning.value / 100) * (100 - consultant.percent)).toFixed(2)}
+							{uplineLevy.toFixed(2)}
 						</StatHelpText>
 					) : null}
 				</HStack>

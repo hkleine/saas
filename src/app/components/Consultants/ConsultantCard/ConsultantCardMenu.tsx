@@ -1,5 +1,5 @@
 'use client';
-import { ConsultantWithCurrentEarning, Roles } from '@/types/types';
+import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { deleteData } from '@/utils/helpers';
 import { useConsultantActionRights } from '@/utils/hooks';
 import { Menu, MenuButton, MenuItem, MenuList, useDisclosure } from '@chakra-ui/react';
@@ -10,8 +10,8 @@ import { ConsultantMenuContext } from '../../Provider/ConsultantMenuProvider';
 import { RealTimeUserContext } from '../../Provider/RealTimeUserProvider';
 
 interface ConsultantCardMenuProps {
-	consultant: ConsultantWithCurrentEarning;
-	otherConsultants: Array<ConsultantWithCurrentEarning>;
+	consultant: ConsultantWithEarnings;
+	otherConsultants: Array<ConsultantWithEarnings>;
 	roles: Roles;
 }
 
@@ -77,12 +77,7 @@ export function ConsultantCardMenu({ consultant, otherConsultants, roles }: Cons
 				successMessage="Berater erfolgreich gelöscht."
 				description="Diese Aktion ist unwirderuflich und löscht den Account des Beraters."
 			/>
-			<AdjustEarningModal
-				id={consultant.id}
-				earning={consultant.currentEarning}
-				onClose={onCloseAdjustEarning}
-				isOpen={isAdjustEarningOpen}
-			/>
+			<AdjustEarningModal consultant={consultant} onClose={onCloseAdjustEarning} isOpen={isAdjustEarningOpen} />
 			<UpdateConsultantModal
 				isOpen={isUpdateConsultantOpen}
 				consultant={consultant}
