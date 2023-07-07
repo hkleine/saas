@@ -208,54 +208,56 @@ function VariableEditor({
 			<Text>
 				Variablen <span style={{ color: 'red' }}>*</span>
 			</Text>
-			{Object.entries(variables).map(([symbol, object]) => {
-				const isNotDeletable = symbol === sumSymbol || watch('equation').includes(symbol);
-				return (
-					<Flex key={symbol} direction="row">
-						<Editable
-							className={styles['symbol-editable']}
-							isDisabled={symbol === sumSymbol}
-							defaultValue={symbol}
-							onSubmit={(val) => {
-								if (val === symbol || val === '') return;
-								delete Object.assign(variables, { [val]: variables[symbol] })[symbol];
-								setVariables(variables);
-								const oldEquation = getValues().equation;
-								const newEquation = oldEquation.replace(symbol, val);
-								setValue('equation', newEquation);
-							}}>
-							<EditablePreview className={styles['editable-preview']} />
-							<Input
+			{Object.entries(variables)
+				.sort(sortSumToStart)
+				.map(([symbol, object]) => {
+					const isNotDeletable = symbol === sumSymbol || watch('equation').includes(symbol);
+					return (
+						<Flex key={symbol} direction="row">
+							<Editable
+								className={styles['symbol-editable']}
 								isDisabled={symbol === sumSymbol}
-								pattern="[a-z]"
-								maxLength={1}
-								placeholder="Variablen Symbol"
+								defaultValue={symbol}
+								onSubmit={(val) => {
+									if (val === symbol || val === '') return;
+									delete Object.assign(variables, { [val]: variables[symbol] })[symbol];
+									setVariables(variables);
+									const oldEquation = getValues().equation;
+									const newEquation = oldEquation.replace(symbol, val);
+									setValue('equation', newEquation);
+								}}>
+								<EditablePreview className={styles['editable-preview']} />
+								<Input
+									isDisabled={symbol === sumSymbol}
+									pattern="[a-z]"
+									maxLength={1}
+									placeholder="Variablen Symbol"
+									type="text"
+									required
+									as={EditableInput}
+								/>
+							</Editable>
+							<Input
+								onChange={(event) => updateVariableName(event, symbol)}
+								placeholder="Variablen Name"
+								maxLength={32}
 								type="text"
+								defaultValue={object.name}
 								required
-								as={EditableInput}
 							/>
-						</Editable>
-						<Input
-							onChange={(event) => updateVariableName(event, symbol)}
-							placeholder="Variablen Name"
-							maxLength={32}
-							type="text"
-							defaultValue={object.name}
-							required
-						/>
-						<IconButton
-							isDisabled={isNotDeletable}
-							onClick={() => {
-								removeVariable(symbol);
-							}}
-							variant="outline"
-							colorScheme="gray"
-							aria-label="delete"
-							icon={<FiTrash2 />}
-						/>
-					</Flex>
-				);
-			})}
+							<IconButton
+								isDisabled={isNotDeletable}
+								onClick={() => {
+									removeVariable(symbol);
+								}}
+								variant="outline"
+								colorScheme="gray"
+								aria-label="delete"
+								icon={<FiTrash2 />}
+							/>
+						</Flex>
+					);
+				})}
 			<Button
 				onClick={addVariable}
 				colorScheme="gray"
@@ -267,4 +269,16 @@ function VariableEditor({
 			</Button>
 		</>
 	);
+}
+
+function sortSumToStart(a: [string, EquationVariable], b: [string, EquationVariable]) {
+	if (a[0] === sumSymbol) {
+		return -1;
+	}
+
+	if (b[0] === sumSymbol) {
+		return 1;
+	}
+
+	return 0;
 }

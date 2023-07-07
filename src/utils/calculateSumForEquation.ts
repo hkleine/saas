@@ -1,10 +1,11 @@
+import { preferences } from '@/preferences';
 import { EquationVariable } from '@/types/types';
 import 'nerdamer/Algebra.js';
 import 'nerdamer/Calculus.js';
 import nerdamer from 'nerdamer/nerdamer.core.js';
 import 'nerdamer/Solve.js';
 
-const SUM_SYMBOL = 'y';
+const { sumSymbol } = preferences.items;
 
 export function calculateSumForEquation({
 	variables,
@@ -18,12 +19,12 @@ export function calculateSumForEquation({
 	}
 
 	const knownVariables = Object.entries(variables).reduce((currentVariables, [key, values]) => {
-		if (key === SUM_SYMBOL) {
+		if (key === sumSymbol) {
 			return currentVariables;
 		}
 		return { ...currentVariables, [key]: `${values.value}` };
 	}, {});
 	const eq = nerdamer(equation).evaluate(knownVariables);
-	const result = eq.solveFor(SUM_SYMBOL);
+	const result = eq.solveFor(sumSymbol);
 	return eval(result.toString());
 }

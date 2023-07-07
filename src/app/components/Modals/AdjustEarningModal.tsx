@@ -20,8 +20,6 @@ import {
 import { useEffect, useState } from 'react';
 import { AdjustEarningForm } from '../Forms/AdjustEarningForm';
 
-export const SUM_SYMBOL = 'y';
-
 export type VariablesWithValue = Record<string, EquationVariable & { value: number | string }>;
 
 export function AdjustEarningModal({

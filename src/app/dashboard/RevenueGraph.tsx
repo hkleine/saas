@@ -2,7 +2,7 @@
 import { useApexChartOptions } from '@/hooks/useApexChartOptions';
 import { ConsultantWithEarnings } from '@/types/types';
 import { isSameMonthOfTheYear } from '@/utils/isSameMonthOfTheYear';
-import { Card, Heading, HStack, Select } from '@chakra-ui/react';
+import { Card, Flex, Heading, Select } from '@chakra-ui/react';
 import { useContext, useState } from 'react';
 import Chart from 'react-apexcharts';
 import { calculateDownlineEarnings } from '../components/Consultants/ConsultantCard/calculateDownlineEarnings';
@@ -36,8 +36,8 @@ export function RevenueGraph() {
 	});
 
 	return (
-		<Card p={8} boxShadow={'xl'} rounded={'lg'}>
-			<HStack justifyContent="space-between">
+		<Card direction="column" p={6} boxShadow={'xl'} rounded={'lg'}>
+			<Flex justifyContent="space-between">
 				<Heading size="md">Umsatz</Heading>
 				<Select
 					value={graphTimeFrame}
@@ -53,7 +53,7 @@ export function RevenueGraph() {
 						);
 					})}
 				</Select>
-			</HStack>
+			</Flex>
 			<Chart options={options} series={[revenueTimeSeries, downlineEarningsTimeSeries]} type="area" height={250} />
 		</Card>
 	);

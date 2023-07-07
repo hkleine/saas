@@ -14,6 +14,7 @@ import {
 	Heading,
 	HStack,
 	Icon,
+	SimpleGrid,
 	Stat,
 	StatHelpText,
 	StatLabel,
@@ -50,42 +51,36 @@ export function CurrentRevenue() {
 		previousMonthDownlineEarnings,
 	});
 
-	// if (consultant.earnings.length === 0 || !user || !currentMonthRevenue || !consultant) {
-	// 	return null;
-	// }
-
 	if (!user) {
 		return null;
 	}
 
 	return (
-		<Card direction={{ base: 'column', sm: 'row' }} alignItems="center" gap={4} p={8} boxShadow={'xl'} rounded={'lg'}>
-			<Flex direction="column" gap={6}>
-				<Heading size="lg">Moin, {user.name}</Heading>
-				<HStack gap={4}>
-					<ChangeStat
-						title="Umsatz"
-						icon={<FiBarChart2 />}
-						statValue={currentMonthRevenue}
-						percentDifference={revenuePercentDifference}
-					/>
-					<ChangeStat
-						title="Downline Umsatz"
-						icon={<FiFilter />}
-						statValue={currentMonthDownlineEarnings}
-						percentDifference={downlineEarningsPercentDifference}
-					/>
-					<ChangeStat
-						title="Gesamt Umsatz"
-						icon={<FiCoffee />}
-						statValue={currentMonthTotalRevenue}
-						percentDifference={totalRevenuePercentDifference}
-					/>
-				</HStack>
-				<Button rightIcon={<FiArrowRight />} onClick={onOpenAdjustEarning}>
-					Umsatz gemacht
-				</Button>
-			</Flex>
+		<Card direction="column" gap={4} p={8} boxShadow={'xl'} rounded={'lg'}>
+			<Heading size="lg">Moin, {user.name}</Heading>
+			<SimpleGrid columns={{ md: 1, lg: 3 }} spacing={4}>
+				<ChangeStat
+					title="Umsatz"
+					icon={<FiBarChart2 />}
+					statValue={currentMonthRevenue}
+					percentDifference={revenuePercentDifference}
+				/>
+				<ChangeStat
+					title="Downline Umsatz"
+					icon={<FiFilter />}
+					statValue={currentMonthDownlineEarnings}
+					percentDifference={downlineEarningsPercentDifference}
+				/>
+				<ChangeStat
+					title="Gesamt Umsatz"
+					icon={<FiCoffee />}
+					statValue={currentMonthTotalRevenue}
+					percentDifference={totalRevenuePercentDifference}
+				/>
+			</SimpleGrid>
+			<Button rightIcon={<FiArrowRight />} onClick={onOpenAdjustEarning}>
+				Umsatz gemacht
+			</Button>
 			<AdjustEarningModal consultant={consultant} onClose={onCloseAdjustEarning} isOpen={isAdjustEarningOpen} />
 		</Card>
 	);

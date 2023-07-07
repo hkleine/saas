@@ -78,10 +78,10 @@ export function ConsultantCard({
 					</Flex>
 				</HStack>
 			</Stack>
-			<HStack>
+			<Flex>
 				<ConsultantEarnings consultant={consultant} />
 				<DownlineEarnings consultant={consultant} otherConsultants={otherConsultants} />
-			</HStack>
+			</Flex>
 		</Card>
 	);
 }
