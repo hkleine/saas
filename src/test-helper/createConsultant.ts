@@ -23,6 +23,7 @@ export function createConsultant({
 		upline,
 		earnings: [
 			{
+				item_id: 'some-item-id',
 				date: new Date().toString(),
 				id: 'some-earning-id',
 				value: 100,
