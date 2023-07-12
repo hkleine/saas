@@ -1,11 +1,7 @@
 'use client';
-import { ConsultantWithEarnings, DatabaseEarnings } from '@/types/types';
-import { getCurrentAndPrviousMonth } from '@/utils/getCurrentAndPrviousMonth';
-import {
-	getCertainMonthEarningFromConsultant,
-	getCurrentEarningFromConsultant,
-} from '@/utils/getCurrentEarningFromConsultant';
-import { isSameMonthOfTheYear } from '@/utils/isSameMonthOfTheYear';
+import { ConsultantWithEarnings } from '@/types/types';
+import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
+import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
 import {
 	Badge,
 	Button,
@@ -31,8 +27,8 @@ import { RealTimeUserContext } from '../components/Provider/RealTimeUserProvider
 
 export function CurrentRevenue() {
 	const user = useContext(RealTimeUserContext);
-	const consultants = useContext(RealTimeCompanyConsultantsContext)!;
-	const consultant = consultants.find((con) => con.id === user?.id)!;
+	const consultants = useContext(RealTimeCompanyConsultantsContext) ?? [];
+	const consultant = consultants.find((con) => con.id === user?.id);
 	const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
 
 	const { currentMonthRevenue, revenuePercentDifference, previousMonthRevenue } = useConsultantRevenueNumbers({
@@ -51,7 +47,7 @@ export function CurrentRevenue() {
 		previousMonthDownlineEarnings,
 	});
 
-	if (!user) {
+	if (!user || !consultant) {
 		return null;
 	}
 
@@ -130,17 +126,6 @@ function ChangeStat({
 	);
 }
 
-function getPercentVsLastMonth(allEarnings: Array<Omit<DatabaseEarnings, 'consultant_id'>>) {
-	const { currentDate, previousDate } = getCurrentAndPrviousMonth();
-	// Muss auch im selben jahr sein
-	const currentMonthRevenue = allEarnings.find((earning) => isSameMonthOfTheYear(new Date(earning.date), currentDate));
-	const prevMonthEarning = allEarnings.find((earning) => isSameMonthOfTheYear(new Date(earning.date), previousDate));
-
-	if (!prevMonthEarning || !currentMonthRevenue || currentMonthRevenue.value === 0) return 0;
-
-	return getPercentDifference(currentMonthRevenue.value, prevMonthEarning.value);
-}
-
 function getPercentDifference(currentValue: number, previousValue: number): number {
 	if (currentValue === 0 && previousValue === 0) return 0;
 	return Math.round(((currentValue - previousValue) / currentValue) * 100);
@@ -150,10 +135,10 @@ function useDownlineRevenueNumbers({
 	consultant,
 	otherConsultants,
 }: {
-	consultant: ConsultantWithEarnings;
+	consultant?: ConsultantWithEarnings;
 	otherConsultants: Array<ConsultantWithEarnings>;
 }) {
-	const { previousDate } = getCurrentAndPrviousMonth();
+	const { previousDate } = getCurrentAndPreviousMonth();
 	const currentMonthDownlineEarnings = useMemo(
 		() => calculateDownlineEarnings({ otherConsultants, consultant }),
 		[otherConsultants, consultant],
@@ -175,13 +160,14 @@ function useDownlineRevenueNumbers({
 	return { currentMonthDownlineEarnings, previousMonthDownlineEarnings, downlineEarningsPercentDifference };
 }
 
-function useConsultantRevenueNumbers({ consultant }: { consultant: ConsultantWithEarnings }) {
-	const { previousDate } = getCurrentAndPrviousMonth();
+function useConsultantRevenueNumbers({ consultant }: { consultant?: ConsultantWithEarnings }) {
+	const { previousDate, currentDate } = getCurrentAndPreviousMonth();
 
-	const currentMonthRevenue = getCurrentEarningFromConsultant(consultant).value;
-	const previousMonthRevenue = (getCertainMonthEarningFromConsultant(consultant, previousDate) ?? { id: '1', value: 0 })
-		.value;
-	const revenuePercentDifference = getPercentVsLastMonth(consultant.earnings);
+	const currentMonthRevenue = getCertainMonthRevenue({ consultant, date: currentDate });
+
+	const previousMonthRevenue = getCertainMonthRevenue({ consultant, date: previousDate }) ?? { id: '1', value: 0 };
+
+	const revenuePercentDifference = getPercentDifference(currentMonthRevenue, previousMonthRevenue);
 
 	return { currentMonthRevenue, previousMonthRevenue, revenuePercentDifference };
 }

@@ -1,8 +1,10 @@
 import { ConsultantWithEarnings } from '@/types/types';
-import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
+import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
+import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
 
 export function calculateUplineLevy({ consultant }: { consultant: ConsultantWithEarnings }) {
-	const currentEarning = getCurrentEarningFromConsultant(consultant);
+	const { currentDate } = getCurrentAndPreviousMonth();
+	const currentEarning = getCertainMonthRevenue({ consultant, date: currentDate });
 
-	return (currentEarning.value / 100) * consultant.percent;
+	return (currentEarning / 100) * consultant.percent;
 }

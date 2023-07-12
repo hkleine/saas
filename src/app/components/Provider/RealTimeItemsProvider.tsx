@@ -16,6 +16,7 @@ export function RealTimeItemsProvider({ children, items }: { children?: ReactNod
 		const channel = subscribeToItems(companyId, async () => {
 			console.log('items changed');
 			const items = await getCompanyItems();
+			console.log(items);
 			setRealTimeItems(items);
 		});
 
