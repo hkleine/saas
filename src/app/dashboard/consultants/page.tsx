@@ -1,17 +1,22 @@
 import ConsultantsContainer from '@/app/components/Consultants/ConsultantsContainer';
 import { RealTimeCompanyConsultantsProvider } from '@/app/components/Provider/RealTimeCompanyConsultantsProvider';
-import { getConsultants, getRoles } from '@/utils/supabase-server';
+import { RealTimeItemsProvider } from '@/app/components/Provider/RealTimeItemsProvider';
+import { getCompanyItems, getConsultants, getRoles } from '@/utils/supabase-server';
 export const revalidate = 0;
 export default async function Berater() {
-  const roles = await getRoles();
-  const consultants = await getConsultants();
-  if (!roles) {
-    return null;
-  }
+	const roles = await getRoles();
+	const consultants = await getConsultants();
+	const items = await getCompanyItems();
 
-  return (
-    <RealTimeCompanyConsultantsProvider consultants={consultants}>
-      <ConsultantsContainer roles={roles} />
-    </RealTimeCompanyConsultantsProvider>
-  );
+	if (!roles) {
+		return null;
+	}
+
+	return (
+		<RealTimeCompanyConsultantsProvider consultants={consultants}>
+			<RealTimeItemsProvider items={items}>
+				<ConsultantsContainer roles={roles} />
+			</RealTimeItemsProvider>
+		</RealTimeCompanyConsultantsProvider>
+	);
 }
