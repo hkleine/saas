@@ -1,7 +1,7 @@
 'use client';
 import { Grid, GridItem } from '@chakra-ui/react';
 import { CurrentRevenue } from './CurrentRevenue';
-import { RevenueGraph } from './RevenueGraph';
+import { RevenueChart } from './RevenueChart';
 
 export function HomeContainer() {
 	return (
@@ -15,7 +15,7 @@ export function HomeContainer() {
 				<CurrentRevenue />
 			</GridItem>
 			<GridItem colSpan={2}>
-				<RevenueGraph />
+				<RevenueChart />
 			</GridItem>
 		</Grid>
 	);

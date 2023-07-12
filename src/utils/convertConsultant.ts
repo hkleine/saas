@@ -33,6 +33,6 @@ export function convertConsultants({
 			earnings: consultant.earnings.map((earning) => omit(earning, ['consultant_id'])),
 		};
 	});
-	console.log(converted);
+
 	return converted;
 }

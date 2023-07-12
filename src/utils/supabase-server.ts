@@ -106,10 +106,8 @@ export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | 
 		console.log(error.message);
 		return null;
 	}
-	console.log('moin', data[0].earnings);
-	// Man muss aufhören die earning raus zu filtern! dann kann man auf alle aus der vergangenheit zugreifen fpr die graphen
-	const consultant = convertConsultants({ consultantData: data, user });
 
+	const consultant = convertConsultants({ consultantData: data, user });
 	return consultant;
 }
 

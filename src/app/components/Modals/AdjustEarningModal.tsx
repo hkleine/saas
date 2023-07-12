@@ -1,7 +1,8 @@
-import { ConsultantWithEarnings, EquationVariable } from '@/types/types';
+import { ConsultantWithEarnings, EquationVariable, Item } from '@/types/types';
 import { createToastSettings } from '@/utils/createToastSettings';
-import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
-import { updateCurrentEarning } from '@/utils/supabase-client';
+import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
+import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
+import { createEarning } from '@/utils/supabase-client';
 import {
 	Alert,
 	AlertDescription,
@@ -17,7 +18,7 @@ import {
 	ModalOverlay,
 	useToast,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AdjustEarningForm } from '../Forms/AdjustEarningForm';
 
 export type VariablesWithValue = Record<string, EquationVariable & { value: number | string }>;
@@ -31,37 +32,40 @@ export function AdjustEarningModal({
 	onClose: () => void;
 	consultant: ConsultantWithEarnings;
 }) {
-	const currentEarning = getCurrentEarningFromConsultant(consultant);
-	const fixedInputEarning = currentEarning.value.toFixed(2);
-	const [isDirty, setIsDirty] = useState(false);
-	const [earningValue, setEarningValue] = useState(fixedInputEarning);
+	const { currentDate } = getCurrentAndPreviousMonth();
+	const currentEarning = getCertainMonthRevenue({ consultant, date: currentDate });
+
 	const [isUpdating, setIsUpdating] = useState(false);
+	const [addedItems, setAddedItems] = useState<Array<Item & { value: number }>>([]);
 	const [hasError, setHasError] = useState(false);
 	const toast = useToast();
-
-	useEffect(() => {
-		setIsDirty(fixedInputEarning !== earningValue);
-	}, [earningValue, fixedInputEarning]);
 
 	async function updateEarning() {
 		setIsUpdating(true);
 
 		try {
-			await updateCurrentEarning({ id: consultant.id, newValue: earningValue });
+			const promises = addedItems.map((item) => {
+				return createEarning({
+					value: Number(item.value),
+					item_id: item.id,
+					consultant_id: consultant.id,
+				});
+			});
+			await Promise.all(promises);
 		} catch (error) {
 			console.log(error);
 			setHasError(true);
 			setIsUpdating(false);
 			return;
 		}
-
+		setAddedItems([]);
 		setIsUpdating(false);
 		onClose();
 		toast(createToastSettings({ title: 'Umsatz erfolgreich bearbeitet', status: 'success' }));
 	}
 
 	return (
-		<Modal size="xl" isOpen={isOpen} onClose={onClose}>
+		<Modal size="3xl" isOpen={isOpen} onClose={onClose}>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>Umsatz bearbeiten</ModalHeader>
@@ -74,13 +78,13 @@ export function AdjustEarningModal({
 					</Alert>
 				)}
 				<ModalBody display="flex" flexDirection="column" gap={8}>
-					<AdjustEarningForm earningValue={earningValue} setEarningValue={setEarningValue} />
+					<AdjustEarningForm addedItems={addedItems} setAddedItems={setAddedItems} earningValue={currentEarning} />
 				</ModalBody>
 				<ModalFooter>
 					<Button
 						autoFocus
 						type="submit"
-						isDisabled={!isDirty}
+						isDisabled={addedItems.length === 0}
 						onClick={updateEarning}
 						isLoading={isUpdating}
 						w="full"

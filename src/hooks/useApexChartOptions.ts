@@ -48,6 +48,11 @@ export function useApexChartOptions({
 			x: {
 				show: false,
 			},
+			y: {
+				formatter: function (value) {
+					return value.toFixed(2);
+				},
+			},
 		},
 		grid: {
 			borderColor: '#EDF2F7',
