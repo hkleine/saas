@@ -166,10 +166,6 @@ alter table "public"."earnings" add constraint "earnings_consultant_id_fkey" FOR
 
 alter table "public"."earnings" validate constraint "earnings_consultant_id_fkey";
 
-alter table "public"."earnings" add constraint "earnings_item_id_fkey" FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE not valid;
-
-alter table "public"."earnings" validate constraint "earnings_item_id_fkey";
-
 alter table "public"."items" add constraint "items_company_id_fkey" FOREIGN KEY (company_id) REFERENCES users(id) ON DELETE CASCADE not valid;
 
 alter table "public"."items" validate constraint "items_company_id_fkey";
