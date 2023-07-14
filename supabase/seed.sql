@@ -23,6 +23,6 @@ INSERT INTO public.items (id,equation,variables,company_id,name) VALUES
 	('00000000-0000-0000-0000-000000000002'::uuid,'y=x',{"x":{"name":"Menge"},"y":{"name":"Summe"}},(select id from public.users where name = 'Kleine Investment'),'Nürnberger Würstchen')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.earnings (id,date,value,consultant_id,item) VALUES
-	('00000000-0000-0000-0000-000000000001'::uuid,'2023-07-03 09:24:32.630229',0,(select id from public.users where name = 'Kleine Investment'))
+INSERT INTO public.earnings (id,date,value,consultant_id, item_id) VALUES
+	('00000000-0000-0000-0000-000000000001'::uuid,'2023-07-03 09:24:32.630229',0,(select id from public.users where name = 'Kleine Investment'), (select id from public.items where name = 'Nürnberger Würstchen'))
 ON CONFLICT (id) DO NOTHING;
