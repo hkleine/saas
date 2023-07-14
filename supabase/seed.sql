@@ -20,7 +20,7 @@ INSERT INTO public.consultants (id,percent,upline,company_id) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.items (id,equation,variables,company_id,name) VALUES
-	('00000000-0000-0000-0000-000000000002'::uuid,'y=x',{"x":{"name":"Menge"},"y":{"name":"Summe"}},(select id from public.users where name = 'Kleine Investment'),'Nürnberger Würstchen')
+	('00000000-0000-0000-0000-000000000002'::uuid,'y=x',"{"x":{"name":"Menge"},"y":{"name":"Summe"}}",(select id from public.users where name = 'Kleine Investment'),'Nürnberger Würstchen')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.earnings (id,date,value,consultant_id, item_id) VALUES
