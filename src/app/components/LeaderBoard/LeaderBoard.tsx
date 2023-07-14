@@ -44,7 +44,7 @@ export function LeaderBoard() {
 			<Flex justifyContent="space-between" alignItems="center">
 				<Flex direction="row" gap={4} alignItems="baseline">
 					<Heading size="md">Top 5 Berater</Heading>
-					<Text fontSize="sm">Monat Juli</Text>
+					<Text fontSize="sm">Monat {month}</Text>
 				</Flex>
 				<Select
 					value={boardStatistic}
