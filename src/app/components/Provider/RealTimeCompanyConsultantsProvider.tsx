@@ -35,6 +35,7 @@ export function RealTimeCompanyConsultantsProvider({
 		const consultantIds = consultants.map((consultant) => consultant.id);
 
 		const earningsChannel = subscribeToCompanyEarnings(consultantIds, async (payload) => {
+			console.log('new earning');
 			const newConsultants = consultants.map((consultant) => {
 				if (consultant.id === payload.new.consultant_id) {
 					return {
@@ -45,6 +46,7 @@ export function RealTimeCompanyConsultantsProvider({
 
 				return consultant;
 			});
+			console.log(newConsultants);
 			setRealtimeConsultants(newConsultants);
 		});
 

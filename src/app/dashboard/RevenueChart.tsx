@@ -3,11 +3,12 @@ import { useApexChartOptions } from '@/hooks/useApexChartOptions';
 import { ConsultantWithEarnings } from '@/types/types';
 import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
 import { Card, Flex, Heading, Select } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { useContext, useState } from 'react';
-import Chart from 'react-apexcharts';
 import { calculateDownlineEarnings } from '../components/Consultants/ConsultantCard/calculateDownlineEarnings';
 import { RealTimeCompanyConsultantsContext } from '../components/Provider/RealTimeCompanyConsultantsProvider';
 import { RealTimeUserContext } from '../components/Provider/RealTimeUserProvider';
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const REVENUE_GRAPH_OPTIONS = {
 	lastSix: 6,
