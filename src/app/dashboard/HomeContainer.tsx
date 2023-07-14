@@ -1,12 +1,13 @@
 'use client';
 import { Grid, GridItem } from '@chakra-ui/react';
-import { CurrentRevenue } from './CurrentRevenue';
-import { RevenueChart } from './RevenueChart';
+import { LeaderBoard } from '../components/LeaderBoard/LeaderBoard';
+import { CurrentRevenue } from '../components/Revenue/CurrentRevenue';
+import { RevenueChart } from '../components/Revenue/RevenueChart';
 
 export function HomeContainer() {
 	return (
 		<Grid
-			autoRows="1fr"
+			// autoRows="1fr"
 			gridAutoFlow="dense"
 			templateColumns={{ lg: 'repeat(2, 1fr)', xl: 'repeat(4, 1fr)' }}
 			p={4}
@@ -16,6 +17,9 @@ export function HomeContainer() {
 			</GridItem>
 			<GridItem colSpan={2}>
 				<RevenueChart />
+			</GridItem>
+			<GridItem colSpan={2}>
+				<LeaderBoard />
 			</GridItem>
 		</Grid>
 	);

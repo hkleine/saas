@@ -50,7 +50,7 @@ export function useApexChartOptions({
 			},
 			y: {
 				formatter: function (value) {
-					return value.toFixed(2);
+					return value.toFixed(2) + '€';
 				},
 			},
 		},
