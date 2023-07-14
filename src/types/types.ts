@@ -82,10 +82,7 @@ export interface Subscription {
 
 export type DatabaseConsultant = Database['public']['Tables']['consultants']['Row'];
 export type DatabaseUser = Database['public']['Tables']['users']['Row'];
-export type DatabaseEarnings = Database['public']['Tables']['earnings']['Row'] & {
-	// to be deleted when live version is updated
-	item_id: string;
-};
+export type DatabaseEarnings = Database['public']['Tables']['earnings']['Row'];
 export type Role = Database['public']['Tables']['roles']['Row'];
 export type DatabaseItem = Database['public']['Tables']['items']['Row'];
 
