@@ -59,6 +59,6 @@
 		"jest-environment-jsdom": "^29.5.0",
 		"npm": "^9.6.3",
 		"prettier": "^2.8.4",
-		"supabase": "^1.75.3"
+		"supabase": "^1.77.9"
 	}
 }
