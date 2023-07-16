@@ -41,7 +41,7 @@ export interface UserDetails {
 }
 
 export type UserWithEmail = DatabaseUser & { email: string } & {
-	consultants: DatabaseConsultant;
+	consultant: DatabaseConsultant;
 	role: Role;
 };
 
@@ -68,6 +68,7 @@ export interface Subscription {
 	price_id?: string /* foreign key to prices.id */;
 	quantity?: number;
 	cancel_at_period_end?: boolean;
+
 	created: string;
 	current_period_start: string;
 	current_period_end: string;

@@ -1,25 +1,28 @@
 'use client';
 import { useApexChartOptions } from '@/hooks/useApexChartOptions';
 import { ConsultantWithEarnings } from '@/types/types';
-import { isSameMonthOfTheYear } from '@/utils/isSameMonthOfTheYear';
+import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
 import { Card, Flex, Heading, Select } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { useContext, useState } from 'react';
-import Chart from 'react-apexcharts';
-import { calculateDownlineEarnings } from '../components/Consultants/ConsultantCard/calculateDownlineEarnings';
-import { RealTimeCompanyConsultantsContext } from '../components/Provider/RealTimeCompanyConsultantsProvider';
-import { RealTimeUserContext } from '../components/Provider/RealTimeUserProvider';
+import { calculateDownlineEarnings } from '../Consultants/ConsultantCard/calculateDownlineEarnings';
+import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
+import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const REVENUE_GRAPH_OPTIONS = {
 	lastSix: 6,
 	lastTwelve: 12,
 };
 
-export function RevenueGraph() {
+export function RevenueChart() {
 	const user = useContext(RealTimeUserContext);
 	const consultants = useContext(RealTimeCompanyConsultantsContext)!;
 	const consultant = consultants.find((con) => con.id === user?.id)!;
 	const [graphTimeFrame, setGraphTimeFrame] = useState<keyof typeof REVENUE_GRAPH_OPTIONS>('lastSix');
-	const options = useApexChartOptions({ id: 'consultant-revenue-chart' });
+	const options = useApexChartOptions({
+		id: 'consultant-revenue-chart',
+	});
 
 	if (consultant.earnings.length === 0) {
 		return null;
@@ -27,7 +30,7 @@ export function RevenueGraph() {
 
 	const revenueTimeSeries = getConsultantEarningsTimeSeries({
 		graphTimeFrame,
-		earnings: consultant.earnings,
+		consultant,
 	});
 	const downlineEarningsTimeSeries = getDownlineEarningsTimeSeries({
 		consultant,
@@ -60,19 +63,19 @@ export function RevenueGraph() {
 }
 
 function getConsultantEarningsTimeSeries({
-	earnings,
 	graphTimeFrame,
+	consultant,
 }: {
-	earnings: ConsultantWithEarnings['earnings'];
 	graphTimeFrame: keyof typeof REVENUE_GRAPH_OPTIONS;
+	consultant: ConsultantWithEarnings;
 }) {
 	const timeframe = REVENUE_GRAPH_OPTIONS[graphTimeFrame];
 	const date = new Date();
 	const series = [];
 	for (let i = 0; i < timeframe; i++) {
 		series.push({
-			x: new Date(date).toLocaleString('default', { month: 'long', year: '2-digit' }),
-			y: earnings.find((earning) => isSameMonthOfTheYear(new Date(earning.date), date))?.value ?? 0,
+			x: date.toLocaleString('default', { month: 'long', year: '2-digit' }),
+			y: getCertainMonthRevenue({ consultant, date }),
 		});
 		date.setMonth(date.getMonth() - 1);
 	}

@@ -7,7 +7,7 @@ import {
 	ProductWithPrice,
 	Roles,
 	SubscriptionWithPriceAndProduct,
-	UserWithEmail,
+	UserWithEmail
 } from '../types/types';
 import { convertConsultants } from './convertConsultant';
 import { getCompanyId } from './getCompanyId';
@@ -124,17 +124,6 @@ export function subscribeToUser(userId: string, callback: (paylod: { [key: strin
 		.subscribe();
 }
 
-// export function subscribeToConsultantEarnings(userId: string, callback: (paylod: { [key: string]: any }) => void) {
-// 	return supabase
-// 		.channel('earning-changes')
-// 		.on(
-// 			'postgres_changes',
-// 			{ event: '*', schema: 'public', table: 'users', filter: `consultant_id=eq.${userId}` },
-// 			callback,
-// 		)
-// 		.subscribe();
-// }
-
 export function subscribeToItems(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
 	return supabase
 		.channel('item-changes')
@@ -166,7 +155,7 @@ export function subscribeToCompanyEarnings(
 		.on(
 			'postgres_changes',
 			{
-				event: 'UPDATE',
+				event: '*',
 				schema: 'public',
 				table: 'earnings',
 				filter: `consultant_id=in.(${consultantIds.toString()})`,
@@ -204,7 +193,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
 	}
 	const { data, error } = await supabase
 		.from('users')
-		.select('*, consultants!consultants_id_fkey(*), role(*)')
+		.select('*, consultant:consultants!consultants_id_fkey(*), role(*)')
 		.eq('id', authData.user.id)
 		.limit(1)
 		.single();
@@ -247,6 +236,12 @@ export async function updateCurrentEarning({ id, newValue }: { id: string; newVa
 		.update({ value: Number(newValue) })
 		.eq('consultant_id', id)
 		.gte('date', firstDayOfMonth);
+	if (error) throw error;
+	return null;
+}
+
+export async function createEarning(earning: Omit<DatabaseEarnings, 'date' | 'id'>) {
+	const { error } = await supabase.from('earnings').insert(earning);
 	if (error) throw error;
 	return null;
 }

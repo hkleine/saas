@@ -4,7 +4,7 @@ import {
 	Item,
 	Roles,
 	SubscriptionWithPriceAndProduct,
-	UserWithEmail,
+	UserWithEmail
 } from '@/types/types';
 import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { cookies, headers } from 'next/headers';
@@ -49,7 +49,7 @@ export async function getUser(): Promise<UserWithEmail | null> {
 
 	const { data, error } = await supabase
 		.from('users')
-		.select('*, consultants!consultants_id_fkey(*), role(*)')
+		.select('*, consultant:consultants!consultants_id_fkey(*), role(*)')
 		.eq('id', authData.user.id)
 		.limit(1)
 		.single();
@@ -106,10 +106,8 @@ export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | 
 		console.log(error.message);
 		return null;
 	}
-	console.log('moin', data[0].earnings);
-	// Man muss aufhören die earning raus zu filtern! dann kann man auf alle aus der vergangenheit zugreifen fpr die graphen
-	const consultant = convertConsultants({ consultantData: data, user });
 
+	const consultant = convertConsultants({ consultantData: data, user });
 	return consultant;
 }
 

@@ -1,5 +1,6 @@
 import { ConsultantWithEarnings, Roles } from '@/types/types';
-import { getCurrentEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
+import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
+import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
 import { deleteData } from '@/utils/helpers';
 import { useConsultantActionRights } from '@/utils/hooks';
 import {
@@ -96,7 +97,9 @@ function ConsultantRow({
 	}
 
 	const isConsultantCardFromCurrentUser = user.id === consultant.id;
-	const currentEarning = getCurrentEarningFromConsultant(consultant);
+	const { currentDate } = getCurrentAndPreviousMonth();
+
+	const currentEarning = getCertainMonthRevenue({ consultant, date: currentDate });
 	return (
 		<Tr
 			bg={isConsultantCardFromCurrentUser ? 'purple.50' : 'white'}
@@ -120,7 +123,7 @@ function ConsultantRow({
 					</Center>
 				</Td>
 			) : (
-				<Td isNumeric>{currentEarning.value.toFixed(2)}€</Td>
+				<Td isNumeric>{currentEarning.toFixed(2)}€</Td>
 			)}
 			<Td>
 				<Flex direction="row" justifyContent="center">

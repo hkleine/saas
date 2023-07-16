@@ -1,6 +1,6 @@
 import { ConsultantWithEarnings } from '@/types/types';
 import { getConsultantDownlines } from '@/utils/getConsultantDownlines';
-import { getCertainMonthEarningFromConsultant } from '@/utils/getCurrentEarningFromConsultant';
+import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
 
 export function calculateDownlineEarnings({
 	otherConsultants,
@@ -8,9 +8,10 @@ export function calculateDownlineEarnings({
 	forCertainMonth,
 }: {
 	otherConsultants: Array<ConsultantWithEarnings>;
-	consultant: ConsultantWithEarnings;
+	consultant?: ConsultantWithEarnings;
 	forCertainMonth?: Date;
 }) {
+	if (!consultant) return 0;
 	const firstDownlines = getConsultantDownlines({ consultant, otherConsultants });
 	const downlines = otherConsultants.reduce((previousDownlines, currentOtherConsultant) => {
 		const isDownline = !!previousDownlines.find((prevDown) => prevDown.id === currentOtherConsultant.upline);
@@ -23,15 +24,15 @@ export function calculateDownlineEarnings({
 	}, firstDownlines);
 
 	return downlines.reduce((previousNumber, currentDownline) => {
-		const month = forCertainMonth ? forCertainMonth : new Date();
-		const currentDownlineEarning = getCertainMonthEarningFromConsultant(currentDownline, month);
-		if (!currentDownlineEarning || currentDownlineEarning.value === 0) {
+		const date = forCertainMonth ? forCertainMonth : new Date();
+		const currentDownlineEarning = getCertainMonthRevenue({ consultant: currentDownline, date });
+		if (!currentDownlineEarning || currentDownlineEarning === 0) {
 			return previousNumber;
 		}
 
 		if (currentDownline.upline === consultant.id) {
 			const percentDifference = consultant.percent - currentDownline.percent;
-			return previousNumber + (currentDownlineEarning.value / 100) * percentDifference;
+			return previousNumber + (currentDownlineEarning / 100) * percentDifference;
 		}
 
 		let upline = downlines.find((downline) => downline.id === currentDownline.upline);
@@ -40,6 +41,6 @@ export function calculateDownlineEarnings({
 		}
 
 		const percentDifference = consultant.percent - upline!.percent;
-		return previousNumber + (currentDownlineEarning.value / 100) * percentDifference;
+		return previousNumber + (currentDownlineEarning / 100) * percentDifference;
 	}, 0);
 }

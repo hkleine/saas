@@ -35,25 +35,18 @@ export function RealTimeCompanyConsultantsProvider({
 		const consultantIds = consultants.map((consultant) => consultant.id);
 
 		const earningsChannel = subscribeToCompanyEarnings(consultantIds, async (payload) => {
-			console.log('payload', payload);
+			console.log('new earning');
 			const newConsultants = consultants.map((consultant) => {
 				if (consultant.id === payload.new.consultant_id) {
 					return {
 						...consultant,
-						earnings: consultant.earnings.map((earning) => {
-							if (earning.id === payload.new.id) {
-								return {
-									...earning,
-									value: payload.new.value,
-								};
-							}
-							return earning;
-						}),
+						earnings: [...consultant.earnings, payload.new],
 					};
 				}
 
 				return consultant;
 			});
+			console.log(newConsultants);
 			setRealtimeConsultants(newConsultants);
 		});
 
