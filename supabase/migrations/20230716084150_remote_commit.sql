@@ -10,34 +10,43 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-DROP TYPE IF EXISTS "public"."pricing_plan_interval";
-CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
-    'day',
-    'week',
-    'month',
-    'year'
-);
+DO $$ BEGIN
+    CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
+        'day',
+        'week',
+        'month',
+        'year'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 ALTER TYPE "public"."pricing_plan_interval" OWNER TO "postgres";
 
-DROP TYPE IF EXISTS "public"."pricing_type";
-CREATE TYPE "public"."pricing_type" AS ENUM (
-    'one_time',
-    'recurring'
-);
+DO $$ BEGIN
+    CREATE TYPE "public"."pricing_type" AS ENUM (
+        'one_time',
+        'recurring'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 ALTER TYPE "public"."pricing_type" OWNER TO "postgres";
 
-DROP TYPE IF EXISTS "public"."subscription_status";
-CREATE TYPE "public"."subscription_status" AS ENUM (
-    'trialing',
-    'active',
-    'canceled',
-    'incomplete',
-    'incomplete_expired',
-    'past_due',
-    'unpaid'
-);
+DO $$ BEGIN
+    CREATE TYPE "public"."subscription_status" AS ENUM (
+        'trialing',
+        'active',
+        'canceled',
+        'incomplete',
+        'incomplete_expired',
+        'past_due',
+        'unpaid'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 ALTER TYPE "public"."subscription_status" OWNER TO "postgres";
 
