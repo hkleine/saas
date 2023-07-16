@@ -10,6 +10,7 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+DROP TYPE IF EXISTS "public"."pricing_plan_interval";
 CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
     'day',
     'week',
@@ -19,6 +20,7 @@ CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
 
 ALTER TYPE "public"."pricing_plan_interval" OWNER TO "postgres";
 
+DROP TYPE IF EXISTS "public"."pricing_type";
 CREATE TYPE "public"."pricing_type" AS ENUM (
     'one_time',
     'recurring'
@@ -26,6 +28,7 @@ CREATE TYPE "public"."pricing_type" AS ENUM (
 
 ALTER TYPE "public"."pricing_type" OWNER TO "postgres";
 
+DROP TYPE IF EXISTS "public"."subscription_status";
 CREATE TYPE "public"."subscription_status" AS ENUM (
     'trialing',
     'active',

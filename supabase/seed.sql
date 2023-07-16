@@ -4,7 +4,8 @@ values
 (0, 'Company'),
 (1, 'Overhead'),
 (2, 'Ausbilder'),
-(3, 'Azubi');
+(3, 'Azubi')
+ON CONFLICT (id) DO NOTHING;
 
 
 INSERT INTO auth.users (instance_id,id,aud,"role",email,encrypted_password,email_confirmed_at,last_sign_in_at,raw_app_meta_data,raw_user_meta_data,is_super_admin,created_at,updated_at,phone,phone_confirmed_at,confirmation_token,email_change,email_change_token_new,recovery_token) VALUES
