@@ -20,10 +20,10 @@ import {
 } from '@chakra-ui/react';
 import { ReactNode, useContext, useMemo } from 'react';
 import { FiArrowDownRight, FiArrowRight, FiArrowUpRight, FiBarChart2, FiCoffee, FiFilter } from 'react-icons/fi';
-import { calculateDownlineEarnings } from '../components/Consultants/ConsultantCard/calculateDownlineEarnings';
-import { AdjustEarningModal } from '../components/Modals';
-import { RealTimeCompanyConsultantsContext } from '../components/Provider/RealTimeCompanyConsultantsProvider';
-import { RealTimeUserContext } from '../components/Provider/RealTimeUserProvider';
+import { calculateDownlineEarnings } from '../Consultants/ConsultantCard/calculateDownlineEarnings';
+import { AdjustEarningModal } from '../Modals';
+import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
+import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
 
 export function CurrentRevenue() {
 	const user = useContext(RealTimeUserContext);
@@ -31,7 +31,7 @@ export function CurrentRevenue() {
 	const consultant = consultants.find((con) => con.id === user?.id);
 	const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
 
-	const { currentMonthRevenue, revenuePercentDifference, previousMonthRevenue } = useConsultantRevenueNumbers({
+	const { currentMonthRevenue, revenuePercentDifference, previousMonthRevenue } = getConsultantRevenueNumbers({
 		consultant,
 	});
 	const { currentMonthDownlineEarnings, previousMonthDownlineEarnings, downlineEarningsPercentDifference } =
@@ -160,7 +160,7 @@ function useDownlineRevenueNumbers({
 	return { currentMonthDownlineEarnings, previousMonthDownlineEarnings, downlineEarningsPercentDifference };
 }
 
-function useConsultantRevenueNumbers({ consultant }: { consultant?: ConsultantWithEarnings }) {
+export function getConsultantRevenueNumbers({ consultant }: { consultant?: ConsultantWithEarnings }) {
 	const { previousDate, currentDate } = getCurrentAndPreviousMonth();
 
 	const currentMonthRevenue = getCertainMonthRevenue({ consultant, date: currentDate });
