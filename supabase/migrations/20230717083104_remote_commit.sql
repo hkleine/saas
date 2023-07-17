@@ -10,43 +10,45 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-DO $$ BEGIN
-    CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
-        'day',
-        'week',
-        'month',
-        'year'
-    );
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
+
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
+CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
+    'day',
+    'week',
+    'month',
+    'year'
+);
 
 ALTER TYPE "public"."pricing_plan_interval" OWNER TO "postgres";
 
-DO $$ BEGIN
-    CREATE TYPE "public"."pricing_type" AS ENUM (
-        'one_time',
-        'recurring'
-    );
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+CREATE TYPE "public"."pricing_type" AS ENUM (
+    'one_time',
+    'recurring'
+);
 
 ALTER TYPE "public"."pricing_type" OWNER TO "postgres";
 
-DO $$ BEGIN
-    CREATE TYPE "public"."subscription_status" AS ENUM (
-        'trialing',
-        'active',
-        'canceled',
-        'incomplete',
-        'incomplete_expired',
-        'past_due',
-        'unpaid'
-    );
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
+CREATE TYPE "public"."subscription_status" AS ENUM (
+    'trialing',
+    'active',
+    'canceled',
+    'incomplete',
+    'incomplete_expired',
+    'past_due',
+    'unpaid'
+);
 
 ALTER TYPE "public"."subscription_status" OWNER TO "postgres";
 
@@ -57,11 +59,11 @@ CREATE FUNCTION "public"."check_user_is_in_same_company"("user_id" "uuid") RETUR
 
 begin
   select role
-  from public.users
-  where users.id = user_id
+  from public.users 
+  where users.id = user_id  
   into user_role;
 
-  IF EXISTS(select * from public.users
+  IF EXISTS(select * from public.users 
   join public.consultants on users.id = consultants.id
   where users.id = user_id or consultants.company_id = user_id) then
     return true;
@@ -80,7 +82,6 @@ begin
 
   insert into public.consultants (id, percent, upline, company_id)
   values ((new.id)::uuid,(new.raw_user_meta_data->>'percent')::float, (new.raw_user_meta_data->>'upline')::uuid, (new.raw_user_meta_data->>'company_id')::uuid);
-  insert into public.earnings (consultant_id) values (new.id);
 
   return new;
 end;
@@ -112,7 +113,8 @@ CREATE TABLE "public"."earnings" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
     "date" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
     "value" double precision DEFAULT '0'::double precision NOT NULL,
-    "consultant_id" "uuid" NOT NULL
+    "consultant_id" "uuid" NOT NULL,
+    "item_id" "uuid"
 );
 
 ALTER TABLE "public"."earnings" OWNER TO "postgres";
@@ -249,6 +251,9 @@ ALTER TABLE ONLY "public"."customers"
 
 ALTER TABLE ONLY "public"."earnings"
     ADD CONSTRAINT "earnings_consultant_id_fkey" FOREIGN KEY ("consultant_id") REFERENCES "public"."consultants"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."earnings"
+    ADD CONSTRAINT "earnings_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "public"."items"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."items"
     ADD CONSTRAINT "items_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
