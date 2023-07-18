@@ -74,14 +74,16 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 					variables,
 				});
 			} else {
-				await createNewItem({
-					id: v4(),
-					company_id: companyId,
-					created_at: null,
-					equation: formData.equation,
-					name: formData.name,
-					variables,
-				});
+				if (companyId) {
+					await createNewItem({
+						id: v4(),
+						company_id: companyId,
+						created_at: null,
+						equation: formData.equation,
+						name: formData.name,
+						variables,
+					});
+				}
 			}
 		} catch (error) {
 			console.log(error);

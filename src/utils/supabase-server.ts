@@ -4,7 +4,7 @@ import {
 	Item,
 	Roles,
 	SubscriptionWithPriceAndProduct,
-	UserWithEmail
+	UserWithEmail,
 } from '@/types/types';
 import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { cookies, headers } from 'next/headers';

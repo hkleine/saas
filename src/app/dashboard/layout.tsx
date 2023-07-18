@@ -12,6 +12,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 	const user = await getUser();
 	const items = await getCompanyItems();
 
+	// console.log(authData, authUserError);
 	return (
 		<AuthWrapper>
 			<RealTimeUserProvider user={user}>

@@ -16,9 +16,10 @@ export function RealTimeCompanyConsultantsProvider({
 }) {
 	const [realtimeConsultants, setRealtimeConsultants] = useState<Array<ConsultantWithEarnings> | null>(consultants);
 	const user = useContext(RealTimeUserContext);
-	const companyId = getCompanyId(user!)!;
+	const companyId = getCompanyId(user)!;
 
 	useEffect(() => {
+		if (!user || !companyId) return;
 		const channel = subscribeToCompanyUsers(companyId, async () => {
 			console.log('consultants changed');
 			const consultants = await getConsultants();

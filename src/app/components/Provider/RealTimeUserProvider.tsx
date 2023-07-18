@@ -6,31 +6,33 @@ import { createContext, ReactNode, useEffect, useState } from 'react';
 export const RealTimeUserContext = createContext<UserWithEmail | null>(null);
 
 export function RealTimeUserProvider({ children, user }: { children?: ReactNode; user: UserWithEmail | null }) {
-  const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(user);
+	const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(user);
 
-  useEffect(() => {
-    const channel = subscribeToUser(user!.id, async payload => {
-      const { data: authData, error: authUserError } = await supabase.auth.getUser();
+	useEffect(() => {
+		if (!user) return;
 
-      if (authUserError) {
-        return null;
-      }
+		const channel = subscribeToUser(user.id, async (payload) => {
+			const { data: authData, error: authUserError } = await supabase.auth.getUser();
 
-      const roles = await getRoles();
+			if (authUserError) {
+				return null;
+			}
 
-      if (!roles) {
-        return null;
-      }
+			const roles = await getRoles();
 
-      const role = roles.find(role => role.id === payload.new.role)!;
+			if (!roles) {
+				return null;
+			}
 
-      setRealTimeUser({ ...payload.new, role: role, email: authData.user.email });
-    });
+			const role = roles.find((role) => role.id === payload.new.role)!;
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+			setRealTimeUser({ ...payload.new, role: role, email: authData.user.email });
+		});
 
-  return <RealTimeUserContext.Provider value={realTimeUser}>{children}</RealTimeUserContext.Provider>;
+		return () => {
+			supabase.removeChannel(channel);
+		};
+	}, [user]);
+
+	return <RealTimeUserContext.Provider value={realTimeUser}>{children}</RealTimeUserContext.Provider>;
 }
