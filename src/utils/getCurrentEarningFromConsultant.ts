@@ -24,3 +24,13 @@ export function getCertainMonthRevenue({
 		return previousNumber + currentEarning.value;
 	}, 0);
 }
+
+export function getNumberOfItemsForCertainMonth({
+	consultant,
+	date,
+}: {
+	consultant?: ConsultantWithEarnings;
+	date: Date;
+}): number {
+	return getCertainMonthEarningsFromConsultant({ consultant, date }).length;
+}

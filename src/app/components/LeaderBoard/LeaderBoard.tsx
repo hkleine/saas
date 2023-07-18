@@ -1,4 +1,4 @@
-import { ConsultantWithEarnings } from '@/types/types';
+import { ConsultantWithEarnings, StatisticType } from '@/types/types';
 import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
 import {
 	Badge,
@@ -20,19 +20,13 @@ import { BiCrown } from 'react-icons/bi';
 import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
 import { getConsultantRevenueNumbers } from '../Revenue/CurrentRevenue';
 
-enum BoardStatistic {
-	EINHEITEN = 'Einheiten',
-	UMSATZ = 'Umsatz',
-}
-
 const SORT_FUNCTION_MAPPING = {
-	[BoardStatistic.EINHEITEN]: sortByEinheiten,
-	[BoardStatistic.UMSATZ]: sortByUmsatz,
+	[StatisticType.EINHEITEN]: sortByEinheiten,
+	[StatisticType.UMSATZ]: sortByUmsatz,
 };
 
 export function LeaderBoard() {
-	const [boardStatistic, setBoardStatistic] = useState<BoardStatistic>(BoardStatistic.EINHEITEN);
-	// const user = useContext(RealTimeUserContext);
+	const [boardStatistic, setBoardStatistic] = useState<StatisticType>(StatisticType.EINHEITEN);
 	const top5Consultants = (useContext(RealTimeCompanyConsultantsContext) ?? [])
 		.sort(SORT_FUNCTION_MAPPING[boardStatistic])
 		.slice(0, 5);
@@ -48,11 +42,11 @@ export function LeaderBoard() {
 				</Flex>
 				<Select
 					value={boardStatistic}
-					onChange={(event) => setBoardStatistic(event.target.value as BoardStatistic)}
+					onChange={(event) => setBoardStatistic(event.target.value as StatisticType)}
 					borderRadius="lg"
 					maxW="180px"
 					size="sm">
-					{Object.entries(BoardStatistic).map(([key, value]) => {
+					{Object.entries(StatisticType).map(([key, value]) => {
 						return (
 							<option key={key} value={value}>
 								Nach {value}
@@ -106,13 +100,13 @@ function ConsultantStatisticNumber({
 	boardStatistic,
 	consultant,
 }: {
-	boardStatistic: BoardStatistic;
+	boardStatistic: StatisticType;
 	consultant: ConsultantWithEarnings;
 }) {
 	const { currentMonthRevenue } = getConsultantRevenueNumbers({ consultant });
 	return (
 		<>
-			{boardStatistic === BoardStatistic.EINHEITEN ? consultant.earnings.length : currentMonthRevenue.toFixed(2) + '€'}
+			{boardStatistic === StatisticType.EINHEITEN ? consultant.earnings.length : currentMonthRevenue.toFixed(2) + '€'}
 		</>
 	);
 }

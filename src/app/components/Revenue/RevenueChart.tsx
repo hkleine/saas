@@ -1,8 +1,8 @@
 'use client';
 import { useApexChartOptions } from '@/hooks/useApexChartOptions';
-import { ConsultantWithEarnings } from '@/types/types';
-import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
-import { Card, Flex, Heading, Select } from '@chakra-ui/react';
+import { ConsultantWithEarnings, StatisticType } from '@/types/types';
+import { getCertainMonthRevenue, getNumberOfItemsForCertainMonth } from '@/utils/getCurrentEarningFromConsultant';
+import { Card, Flex, Heading, HStack, Select } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import { useContext, useState } from 'react';
 import { calculateDownlineEarnings } from '../Consultants/ConsultantCard/calculateDownlineEarnings';
@@ -16,48 +16,78 @@ const REVENUE_GRAPH_OPTIONS = {
 };
 
 export function RevenueChart() {
+	const [statisticType, setStatisticType] = useState<StatisticType>(StatisticType.UMSATZ);
 	const user = useContext(RealTimeUserContext);
 	const consultants = useContext(RealTimeCompanyConsultantsContext)!;
 	const consultant = consultants.find((con) => con.id === user?.id)!;
 	const [graphTimeFrame, setGraphTimeFrame] = useState<keyof typeof REVENUE_GRAPH_OPTIONS>('lastSix');
 	const options = useApexChartOptions({
 		id: 'consultant-revenue-chart',
+		unit: statisticType === StatisticType.UMSATZ ? '€' : undefined,
 	});
 
-	if (consultant.earnings.length === 0) {
-		return null;
-	}
+	const numberOfItemsTimeSeries = getConsultantItemsTimeSeries({
+		graphTimeFrame,
+		consultant,
+	});
 
 	const revenueTimeSeries = getConsultantEarningsTimeSeries({
 		graphTimeFrame,
 		consultant,
 	});
+
 	const downlineEarningsTimeSeries = getDownlineEarningsTimeSeries({
 		consultant,
 		otherConsultants: consultants,
 		graphTimeFrame,
 	});
 
+	const series =
+		statisticType === StatisticType.UMSATZ
+			? [revenueTimeSeries, downlineEarningsTimeSeries]
+			: [numberOfItemsTimeSeries];
+
 	return (
 		<Card direction="column" p={6} boxShadow={'xl'} rounded={'lg'}>
 			<Flex justifyContent="space-between">
 				<Heading size="md">Umsatz</Heading>
-				<Select
-					value={graphTimeFrame}
-					onChange={(event) => setGraphTimeFrame(event.target.value as keyof typeof REVENUE_GRAPH_OPTIONS)}
-					borderRadius="lg"
-					maxW="180px"
-					size="sm">
-					{Object.entries(REVENUE_GRAPH_OPTIONS).map(([key, value]) => {
-						return (
-							<option key={key} value={key}>
-								Letzten {value} Monate
-							</option>
-						);
-					})}
-				</Select>
+				<HStack>
+					<Select
+						value={statisticType}
+						onChange={(event) => setStatisticType(event.target.value as StatisticType)}
+						borderRadius="lg"
+						maxW="180px"
+						size="sm">
+						{Object.entries(StatisticType).map(([key, value]) => {
+							return (
+								<option key={key} value={value}>
+									Nach {value}
+								</option>
+							);
+						})}
+					</Select>
+					<Select
+						value={graphTimeFrame}
+						onChange={(event) => setGraphTimeFrame(event.target.value as keyof typeof REVENUE_GRAPH_OPTIONS)}
+						borderRadius="lg"
+						maxW="180px"
+						size="sm">
+						{Object.entries(REVENUE_GRAPH_OPTIONS).map(([key, value]) => {
+							return (
+								<option key={key} value={key}>
+									Letzten {value} Monate
+								</option>
+							);
+						})}
+					</Select>
+				</HStack>
 			</Flex>
-			<Chart options={options} series={[revenueTimeSeries, downlineEarningsTimeSeries]} type="area" height={250} />
+			<Chart
+				options={options}
+				series={series}
+				type={statisticType === StatisticType.UMSATZ ? 'area' : 'bar'}
+				height={250}
+			/>
 		</Card>
 	);
 }
@@ -82,6 +112,30 @@ function getConsultantEarningsTimeSeries({
 
 	return {
 		name: 'Dein Umsatz',
+		data: isZeroSeries(series) ? [] : series.reverse(),
+	};
+}
+
+function getConsultantItemsTimeSeries({
+	graphTimeFrame,
+	consultant,
+}: {
+	graphTimeFrame: keyof typeof REVENUE_GRAPH_OPTIONS;
+	consultant: ConsultantWithEarnings;
+}) {
+	const timeframe = REVENUE_GRAPH_OPTIONS[graphTimeFrame];
+	const date = new Date();
+	const series = [];
+	for (let i = 0; i < timeframe; i++) {
+		series.push({
+			x: date.toLocaleString('default', { month: 'long', year: '2-digit' }),
+			y: getNumberOfItemsForCertainMonth({ consultant, date }),
+		});
+		date.setMonth(date.getMonth() - 1);
+	}
+
+	return {
+		name: 'Einheiten verkauft',
 		data: isZeroSeries(series) ? [] : series.reverse(),
 	};
 }
