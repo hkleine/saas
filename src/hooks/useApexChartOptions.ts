@@ -4,8 +4,10 @@ import { ApexOptions } from 'apexcharts';
 export function useApexChartOptions({
 	id,
 	labelsFormatter,
+	unit,
 }: {
 	id?: string;
+	unit?: string;
 	labelsFormatter?: () => string;
 }): ApexOptions {
 	const colors = useToken('colors', ['pink.400', 'purple.500', 'blue.400', 'green.400', 'red.400', 'cyan.500']);
@@ -35,7 +37,14 @@ export function useApexChartOptions({
 				formatter:
 					labelsFormatter ??
 					function (value) {
-						return value + '€';
+						if (!value) {
+							return '0';
+						}
+
+						if (unit) {
+							return `${value.toFixed(2)}${unit}`;
+						}
+						return `${value.toFixed(2)}`;
 					},
 			},
 		},
@@ -50,7 +59,14 @@ export function useApexChartOptions({
 			},
 			y: {
 				formatter: function (value) {
-					return value.toFixed(2) + '€';
+					if (!value) {
+						return '0';
+					}
+
+					if (unit) {
+						return `${value.toFixed(2)}${unit}`;
+					}
+					return `${value.toFixed(2)}`;
 				},
 			},
 		},

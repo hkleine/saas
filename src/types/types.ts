@@ -108,3 +108,8 @@ export type EquationVariable = {
 };
 
 export type Item = Omit<DatabaseItem, 'variables'> & { variables: Record<string, EquationVariable> };
+
+export enum StatisticType {
+	EINHEITEN = 'Einheiten',
+	UMSATZ = 'Umsatz',
+}
