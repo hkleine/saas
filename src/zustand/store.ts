@@ -23,7 +23,7 @@ export const createGlobalStateStore = (initProps?: Partial<GlobalStateProps>) =>
 		consultants: [],
 		items: [],
 	};
-	return createStore<GlobalState>()((set, get) => ({
+	return createStore<GlobalState>()((set) => ({
 		...DEFAULT_PROPS,
 		...initProps,
 		setConsultants: (consultants) => set(() => ({ consultants })),

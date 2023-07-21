@@ -31,7 +31,7 @@ export default function Profile() {
 
 	const onSubmit = handleSubmit(async (formData) => {
 		setIsSubmitting(true);
-		const { error, status } = await updateUserName(user.id, formData.name);
+		const { error } = await updateUserName(user.id, formData.name);
 		if (error) {
 			toast(
 				createToastSettings({

@@ -1,17 +1,10 @@
 'use client';
-import { ConsultantWithEarnings } from '@/types/types';
 import { getCompanyId } from '@/utils/getCompanyId';
 import { getConsultants, subscribeToCompanyEarnings, subscribeToCompanyUsers, supabase } from '@/utils/supabase-client';
 import { ReactNode, useEffect } from 'react';
 import { useGlobalStateContext } from './GlobalStoreProvider';
 
-export function RealTimeCompanyConsultantsProvider({
-	children,
-	consultants,
-}: {
-	children?: ReactNode;
-	consultants: Array<ConsultantWithEarnings>;
-}) {
+export function RealTimeCompanyConsultantsProvider({ children }: { children?: ReactNode }) {
 	const setConsultants = useGlobalStateContext((s) => s.setConsultants);
 	const user = useGlobalStateContext((s) => s.user);
 	const stateConsultants = useGlobalStateContext((s) => s.consultants);
@@ -22,7 +15,6 @@ export function RealTimeCompanyConsultantsProvider({
 		if (!companyId) return;
 
 		const channel = subscribeToCompanyUsers(companyId, async () => {
-			console.log('consultants changed');
 			const consultants = await getConsultants();
 			setConsultants(consultants);
 		});

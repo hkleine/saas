@@ -20,8 +20,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 		<AuthWrapper>
 			<GlobalStoreProvider subscription={subscription} consultants={consultants} user={user} items={items}>
 				<RealTimeUserProvider user={user}>
-					<RealTimeCompanyConsultantsProvider consultants={consultants}>
-						<RealTimeItemsProvider items={items}>
+					<RealTimeCompanyConsultantsProvider>
+						<RealTimeItemsProvider>
 							<AppShell>{children}</AppShell>
 						</RealTimeItemsProvider>
 					</RealTimeCompanyConsultantsProvider>

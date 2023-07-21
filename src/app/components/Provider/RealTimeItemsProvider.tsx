@@ -1,11 +1,10 @@
 'use client';
-import { Item } from '@/types/types';
 import { getCompanyId } from '@/utils/getCompanyId';
 import { getCompanyItems, subscribeToItems, supabase } from '@/utils/supabase-client';
 import { ReactNode, useEffect } from 'react';
 import { useGlobalStateContext } from './GlobalStoreProvider';
 
-export function RealTimeItemsProvider({ children, items }: { children?: ReactNode; items: Array<Item> | null }) {
+export function RealTimeItemsProvider({ children }: { children?: ReactNode }) {
 	const setItems = useGlobalStateContext((s) => s.setItems);
 	const user = useGlobalStateContext((s) => s.user);
 	const companyId = getCompanyId(user);
