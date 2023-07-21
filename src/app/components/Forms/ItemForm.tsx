@@ -24,12 +24,12 @@ import {
 	Text,
 	useToast,
 } from '@chakra-ui/react';
-import { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
 import { useForm, UseFormGetValues, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { v4 } from 'uuid';
 import FormError from '../Forms/FormError';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 import styles from './itemForm.module.css';
 
 const { defaultEquation, initialVariables, sumSymbol } = preferences.items;
@@ -55,7 +55,7 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 	});
 
 	const toast = useToast();
-	const user = useContext(RealTimeUserContext);
+	const user = useGlobalStateContext((s) => s.user);
 
 	if (!user) {
 		return null;

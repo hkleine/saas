@@ -18,16 +18,15 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { ReactNode, useContext, useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { FiArrowDownRight, FiArrowRight, FiArrowUpRight, FiBarChart2, FiCoffee, FiFilter } from 'react-icons/fi';
 import { calculateDownlineEarnings } from '../Consultants/ConsultantCard/calculateDownlineEarnings';
 import { AdjustEarningModal } from '../Modals';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 
 export function CurrentRevenue() {
-	const user = useContext(RealTimeUserContext);
-	const consultants = useContext(RealTimeCompanyConsultantsContext) ?? [];
+	const user = useGlobalStateContext((s) => s.user);
+	const consultants = useGlobalStateContext((s) => s.consultants);
 	const consultant = consultants.find((con) => con.id === user?.id);
 	const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
 

@@ -5,7 +5,7 @@ import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { useContext, useEffect } from 'react';
 import ReactFlow, { Background, Controls, Edge, Node, ProOptions, useEdgesState, useNodesState } from 'reactflow';
 import { ConsultantMenuContext } from '../Provider/ConsultantMenuProvider';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 import { ConsultantCard } from './ConsultantCard/ConsultantCard';
 import PlaceholderEdge from './PlaceholderEdge';
 import { useConsultantCallbacks } from './useConsultantCallbacks';
@@ -17,7 +17,7 @@ const edgeTypes = {
 const proOptions: ProOptions = { account: 'paid-pro', hideAttribution: true };
 
 export default function Consultants({ roles }: { roles: Roles }) {
-	const consultants = useContext(RealTimeCompanyConsultantsContext);
+	const consultants = useGlobalStateContext((s) => s.consultants);
 	useLayout();
 	const callbacks = useConsultantCallbacks({ consultants });
 	const { closeMenuCallback } = useContext(ConsultantMenuContext);

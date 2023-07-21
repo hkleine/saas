@@ -2,28 +2,29 @@
 import { ConsultantWithEarnings } from '@/types/types';
 import { getCompanyId } from '@/utils/getCompanyId';
 import { getConsultants, subscribeToCompanyEarnings, subscribeToCompanyUsers, supabase } from '@/utils/supabase-client';
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { RealTimeUserContext } from './RealTimeUserProvider';
-
-export const RealTimeCompanyConsultantsContext = createContext<Array<ConsultantWithEarnings> | null>(null);
+import { ReactNode, useEffect } from 'react';
+import { useGlobalStateContext } from './GlobalStoreProvider';
 
 export function RealTimeCompanyConsultantsProvider({
 	children,
 	consultants,
 }: {
 	children?: ReactNode;
-	consultants: Array<ConsultantWithEarnings> | null;
+	consultants: Array<ConsultantWithEarnings>;
 }) {
-	const [realtimeConsultants, setRealtimeConsultants] = useState<Array<ConsultantWithEarnings> | null>(consultants);
-	const user = useContext(RealTimeUserContext);
-	const companyId = getCompanyId(user)!;
+	const setConsultants = useGlobalStateContext((s) => s.setConsultants);
+	const user = useGlobalStateContext((s) => s.user);
+	const stateConsultants = useGlobalStateContext((s) => s.consultants);
+
+	const companyId = getCompanyId(user);
 
 	useEffect(() => {
-		if (!user || !companyId) return;
+		if (!companyId) return;
+
 		const channel = subscribeToCompanyUsers(companyId, async () => {
 			console.log('consultants changed');
 			const consultants = await getConsultants();
-			setRealtimeConsultants(consultants);
+			setConsultants(consultants);
 		});
 
 		return () => {
@@ -32,7 +33,7 @@ export function RealTimeCompanyConsultantsProvider({
 	}, [companyId]);
 
 	useEffect(() => {
-		const consultants = realtimeConsultants ?? [];
+		const consultants = stateConsultants;
 		const consultantIds = consultants.map((consultant) => consultant.id);
 
 		const earningsChannel = subscribeToCompanyEarnings(consultantIds, async (payload) => {
@@ -47,18 +48,14 @@ export function RealTimeCompanyConsultantsProvider({
 
 				return consultant;
 			});
-			console.log(newConsultants);
-			setRealtimeConsultants(newConsultants);
+
+			setConsultants(newConsultants);
 		});
 
 		return () => {
 			supabase.removeChannel(earningsChannel);
 		};
-	}, [realtimeConsultants]);
+	}, [stateConsultants]);
 
-	return (
-		<RealTimeCompanyConsultantsContext.Provider value={realtimeConsultants}>
-			{children}
-		</RealTimeCompanyConsultantsContext.Provider>
-	);
+	return <div>{children}</div>;
 }

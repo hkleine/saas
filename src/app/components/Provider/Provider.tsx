@@ -34,6 +34,14 @@ const theme = extendTheme(
 				},
 			},
 		},
+		styles: {
+			global: () => ({
+				body: {
+					color: 'default',
+					bg: 'gray.100',
+				},
+			}),
+		},
 	},
 	withDefaultColorScheme({
 		colorScheme: 'primary',

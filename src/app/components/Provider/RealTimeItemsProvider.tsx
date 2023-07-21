@@ -2,22 +2,20 @@
 import { Item } from '@/types/types';
 import { getCompanyId } from '@/utils/getCompanyId';
 import { getCompanyItems, subscribeToItems, supabase } from '@/utils/supabase-client';
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { RealTimeUserContext } from './RealTimeUserProvider';
-
-export const RealTimeItemsContext = createContext<Array<Item> | null>(null);
+import { ReactNode, useEffect } from 'react';
+import { useGlobalStateContext } from './GlobalStoreProvider';
 
 export function RealTimeItemsProvider({ children, items }: { children?: ReactNode; items: Array<Item> | null }) {
-	const [realTimeItems, setRealTimeItems] = useState<Array<Item> | null>(items);
-	const user = useContext(RealTimeUserContext);
-	const companyId = getCompanyId(user!)!;
+	const setItems = useGlobalStateContext((s) => s.setItems);
+	const user = useGlobalStateContext((s) => s.user);
+	const companyId = getCompanyId(user);
 
 	useEffect(() => {
+		if (!companyId) return;
 		const channel = subscribeToItems(companyId, async () => {
 			console.log('items changed');
 			const items = await getCompanyItems();
-			console.log(items);
-			setRealTimeItems(items);
+			setItems(items);
 		});
 
 		return () => {
@@ -25,5 +23,5 @@ export function RealTimeItemsProvider({ children, items }: { children?: ReactNod
 		};
 	}, [companyId]);
 
-	return <RealTimeItemsContext.Provider value={realTimeItems}>{children}</RealTimeItemsContext.Provider>;
+	return <div>{children}</div>;
 }

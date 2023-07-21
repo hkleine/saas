@@ -18,9 +18,8 @@ import {
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useContext } from 'react';
 import { FiBell, FiChevronDown, FiMenu } from 'react-icons/fi';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 import { Avatar } from './Avatar';
 
 interface MobileProps extends FlexProps {
@@ -28,7 +27,7 @@ interface MobileProps extends FlexProps {
 }
 
 export function MobileNav({ onOpen, ...rest }: MobileProps) {
-	const user = useContext(RealTimeUserContext);
+	const user = useGlobalStateContext((s) => s.user);
 	const router = useRouter();
 	const supabase = createBrowserSupabaseClient<Database>();
 

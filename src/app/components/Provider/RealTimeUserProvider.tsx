@@ -1,16 +1,13 @@
 'use client';
 import { UserWithEmail } from '@/types/types';
 import { getRoles, subscribeToUser, supabase } from '@/utils/supabase-client';
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useGlobalStateContext } from './GlobalStoreProvider';
 
-export const RealTimeUserContext = createContext<UserWithEmail | null>(null);
-
-export function RealTimeUserProvider({ children, user }: { children?: ReactNode; user: UserWithEmail | null }) {
-	const [realTimeUser, setRealTimeUser] = useState<UserWithEmail | null>(user);
+export function RealTimeUserProvider({ children, user }: { children?: ReactNode; user: UserWithEmail }) {
+	const setUser = useGlobalStateContext((s) => s.setUser);
 
 	useEffect(() => {
-		if (!user) return;
-
 		const channel = subscribeToUser(user.id, async (payload) => {
 			const { data: authData, error: authUserError } = await supabase.auth.getUser();
 
@@ -26,7 +23,7 @@ export function RealTimeUserProvider({ children, user }: { children?: ReactNode;
 
 			const role = roles.find((role) => role.id === payload.new.role)!;
 
-			setRealTimeUser({ ...payload.new, role: role, email: authData.user.email });
+			setUser({ ...payload.new, role: role, email: authData.user.email });
 		});
 
 		return () => {
@@ -34,5 +31,5 @@ export function RealTimeUserProvider({ children, user }: { children?: ReactNode;
 		};
 	}, [user]);
 
-	return <RealTimeUserContext.Provider value={realTimeUser}>{children}</RealTimeUserContext.Provider>;
+	return <div>{children}</div>;
 }
