@@ -4,12 +4,6 @@ import { NextRequest } from 'next/server';
 import { getURL } from '../../../utils/helpers';
 import { createOrRetrieveCustomer } from '../../../utils/supabase-admin';
 
-// export const config = {
-//   api: {
-//     bodyParser: true,
-//   },
-// };
-
 export async function POST(req: NextRequest) {
 	const supabase = createClient();
 

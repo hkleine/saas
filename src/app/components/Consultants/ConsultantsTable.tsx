@@ -1,3 +1,4 @@
+'use client';
 import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
 import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
@@ -18,18 +19,12 @@ import {
 	Tr,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useContext } from 'react';
 import { FiDollarSign, FiEdit2, FiEyeOff, FiPercent, FiTrash } from 'react-icons/fi';
 import { AdjustEarningModal, DeletionModal, UpdateConsultantModal } from '../Modals';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 
 export default function ConsultantsTable({ roles }: { roles: Roles }) {
-	const consultants = useContext(RealTimeCompanyConsultantsContext);
-
-	if (!consultants) {
-		return null;
-	}
+	const consultants = useGlobalStateContext((s) => s.consultants);
 
 	const sortedConsultants = consultants.sort((a, b) => {
 		if (a.role.id < b.role.id) return -1;
@@ -76,8 +71,7 @@ function ConsultantRow({
 	otherConsultants: Array<ConsultantWithEarnings>;
 	roles: Roles;
 }) {
-	const user = useContext(RealTimeUserContext);
-
+	const user = useGlobalStateContext((s) => s.user);
 	const { onOpen: onDeletionOpen, isOpen: isDeletionOpen, onClose: onDeleteionClose } = useDisclosure();
 	const { onOpen: onOpenAdjustEarning, isOpen: isAdjustEarningOpen, onClose: onCloseAdjustEarning } = useDisclosure();
 	const {

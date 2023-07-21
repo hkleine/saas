@@ -2,15 +2,13 @@
 import { Item, UserWithEmail } from '@/types/types';
 import { deleteItem } from '@/utils/supabase-client';
 import { Card, Flex, IconButton, Table, Tag, Tbody, Td, Th, Thead, Tr, useDisclosure } from '@chakra-ui/react';
-import { useContext } from 'react';
 import { FiEdit2, FiTrash } from 'react-icons/fi';
 import { AddItemModal, DeletionModal } from '../Modals';
-import { RealTimeItemsContext } from '../Provider/RealTimeItemsProvider';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 
 export function ItemsTable() {
-	const items = useContext(RealTimeItemsContext);
-	const user = useContext(RealTimeUserContext);
+	const items = useGlobalStateContext((s) => s.items);
+	const user = useGlobalStateContext((s) => s.user);
 
 	if (!user) {
 		return null;

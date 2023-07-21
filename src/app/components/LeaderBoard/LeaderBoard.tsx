@@ -15,9 +15,9 @@ import {
 	Thead,
 	Tr,
 } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { BiCrown } from 'react-icons/bi';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 import { getConsultantRevenueNumbers } from '../Revenue/CurrentRevenue';
 
 const SORT_FUNCTION_MAPPING = {
@@ -27,9 +27,8 @@ const SORT_FUNCTION_MAPPING = {
 
 export function LeaderBoard() {
 	const [boardStatistic, setBoardStatistic] = useState<StatisticType>(StatisticType.EINHEITEN);
-	const top5Consultants = (useContext(RealTimeCompanyConsultantsContext) ?? [])
-		.sort(SORT_FUNCTION_MAPPING[boardStatistic])
-		.slice(0, 5);
+	const consultants = useGlobalStateContext((s) => s.consultants);
+	const top5Consultants = consultants.sort(SORT_FUNCTION_MAPPING[boardStatistic]).slice(0, 5);
 
 	const { currentDate } = getCurrentAndPreviousMonth();
 	const month = currentDate.toLocaleString('de', { month: 'long' });

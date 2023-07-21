@@ -25,9 +25,9 @@ import {
 	Select,
 	useToast,
 } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 
 export function UpdateConsultantModal({
 	isOpen,
@@ -45,13 +45,11 @@ export function UpdateConsultantModal({
 		handleSubmit,
 		formState: { isDirty },
 	} = useForm({ mode: 'onBlur' });
-
+	const user = useGlobalStateContext((s) => s.user);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [hasUpdatingError, setHasUpdatingError] = useState(false);
 	const toast = useToast();
 	const { id } = consultant;
-
-	const user = useContext(RealTimeUserContext);
 
 	if (!user) {
 		return null;

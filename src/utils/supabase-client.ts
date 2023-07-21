@@ -7,7 +7,7 @@ import {
 	ProductWithPrice,
 	Roles,
 	SubscriptionWithPriceAndProduct,
-	UserWithEmail
+	UserWithEmail,
 } from '../types/types';
 import { convertConsultants } from './convertConsultant';
 import { getCompanyId } from './getCompanyId';
@@ -205,11 +205,11 @@ export async function getUser(): Promise<UserWithEmail | null> {
 	return { ...data, email: authData.user.email } as any;
 }
 
-export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | null> {
+export async function getConsultants(): Promise<Array<ConsultantWithEarnings>> {
 	const user = await getUser();
 
 	if (!user) {
-		return null;
+		return [];
 	}
 	const companyId = getCompanyId(user);
 
@@ -220,7 +220,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | 
 
 	if (error) {
 		console.log(error.message);
-		return null;
+		return [];
 	}
 
 	const consultant = convertConsultants({ consultantData: data, user });
@@ -277,10 +277,10 @@ export async function updateItem({ equation, name, variables, id }: Partial<Item
 		.eq('id', id);
 }
 
-export async function getCompanyItems(): Promise<Array<Item> | null> {
+export async function getCompanyItems(): Promise<Array<Item>> {
 	const user = await getUser();
 	if (!user) {
-		return null;
+		return [];
 	}
 
 	const companyId = getCompanyId(user);
@@ -289,7 +289,7 @@ export async function getCompanyItems(): Promise<Array<Item> | null> {
 
 	if (error) {
 		console.log(error.message);
-		return null;
+		return [];
 	}
 
 	return data as Array<Item>;
