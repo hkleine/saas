@@ -28,10 +28,10 @@ import {
 	Tr,
 	VStack,
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { FiPlus, FiTrash } from 'react-icons/fi';
 import { VariablesWithValue } from '../Modals';
-import { RealTimeItemsContext } from '../Provider/RealTimeItemsProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 
 const { sumSymbol } = preferences.items;
 
@@ -143,17 +143,13 @@ function ItemSelection({
 	setVariables: Dispatch<SetStateAction<VariablesWithValue>>;
 	onAddProduct: (event: Item) => void;
 }) {
-	const items = useContext(RealTimeItemsContext);
+	const items = useGlobalStateContext((s) => s.items);
 	const [selectedItem, setSelectedItem] = useState<Item | undefined>();
 	useEffect(() => {
 		if (selectedItem) {
 			setVariables(createVariables(selectedItem));
 		}
 	}, [selectedItem]);
-
-	if (!items) {
-		return null;
-	}
 
 	const onChangeVariable = (value: string, key: string) => {
 		const newVariables = { ...variables, [key]: { ...variables[key], value } };

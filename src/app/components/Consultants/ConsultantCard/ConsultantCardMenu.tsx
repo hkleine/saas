@@ -7,7 +7,7 @@ import { useContext } from 'react';
 import { FiDollarSign, FiEdit2, FiMenu, FiPlus, FiTrash, FiX } from 'react-icons/fi';
 import { AddConsultantModal, AdjustEarningModal, DeletionModal, UpdateConsultantModal } from '../../Modals';
 import { ConsultantMenuContext } from '../../Provider/ConsultantMenuProvider';
-import { RealTimeUserContext } from '../../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../../Provider/GlobalStoreProvider';
 
 interface ConsultantCardMenuProps {
 	consultant: ConsultantWithEarnings;
@@ -16,8 +16,7 @@ interface ConsultantCardMenuProps {
 }
 
 export function ConsultantCardMenu({ consultant, otherConsultants, roles }: ConsultantCardMenuProps) {
-	const user = useContext(RealTimeUserContext);
-
+	const user = useGlobalStateContext((s) => s.user);
 	const { setCloseMenuCallback, closeMenuCallback } = useContext(ConsultantMenuContext);
 	const { onOpen: onMenuOpen, isOpen: isMenuOpen, onClose: onMenuClose } = useDisclosure();
 	const { onOpen: onDeletionOpen, isOpen: isDeletionOpen, onClose: onDeleteionClose } = useDisclosure();

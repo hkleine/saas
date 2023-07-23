@@ -1,13 +1,13 @@
 'use client';
 import { isUserAllowed } from '@/utils/isUserAllowed';
 import { Button, Flex, useDisclosure } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
 import { ConsultantView, Roles } from '../../../types/types';
 import { Switch } from '../Atoms/Switch';
 import { AddConsultantModal } from '../Modals/AddConsultantModal';
 import { ConsultantMenuProvider } from '../Provider/ConsultantMenuProvider';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 import Consultants from './Consultants';
 import ConsultantsTable from './ConsultantsTable';
 
@@ -15,7 +15,7 @@ export default function ConsultantsContainer({ roles }: { roles: Roles }) {
 	const [viewType, setViewType] = useState<ConsultantView>('diagram');
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const user = useContext(RealTimeUserContext);
+	const user = useGlobalStateContext((s) => s.user);
 
 	if (!user) {
 		return null;

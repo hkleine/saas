@@ -1,10 +1,9 @@
 'use client';
 import { ConsultantWithEarnings, Roles } from '@/types/types';
 import { Card, Flex, Heading, HStack, Stack, Text } from '@chakra-ui/react';
-import { useContext } from 'react';
 import { Handle, Position } from 'reactflow';
 import { Avatar } from '../../AppShell/Avatar';
-import { RealTimeUserContext } from '../../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../../Provider/GlobalStoreProvider';
 import { ConsultantCardMenu } from './ConsultantCardMenu';
 import { ConsultantEarnings } from './ConsultantEarnings';
 import { ConsultantRevenueShare } from './ConsultantRevenueShare';
@@ -19,7 +18,7 @@ export function ConsultantCard({
 		roles: Roles;
 	};
 }) {
-	const user = useContext(RealTimeUserContext);
+	const user = useGlobalStateContext((s) => s.user);
 
 	if (!user) {
 		return null;

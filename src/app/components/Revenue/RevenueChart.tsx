@@ -4,10 +4,9 @@ import { ConsultantWithEarnings, StatisticType } from '@/types/types';
 import { getCertainMonthRevenue, getNumberOfItemsForCertainMonth } from '@/utils/getCurrentEarningFromConsultant';
 import { Card, Flex, Heading, HStack, Select } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { calculateDownlineEarnings } from '../Consultants/ConsultantCard/calculateDownlineEarnings';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const REVENUE_GRAPH_OPTIONS = {
@@ -17,8 +16,8 @@ const REVENUE_GRAPH_OPTIONS = {
 
 export function RevenueChart() {
 	const [statisticType, setStatisticType] = useState<StatisticType>(StatisticType.UMSATZ);
-	const user = useContext(RealTimeUserContext);
-	const consultants = useContext(RealTimeCompanyConsultantsContext)!;
+	const user = useGlobalStateContext((s) => s.user);
+	const consultants = useGlobalStateContext((s) => s.consultants);
 	const consultant = consultants.find((con) => con.id === user?.id)!;
 	const [graphTimeFrame, setGraphTimeFrame] = useState<keyof typeof REVENUE_GRAPH_OPTIONS>('lastSix');
 	const options = useApexChartOptions({

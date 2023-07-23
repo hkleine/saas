@@ -21,11 +21,10 @@ import {
 	Select,
 	useToast,
 } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FormError from '../Forms/FormError';
-import { RealTimeCompanyConsultantsContext } from '../Provider/RealTimeCompanyConsultantsProvider';
-import { RealTimeUserContext } from '../Provider/RealTimeUserProvider';
+import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 
 export default function ConsultantForm({
 	roles,
@@ -36,7 +35,7 @@ export default function ConsultantForm({
 	onClose: () => void;
 	uplineId?: string;
 }) {
-	const consultants = useContext(RealTimeCompanyConsultantsContext);
+	const consultants = useGlobalStateContext((s) => s.consultants);
 	const DEFAULT_ROLE = 3;
 	const potentialUplines = consultants?.filter((consultant) => consultant.role.id < DEFAULT_ROLE) ?? [];
 
@@ -53,7 +52,7 @@ export default function ConsultantForm({
 	});
 
 	const toast = useToast();
-	const user = useContext(RealTimeUserContext);
+	const user = useGlobalStateContext((s) => s.user);
 
 	if (!user) {
 		return null;
