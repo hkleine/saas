@@ -150,7 +150,7 @@ export default function ItemForm({ onClose, item }: { onClose: () => void; item?
 									Abbruch
 								</Button>
 							)}
-							<Button type="submit" isLoading={isSubmitting} isDisabled={!isDirty}>
+							<Button type="submit" isLoading={isSubmitting} isDisabled={!isDirty && variables === item?.variables}>
 								{item ? 'Speichern' : 'Hinzufügen'}
 							</Button>
 						</ModalFooter>
