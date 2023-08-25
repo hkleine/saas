@@ -205,11 +205,24 @@ function VariableEditor({
 		setVariables(newVariables);
 	};
 
+	const submit = ({ value, symbol }: { value: string; symbol: string }) => {
+		if (value === symbol || value === '') return;
+		delete Object.assign(variables, { [value]: variables[symbol] })[symbol];
+		setVariables(variables);
+		const oldEquation = getValues().equation;
+		const newEquation = oldEquation.replace(symbol, value);
+		setValue('equation', newEquation);
+	};
+
 	return (
 		<>
 			<Text>
 				Variablen <span style={{ color: 'red' }}>*</span>
 			</Text>
+			<Alert fontSize="sm" status="info" borderRadius="lg">
+				<AlertIcon />
+				Jede Gleichung benötigt eine Summe (y). Diese darf nicht entfernt werden.
+			</Alert>
 			{Object.entries(variables)
 				.sort(sortSumToStart)
 				.map(([symbol, object]) => {
@@ -220,13 +233,8 @@ function VariableEditor({
 								className={styles['symbol-editable']}
 								isDisabled={symbol === sumSymbol}
 								defaultValue={symbol}
-								onSubmit={(val) => {
-									if (val === symbol || val === '') return;
-									delete Object.assign(variables, { [val]: variables[symbol] })[symbol];
-									setVariables(variables);
-									const oldEquation = getValues().equation;
-									const newEquation = oldEquation.replace(symbol, val);
-									setValue('equation', newEquation);
+								onSubmit={(value) => {
+									submit({ value, symbol });
 								}}>
 								<EditablePreview className={styles['editable-preview']} />
 								<Input
@@ -246,6 +254,7 @@ function VariableEditor({
 								type="text"
 								defaultValue={object.name}
 								required
+								isReadOnly={symbol === sumSymbol}
 							/>
 							<IconButton
 								isDisabled={isNotDeletable}

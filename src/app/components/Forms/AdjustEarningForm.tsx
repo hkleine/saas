@@ -186,7 +186,7 @@ function ItemSelection({
 			<Container border="1px dashed" borderColor="gray.200" py={2} borderRadius={10}>
 				<Flex direction="column" gap={4}>
 					{Object.keys(variables).length !== 0 && (
-						<div>
+						<>
 							{Object.entries(variables)
 								.sort(sortSumToEnd)
 								.map(([key, values]) => {
@@ -219,7 +219,6 @@ function ItemSelection({
 													<GridItem>
 														<NumberInput
 															clampValueOnBlur={true}
-															precision={2}
 															min={0}
 															max={10000000}
 															w="full"
@@ -233,7 +232,7 @@ function ItemSelection({
 										</InputGroup>
 									);
 								})}
-						</div>
+						</>
 					)}
 				</Flex>
 			</Container>

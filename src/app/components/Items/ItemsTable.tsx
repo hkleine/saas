@@ -20,12 +20,13 @@ export function ItemsTable() {
 			size: 300,
 		}),
 		columnHelper.accessor('equation', {
-			header: () => 'Equation',
+			header: () => 'Gleichung',
 			cell: (info) => info.getValue(),
 			footer: (info) => info.column.id,
 			size: 300,
 		}),
 		columnHelper.accessor('variables', {
+			header: () => 'Variablen',
 			footer: (info) => info.column.id,
 			cell: (info) => (
 				<Flex direction="row" flexFlow="wrap" gap={2}>
