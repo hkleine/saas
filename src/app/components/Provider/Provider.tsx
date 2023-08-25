@@ -3,7 +3,8 @@ import { baseTheme, ChakraProvider, extendTheme, withDefaultColorScheme } from '
 import '@fontsource/poppins/400.css';
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
-import { useState } from 'react';
+import { MultiSelectTheme } from 'chakra-multiselect';
+import { PropsWithChildren, useState } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 
 const colors = {
@@ -21,6 +22,7 @@ const theme = extendTheme(
 		colors,
 		fonts,
 		components: {
+			MultiSelect: MultiSelectTheme,
 			Button: {
 				baseStyle: {
 					fontWeight: 'normal',
@@ -40,7 +42,7 @@ const theme = extendTheme(
 	}),
 );
 
-export default function Provider({ children }: { children: React.ReactNode }) {
+export default function Provider({ children }: PropsWithChildren) {
 	const [supabaseClient] = useState(() => createBrowserSupabaseClient());
 
 	return (

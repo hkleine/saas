@@ -8,6 +8,7 @@ export function RealTimeCompanyConsultantsProvider({ children }: { children?: Re
 	const setConsultants = useGlobalStateContext((s) => s.setConsultants);
 	const user = useGlobalStateContext((s) => s.user);
 	const stateConsultants = useGlobalStateContext((s) => s.consultants);
+	const stateItems = useGlobalStateContext((s) => s.items);
 
 	const companyId = getCompanyId(user);
 
@@ -32,8 +33,10 @@ export function RealTimeCompanyConsultantsProvider({ children }: { children?: Re
 			console.log('new earning');
 			const newConsultants = consultants.map((consultant) => {
 				if (consultant.id === payload.new.consultant_id) {
+					const item = stateItems.find((stateItem) => stateItem.id === payload.new.item_id);
 					return {
 						...consultant,
+						item: item,
 						earnings: [...consultant.earnings, payload.new],
 					};
 				}

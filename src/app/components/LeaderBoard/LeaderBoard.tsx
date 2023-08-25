@@ -1,5 +1,6 @@
 import { ConsultantWithEarnings, StatisticType } from '@/types/types';
 import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
+import { getNumberOfItemsForCertainMonth } from '@/utils/getCurrentEarningFromConsultant';
 import {
 	Badge,
 	Card,
@@ -103,16 +104,19 @@ function ConsultantStatisticNumber({
 	consultant: ConsultantWithEarnings;
 }) {
 	const { currentMonthRevenue } = getConsultantRevenueNumbers({ consultant });
+	const { currentDate } = getCurrentAndPreviousMonth();
+	const currentMonthNumberOfEarnings = getNumberOfItemsForCertainMonth({ consultant, date: currentDate });
 	return (
 		<>
-			{boardStatistic === StatisticType.EINHEITEN ? consultant.earnings.length : currentMonthRevenue.toFixed(2) + '€'}
+			{boardStatistic === StatisticType.EINHEITEN ? currentMonthNumberOfEarnings : currentMonthRevenue.toFixed(2) + '€'}
 		</>
 	);
 }
 
 function sortByEinheiten(a: ConsultantWithEarnings, b: ConsultantWithEarnings) {
-	const aNumberEarnings = a.earnings.length;
-	const bNumberEarnings = b.earnings.length;
+	const { currentDate } = getCurrentAndPreviousMonth();
+	const aNumberEarnings = getNumberOfItemsForCertainMonth({ consultant: a, date: currentDate });
+	const bNumberEarnings = getNumberOfItemsForCertainMonth({ consultant: b, date: currentDate });
 
 	if (aNumberEarnings < bNumberEarnings) {
 		return 1;

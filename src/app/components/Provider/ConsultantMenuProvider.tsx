@@ -1,5 +1,5 @@
 import { noop } from 'lodash';
-import React, { createContext, ReactNode, useState } from 'react';
+import React, { createContext, PropsWithChildren, useState } from 'react';
 
 export const ConsultantMenuContext = createContext<{
 	closeMenuCallback: typeof noop;
@@ -9,7 +9,7 @@ export const ConsultantMenuContext = createContext<{
 	setCloseMenuCallback: noop,
 });
 
-export const ConsultantMenuProvider = ({ children }: { children: ReactNode }) => {
+export const ConsultantMenuProvider = ({ children }: PropsWithChildren) => {
 	const intialFunction = noop;
 	const [closeMenuCallback, setCloseMenuCallback] = useState<(event: any) => void>(intialFunction);
 

@@ -1,6 +1,7 @@
 import {
 	ConsultantWithEarnings,
 	DatabaseEarnings,
+	DealWithItems,
 	Item,
 	Roles,
 	SubscriptionWithPriceAndProduct,
@@ -99,7 +100,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | 
 
 	const { data, error } = await supabase
 		.from('consultants')
-		.select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
+		.select('*, earnings(*, item:items(*)), users!consultants_id_fkey(*, role:role(*))')
 		.or(`company_id.eq.${companyId},id.eq.${companyId}`);
 
 	if (error) {
@@ -109,6 +110,24 @@ export async function getConsultants(): Promise<Array<ConsultantWithEarnings> | 
 
 	const consultant = convertConsultants({ consultantData: data, user });
 	return consultant;
+}
+
+export async function getConsultantDeals(): Promise<Array<DealWithItems>> {
+	const supabase = createClient();
+
+	const user = await getUser();
+	if (!user) {
+		return [];
+	}
+
+	const { data, error } = await supabase.from('deals').select('*, items(*)').eq('consultant_id', user.id);
+	console.log(data);
+	if (error) {
+		console.log(error.message);
+		return [];
+	}
+
+	return data as Array<DealWithItems>;
 }
 
 export async function getRoles(): Promise<Roles | null> {

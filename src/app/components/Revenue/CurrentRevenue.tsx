@@ -126,7 +126,8 @@ function ChangeStat({
 }
 
 function getPercentDifference(currentValue: number, previousValue: number): number {
-	if (currentValue === 0 && previousValue === 0) return 0;
+	if (currentValue === 0) return 0;
+
 	return Math.round(((currentValue - previousValue) / currentValue) * 100);
 }
 

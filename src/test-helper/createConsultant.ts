@@ -18,12 +18,20 @@ export function createConsultant({
 		id: v4(),
 		company_id: companyId,
 		name,
+		email: 'bla@bla.de',
 		percent,
 		role,
 		upline,
 		earnings: [
 			{
-				item_id: 'some-item-id',
+				item: {
+					id: 'some-item-id',
+					company_id: 'some-company',
+					created_at: 'today',
+					equation: 'y=2*x',
+					name: 'first-earning',
+					variables: { x: 'moin', y: 'moin2' },
+				},
 				date: new Date().toString(),
 				id: 'some-earning-id',
 				value: 100,

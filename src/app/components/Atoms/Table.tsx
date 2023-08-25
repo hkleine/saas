@@ -1,4 +1,4 @@
-import React, { Dispatch, useEffect } from 'react';
+import React, { CSSProperties, Dispatch, useEffect } from 'react';
 
 import {
 	Box,
@@ -23,6 +23,7 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	Row,
 	SortingState,
 	useReactTable,
 } from '@tanstack/react-table';
@@ -32,10 +33,12 @@ export function CustomTable<TData>({
 	data,
 	columns,
 	title,
+	getRowStyles,
 }: {
 	title?: string;
 	data: Array<TData>;
 	columns: Array<ColumnDef<TData, any>>;
+	getRowStyles?: (row: Row<TData>) => CSSProperties;
 }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [globalFilter, setGlobalFilter] = React.useState('');
@@ -83,7 +86,7 @@ export function CustomTable<TData>({
 										colSpan={header.colSpan}
 										style={{ width: header.getSize() === Number.MAX_SAFE_INTEGER ? 'auto' : header.getSize() }}>
 										{header.isPlaceholder ? null : (
-											<Flex>
+											<Flex gap={2} alignItems="center">
 												{flexRender(header.column.columnDef.header, header.getContext())}
 												{header.column.getCanSort() ? (
 													<Box
@@ -114,7 +117,7 @@ export function CustomTable<TData>({
 				<Tbody>
 					{table.getRowModel().rows.map((row) => {
 						return (
-							<Tr key={row.id}>
+							<Tr style={getRowStyles && getRowStyles(row)} key={row.id}>
 								{row.getVisibleCells().map((cell) => {
 									return (
 										<Td

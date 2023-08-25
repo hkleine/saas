@@ -93,8 +93,13 @@ export type BaseConsultant = Omit<DatabaseConsultant, 'role'> & {
 };
 
 export type ConsultantWithEarnings = BaseConsultant & {
-	earnings: Array<Omit<DatabaseEarnings, 'consultant_id'>>;
+	email: DatabaseUser['email'];
+	earnings: Array<Omit<Earning, 'consultant_id'>>;
 	concealed?: true;
+};
+
+export type Earning = Omit<DatabaseEarnings, 'consultant_id' | 'item_id'> & {
+	item: DatabaseItem;
 };
 
 export type Roles = Array<Database['public']['Tables']['roles']['Row']>;
@@ -113,3 +118,17 @@ export enum StatisticType {
 	EINHEITEN = 'Einheiten',
 	UMSATZ = 'Umsatz',
 }
+
+// TODO remove wenn the database type geupdatet ist
+export type DatabaseDeal = {
+	id: string;
+	name: string | null;
+	consultant_id: string;
+	created_at: string;
+	status: string | null;
+	description: string | null;
+};
+
+export type DealWithItems = DatabaseDeal & {
+	items: Array<Item>;
+};

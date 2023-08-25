@@ -1,9 +1,9 @@
 'use client';
 import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { useRouter } from 'next/navigation';
-import { ReactNode, useEffect } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 
-export default function AuthWrapper({ children }: { children: ReactNode }) {
+export default function AuthWrapper({ children }: PropsWithChildren) {
 	const supabaseClient = useSupabaseClient();
 	const router = useRouter();
 	useEffect(() => {

@@ -2,7 +2,9 @@ import { Database } from '@/types/supabase';
 import { createBrowserSupabaseClient, User } from '@supabase/auth-helpers-nextjs';
 import {
 	ConsultantWithEarnings,
+	DatabaseDeal,
 	DatabaseEarnings,
+	DealWithItems,
 	Item,
 	ProductWithPrice,
 	Roles,
@@ -124,6 +126,17 @@ export function subscribeToUser(userId: string, callback: (paylod: { [key: strin
 		.subscribe();
 }
 
+export function subscribeToDeals(userId: string, callback: (paylod: { [key: string]: any }) => void) {
+	return supabase
+		.channel('deal-changes')
+		.on(
+			'postgres_changes',
+			{ event: '*', schema: 'public', table: 'deals', filter: `consultant_id=eq.${userId}` },
+			callback,
+		)
+		.subscribe();
+}
+
 export function subscribeToItems(companyId: string, callback: (paylod: { [key: string]: any }) => void) {
 	return supabase
 		.channel('item-changes')
@@ -215,7 +228,7 @@ export async function getConsultants(): Promise<Array<ConsultantWithEarnings>> {
 
 	const { data, error } = await supabase
 		.from('consultants')
-		.select('*, earnings(*), users!consultants_id_fkey(*, role:role(*))')
+		.select('*, earnings(*, item:items(*))), users!consultants_id_fkey(*, role:role(*))')
 		.or(`company_id.eq.${companyId},id.eq.${companyId}`);
 
 	if (error) {
@@ -244,6 +257,36 @@ export async function createEarning(earning: Omit<DatabaseEarnings, 'date' | 'id
 	const { error } = await supabase.from('earnings').insert(earning);
 	if (error) throw error;
 	return null;
+}
+
+export async function createDeal({ deal, items }: { deal: Partial<DatabaseDeal>; items: Array<string | number> }) {
+	const { error } = await supabase.from('deals').insert(deal);
+	if (error) throw error;
+
+	if (items.length > 0) {
+		const promises = items.map((item) => {
+			return supabase.from('deal_items').insert({ deal_id: deal.id, item_id: item });
+		});
+		await Promise.all(promises);
+	}
+
+	return null;
+}
+
+export async function getDeals(): Promise<Array<DatabaseDeal> | null> {
+	const user = await getUser();
+
+	if (!user) {
+		return [];
+	}
+
+	const { data, error } = await supabase.from('deals').select('*').eq('consultant_id', user.id);
+	if (error) {
+		console.log(error.message);
+		return null;
+	}
+
+	return data as any;
 }
 
 export async function getRoles(): Promise<Roles | null> {
@@ -293,6 +336,22 @@ export async function getCompanyItems(): Promise<Array<Item>> {
 	}
 
 	return data as Array<Item>;
+}
+
+export async function getConsultantDeals(): Promise<Array<DealWithItems>> {
+	const user = await getUser();
+	if (!user) {
+		return [];
+	}
+
+	const { data, error } = await supabase.from('deals').select('*, items(*)').eq('consultant_id', user.id);
+	console.log(data);
+	if (error) {
+		console.log(error.message);
+		return [];
+	}
+
+	return data as Array<DealWithItems>;
 }
 
 export async function deleteItem(id: string) {

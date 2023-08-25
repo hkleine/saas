@@ -25,7 +25,7 @@ export function convertConsultants({
 
 		return {
 			...omit(consultant, ['users', 'earnings']),
-			email: user.email,
+			email: consultant.users.email,
 			avatar_url,
 			name,
 			role,

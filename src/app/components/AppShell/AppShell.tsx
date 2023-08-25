@@ -1,11 +1,11 @@
 'use client';
 import { Box, Drawer, DrawerContent, Flex, useDisclosure } from '@chakra-ui/react';
 import '@fontsource/poppins';
-import { ReactNode } from 'react';
+import { PropsWithChildren } from 'react';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
 
-export default function AppShell({ children }: { children: ReactNode }) {
+export default function AppShell({ children }: PropsWithChildren) {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	return (
