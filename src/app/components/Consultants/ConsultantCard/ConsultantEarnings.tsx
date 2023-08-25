@@ -1,7 +1,7 @@
 import { ConsultantWithEarnings } from '@/types/types';
 import { getCurrentAndPreviousMonth } from '@/utils/getCurrentAndPrviousMonth';
 import { getCertainMonthRevenue } from '@/utils/getCurrentEarningFromConsultant';
-import { Flex, Stat, StatArrow, StatHelpText, StatLabel, StatNumber } from '@chakra-ui/react';
+import { Flex, Stat, StatLabel, StatNumber } from '@chakra-ui/react';
 import { FiEyeOff } from 'react-icons/fi';
 
 interface ConsultantEarningsProps {
@@ -21,13 +21,13 @@ export function ConsultantEarnings({ consultant }: ConsultantEarningsProps) {
 				<FiEyeOff />
 			) : (
 				<Flex direction="column">
-					<StatNumber>{currentEarning.toFixed(2)}€</StatNumber>
-					{uplineLevy > 0 ? (
+					<StatNumber>{(currentEarning - uplineLevy).toFixed(2)}€</StatNumber>
+					{/* {uplineLevy > 0 ? (
 						<StatHelpText whiteSpace="nowrap">
 							<StatArrow type="decrease" />
 							{uplineLevy.toFixed(2)}€
 						</StatHelpText>
-					) : null}
+					) : null} */}
 				</Flex>
 			)}
 		</Stat>
