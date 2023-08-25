@@ -14,14 +14,14 @@ export function ItemsTable() {
 	const columnHelper = createColumnHelper<Item>();
 	const columns = [
 		columnHelper.accessor('name', {
-			header: () => <>Name</>,
+			header: () => 'Name',
 			cell: (info) => info.getValue(),
 			footer: (info) => info.column.id,
 			size: 300,
 		}),
-		columnHelper.accessor((row) => row.equation, {
-			id: 'equation',
-			header: () => <span>Equation</span>,
+		columnHelper.accessor('equation', {
+			header: () => 'Equation',
+			cell: (info) => info.getValue(),
 			footer: (info) => info.column.id,
 			size: 300,
 		}),

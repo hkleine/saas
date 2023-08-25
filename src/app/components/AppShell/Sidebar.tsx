@@ -2,7 +2,7 @@ import { isUserAllowed } from '@/utils/isUserAllowed';
 import { Box, BoxProps, CloseButton, Flex } from '@chakra-ui/react';
 import { isUndefined } from 'lodash';
 import { IconType } from 'react-icons';
-import { FiCreditCard, FiFile, FiHome, FiUsers } from 'react-icons/fi';
+import { FiClock, FiCreditCard, FiFile, FiHome, FiList, FiUsers } from 'react-icons/fi';
 import { useGlobalStateContext } from '../Provider/GlobalStoreProvider';
 import { Logo } from './Logo';
 import { NavItem } from './NavItem';
@@ -21,6 +21,8 @@ const LinkItems: Array<LinkItemProps> = [
 	{ name: 'Home', icon: FiHome, href: '/dashboard' },
 	{ name: 'Berater', icon: FiUsers, href: '/dashboard/consultants' },
 	{ name: 'Produkte', icon: FiFile, href: '/dashboard/products', minimalRoleRequired: 1 },
+	{ name: 'Pipeline', icon: FiList, href: '/dashboard/pipeline' },
+	{ name: 'Historie', icon: FiClock, href: '/dashboard/historie' },
 	{ name: 'Abonnement', icon: FiCreditCard, href: '/dashboard/billing', minimalRoleRequired: 0 },
 ];
 

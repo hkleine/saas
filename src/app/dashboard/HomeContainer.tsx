@@ -16,6 +16,7 @@ export function HomeContainer() {
 			<GridItem colSpan={2}>
 				<LeaderBoard />
 			</GridItem>
+			<GridItem colSpan={2}></GridItem>
 		</Grid>
 	);
 }

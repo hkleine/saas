@@ -23,7 +23,7 @@ import {
 	useColorModeValue,
 	VStack,
 } from '@chakra-ui/react';
-import { ReactNode, useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import { FiCheckCircle } from 'react-icons/fi';
 import Stripe from 'stripe';
 import { Switch } from '../Atoms/Switch';
@@ -196,7 +196,7 @@ function PlanCard({ product, billingInterval }: { product: ProductWithPrice; bil
 	);
 }
 
-function PriceWrapper({ children }: { children: ReactNode }) {
+function PriceWrapper({ children }: PropsWithChildren) {
 	return (
 		<Box
 			mb={4}
